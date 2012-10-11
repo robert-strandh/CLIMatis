@@ -1,0 +1,8 @@
+CLIM II input handling. 
+
+In 8.1, the spec says that a sheet either participates fully in the
+input protocol (which I take to mean that that any function in the
+input protocol can be called with such a sheet as an argument), or is
+mute for input, which means that if any function in the input protocol
+is called on such a sheet, and error is signaled.
+
