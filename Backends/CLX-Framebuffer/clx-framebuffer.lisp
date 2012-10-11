@@ -1,5 +1,7 @@
 (in-package #:clim3-clx-framebuffer)
 
+(defparameter *port* nil)
+
 (defclass clx-framebuffer-port (clim3-port:port)
   ((%display :accessor display)
    (%screen :accessor screen)
@@ -326,8 +328,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Handling events.
-
-(defparameter *port* nil)
 
 (defun event-handler (&rest event-slots &key display event-key send-event-p
 		      &allow-other-keys)
