@@ -189,6 +189,34 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function GIVES-VALID-P.
+;;;
+;;; This function returns true if and only if the gives of the zone
+;;; are valid.  
+;;;
+;;; The default method (specialized for ZONE) returns false if and
+;;; only if either the hgive and the vgive (or both) of the zone are
+;;; NIL.
+
+(defgeneric gives-valid-p (zone))
+
+(defmethod gives-valid-p ((zone zone))
+  (and (not (null (hgive zone))) (not (null (vgive zone)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function MARK-GIVES-INVALID.
+;;;
+;;; This function marks the zone as having invalid gives. 
+;;;
+;;; Differnet subclasses of ZONE do this differently.  Some set both
+;;; the hgive and the vgive to NIL.  Some others set one but not the
+;;; other.  Some may use a completely different mechanism.  
+
+(defgeneric mark-gives-invalid (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic function NOTIFY-CHILD-GIVES-INVALID.
 ;;;
 ;;; This function is called on a child and a parent when the gives of
@@ -229,12 +257,6 @@
 ;;; parent.
 
 (defgeneric invalidate-gives (zone))
-
-(defmethod invalidate-gives ((zone zone))
-  (unless (and (null (hgive zone)) (null (vgive zone)))
-    (setf (hgive zone) nil)
-    (setf (vgive zone) nil)
-    (notify-child-gives-invalid zone (parent zone))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -441,25 +463,78 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class DEPENDENT-GIVES-MIXIN.
-;;; Class INDEPENDENT-GIVES-MIXIN.
-;;;
-;;; Exactly one of these classes should be mixed into any compound
-;;; zone.  They each supply one method on NOTIFY-CHILD-GIVES-INVALID,
-;;; specializing the PARENT parameter.  The method specialized for
-;;; DEPENDENT-GIVES-MIXIN calls INVALIDATE-GIVES, and the method
-;;; specialized for INDEPENDENT-GIVES-MIXIN does nothing. 
 
 (defclass dependent-gives-mixin () ())
+
+(defmethod mark-gives-invalid ((zone dependent-gives-mixin))
+  (setf (hgive zone) nil)
+  (setf (vgive zone) nil))
 
 (defmethod notify-child-gives-invalid ((child zone)
 				       (parent dependent-gives-mixin))
   (invalidate-gives parent))
 
+(defmethod invalidate-gives ((zone dependent-gives-mixin))
+  (when (gives-valid-p zone)
+    (mark-gives-invalid zone)
+    (notify-child-gives-invalid zone (parent zone))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class HDEPENDENT-GIVES-MIXIN.
+
+(defclass hdependent-gives-mixin () ())
+
+(defmethod mark-gives-invalid ((zone hdependent-gives-mixin))
+  (setf (hgive zone) nil))
+
+(defmethod notify-child-gives-invalid ((child zone)
+				       (parent hdependent-gives-mixin))
+  (invalidate-gives parent))
+
+(defmethod invalidate-gives ((zone dependent-gives-mixin))
+  (when (gives-valid-p zone)
+    (mark-gives-invalid zone)
+    (notify-child-gives-invalid zone (parent zone))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VDEPENDENT-GIVES-MIXIN.
+
+(defmethod mark-gives-invalid ((zone hdependent-gives-mixin))
+  (setf (hgive zone) nil))
+
+(defclass vdependent-gives-mixin () ())
+
+(defmethod notify-child-gives-invalid ((child zone)
+				       (parent vdependent-gives-mixin))
+  (invalidate-gives parent))
+
+(defmethod invalidate-gives ((zone dependent-gives-mixin))
+  (when (gives-valid-p zone)
+    (mark-gives-invalid zone)
+    (notify-child-gives-invalid zone (parent zone))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class INDEPENDENT-GIVES-MIXIN.
+
 (defclass independent-gives-mixin () ())
+
+(defmethod mark-gives-invalid ((zone independent-gives-mixin))
+  (error "Attempt to marks as invalid the gives of an independent zone ~s"
+	 zone))
 
 (defmethod notify-child-gives-invalid ((child zone)
 				       (parent independent-gives-mixin))
   nil)
+
+(defmethod clim3-zone:combine-child-gives ((zone independent-gives-mixin))
+  nil)
+
+(defmethod invalidate-gives ((zone independent-gives-mixin))
+  (error "Attempt to invalidate gives of an independent zone ~s"
+	 zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
