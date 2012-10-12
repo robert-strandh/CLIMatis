@@ -24,6 +24,30 @@
 	(error "A zone was expected ~s" (car result))))
     result))
 
+;;; For now, this is a duplication of the one in Zone/zone.lisp
+(defun proper-list-p (object)
+  (let ((cells '())
+	(rest object))
+    (loop until (atom rest)
+	  do (if (member rest cells :test #'eq)
+		 (return-from proper-list-p nil)
+		 (progn (push rest cells)
+			(pop rest))))
+    (null rest)))
+
+(defun coerce-to-list-of-zones (thing)
+  (let ((result
+	  (cond ((proper-list-p thing)
+		 thing)
+		((vectorp thing)
+		 (coerce thing 'list))
+		(t
+		 (error "A proper sequence required ~s" thing)))))
+    (loop for element in result
+	  do (unless (clim3-zone:zone-p element)
+	       (error "a zone was expected ~s" element)))
+    result))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class VBOX. 
@@ -52,10 +76,10 @@
 	  do (clim3-zone:impose-layout child 0 vpos width height))))
 
 (defun vbox (children)
-  (make-instance 'vbox :children children))
+  (make-instance 'vbox :children (coerce-to-list-of-zones children)))
 
 (defun vbox* (&rest children)
-  (make-instance 'vbox :children children))
+  (make-instance 'vbox :children (coerce-to-list-of-zones children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -85,10 +109,10 @@
 	  do (clim3-zone:impose-layout child hpos 0 width height))))
 
 (defun hbox (children)
-  (make-instance 'hbox :children children))
+  (make-instance 'hbox :children (coerce-to-list-of-zones children)))
 
 (defun hbox* (&rest children)
-  (make-instance 'hbox :children children))
+  (make-instance 'hbox :children (coerce-to-list-of-zones children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -114,10 +138,10 @@
 	  do (clim3-zone:impose-layout child 0 0 width height))))
 
 (defun pile (children)
-  (make-instance 'pile :children children))
+  (make-instance 'pile :children (coerce-to-list-of-zones children)))
 
 (defun pile* (&rest children)
-  (make-instance 'pile :children children))
+  (make-instance 'pile :children (coerce-to-list-of-zones children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -196,10 +220,10 @@
 	      width height))))
 
 (defun bboard (children)
-  (make-instance 'bboard :children children))
+  (make-instance 'bboard :children (coerce-to-list-of-zones children)))
 
 (defun bboard* (&rest children)
-  (make-instance 'bboard :children children))
+  (make-instance 'bboard :children (coerce-to-list-of-zones children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
