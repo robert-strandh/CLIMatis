@@ -1,3 +1,5 @@
+(require :split-sequence)
+
 (defparameter *p* (clim3-port:make-port :clx-framebuffer))
 
 (defparameter *z*
