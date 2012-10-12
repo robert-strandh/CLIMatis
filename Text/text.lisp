@@ -8,14 +8,9 @@
 
 (defclass text (clim3-graphics:monochrome)
   ((%style :initarg :style :reader style)
-   (%chars :initform (make-array 5 :element-type 'character
-				   :fill-pointer 0
-				   :adjustable t)
-	   :reader chars)))
-
-(defmethod initialize-instance :after ((zone text) &key (chars ""))
-  (loop for char across chars
-	do (vector-push-extend char (chars zone))))
+   (%chars :initarg :chars
+	   :initform (make-array 0 :element-type 'character)
+	   :accessor chars)))
 
 (defmethod clim3-zone:compute-gives ((zone text))
   (setf (clim3-zone:hgive zone)
