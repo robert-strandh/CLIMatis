@@ -315,59 +315,6 @@
   ((%children :initarg :children :accessor children)
    (%depth-ordered-children :initform nil :accessor depth-ordered-children)))
 
-;;; Around method for (SETF CHILDREN)
-;;; This around method is charged with a few things:
-;;;
-;;;  * Check that no new child already has a parent.
-;;;
-;;;  * Set the parent of every removed child to NIL.
-;;;
-;;;  * Destroy the depth-ordered vector of children.
-;;;
-;;;  * Notify the client of changes in parent-child relations.
-
-(defmethod (setf children) :around (new-children (zone compound-zone))
-  (let ((children-before (children zone))
-	(client (client zone))
-	(table-children-before (make-hash-table :test #'eq))
-	(table-children-after (make-hash-table :test #'eq)))
-    ;; Fill the table with the current children of the zone.
-    (map-over-children (lambda (child) 
-			 (setf (gethash child table-children-before) t))
-		       zone)
-    ;; Set the new children.
-    (call-next-method)
-    ;; Fill the table with the new children of the zone.
-    (map-over-children (lambda (child) 
-			 (setf (gethash child table-children-after) t))
-		       zone)
-    ;; Check that no new child already has a parent.
-    (maphash (lambda (new-child value)
-	       (declare (ignore value))
-	       (unless (gethash new-child table-children-before)
-		 (unless (null (parent new-child))
-		   ;; Restore the old children.
-		   (call-next-method children-before zone)
-		   (error "Attemps to add a child that already has a parent ~s."
-			  new-child))))
-	     table-children-after)
-    ;; Destroy the depth-ordered vector of children.
-    (setf (depth-ordered-children zone) nil)
-    ;; Set parent of new children, and call NOTIFY-CONNECT.
-    (maphash (lambda (new-child value)
-	       (declare (ignore value))
-	       (unless (gethash new-child table-children-before)
-		 (setf (parent new-child) zone)
-		 (notify-connect client new-child zone)))
-	     table-children-after)
-    ;; Set the parent of removed children to nil, and call
-    ;; NOTIFY-DISCONNECT.
-    (maphash (lambda (old-child value)
-	       (declare (ignore value))
-	       (unless (gethash old-child table-children-after)
-		 (setf (parent old-child) nil)
-		 (notify-disconnect client old-child zone)))
-	     table-children-before)))
 
 (defun ensure-depth-ordered-children (zone)
   (when (null (depth-ordered-children zone))
@@ -513,7 +460,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Classes DEPENDENT-GIVES-MIXIN and INDEPENDENT-GIVES-MIXIN.
+;;; Class DEPENDENT-GIVES-MIXIN.
+;;; Class INDEPENDENT-GIVES-MIXIN.
 ;;;
 ;;; Exactly one of these classes should be mixed into any compound
 ;;; zone.  They each supply one method on NOTIFY-CHILD-GIVES-INVALID,
@@ -533,4 +481,142 @@
 				       (parent independent-gives-mixin))
   nil)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class AT-MOST-ONE-CHILD-MIXIN.
+;;; Class ANY-NUMBER-OF-CHILDREN-MIXIN.
+;;;
+;;; Exactly one of these classes shoudl be mixed into any compound
+;;; zone.
 
+(defclass at-most-one-child-mixin () ())
+
+;;; Around method for (SETF CHILDREN)
+;;; This around method is charged with a few things:
+;;;
+;;;  * Check that the children is a sequence of at most one element.
+;;;
+;;;  * Check that no new child already has a parent.
+;;;
+;;;  * Set the parent of every removed child to NIL.
+;;;
+;;;  * Notify the client of changes in parent-child relations.
+
+(defmethod (setf children) :around
+  (new-children (zone at-most-one-child-mixin))
+  (let ((children-before (children zone)))
+    (unless (null children-before)
+      (setf (parent (car children-before) nil))
+      (notify-disconnect (client zone) (car children-before) zone)))
+  (let ((children-after
+	  (cond ((or (null new-children)
+		     (and (consp new-children) (null (cdr new-children))))
+		 new-children)
+		((consp new-children)
+		 (error "List must be a proper list of length at most 1: ~s"
+			new-children))
+		((vectorp new-children)
+		 (case (length new-children)
+		   (0 '())
+		   (1 (list (aref new-children 0)))
+		   (t (error "Vector must have at most one element"))))
+		(t
+		 (error "Children must be a proper sequence of length at most 1 ~s"
+			new-children)))))
+    (unless (null children-after)
+      (unless (null (parent (car children-after)))
+	(error "Attempt to connect a zone that is already connected ~s"
+	       (car children-after)))
+      (unless (zone-p (car children-after))
+	(error "Child must be a zone: ~s" (car children-after)))
+      (notify-connect (client zone) (car children-after) zone))
+    (call-next-method children-after)))
+
+(defmethod map-over-children-top-to-bottom
+    (function (zone at-most-one-child-mixin))
+  (unless (null (children zone))
+    (funcall function (car (children zone)))))
+
+(defmethod map-over-children-bottom-to-top
+    (function (zone at-most-one-child-mixin))
+  (unless (null (children zone))
+    (funcall function (car (children zone)))))
+
+(defclass any-number-of-children-mixin ()
+  ((%depth-ordered-children :initform nil :accessor depth-ordered-children)))
+
+;;; Around method for (SETF CHILDREN)
+;;; This around method is charged with a few things:
+;;;
+;;;  * Check that no new child already has a parent.
+;;;
+;;;  * Set the parent of every removed child to NIL.
+;;;
+;;;  * Destroy the depth-ordered vector of children.
+;;;
+;;;  * Notify the client of changes in parent-child relations.
+
+(defmethod (setf children) :around
+  (new-children (zone any-number-of-children-mixin))
+  (let ((children-before (children zone))
+	(client (client zone))
+	(table-children-before (make-hash-table :test #'eq))
+	(table-children-after (make-hash-table :test #'eq)))
+    ;; Fill the table with the current children of the zone.
+    (map-over-children (lambda (child) 
+			 (setf (gethash child table-children-before) t))
+		       zone)
+    ;; Set the new children.
+    (call-next-method)
+    ;; Fill the table with the new children of the zone.
+    (map-over-children (lambda (child) 
+			 (setf (gethash child table-children-after) t))
+		       zone)
+    ;; Check that no new child already has a parent.
+    (maphash (lambda (new-child value)
+	       (declare (ignore value))
+	       (unless (gethash new-child table-children-before)
+		 (unless (null (parent new-child))
+		   ;; Restore the old children.
+		   (call-next-method children-before zone)
+		   (error "Attemps to add a child that already has a parent ~s."
+			  new-child))))
+	     table-children-after)
+    ;; Destroy the depth-ordered vector of children.
+    (setf (depth-ordered-children zone) nil)
+    ;; Set parent of new children, and call NOTIFY-CONNECT.
+    (maphash (lambda (new-child value)
+	       (declare (ignore value))
+	       (unless (gethash new-child table-children-before)
+		 (setf (parent new-child) zone)
+		 (notify-connect client new-child zone)))
+	     table-children-after)
+    ;; Set the parent of removed children to nil, and call
+    ;; NOTIFY-DISCONNECT.
+    (maphash (lambda (old-child value)
+	       (declare (ignore value))
+	       (unless (gethash old-child table-children-after)
+		 (setf (parent old-child) nil)
+		 (notify-disconnect client old-child zone)))
+	     table-children-before)))
+
+(defun ensure-depth-ordered-children (zone)
+  (when (null (depth-ordered-children zone))
+    (let ((children '()))
+      (map-over-children (lambda (child) (push child children)) zone)
+      (setf (depth-ordered-children zone)
+	    (sort (coerce children 'vector) #'< :key #'depth)))))
+
+(defmethod map-over-children-top-to-bottom
+    (function (zone any-number-of-children-mixin))
+  (ensure-depth-ordered-children zone)
+  (let ((depth-ordered-children (depth-ordered-children zone)))
+    (loop for i from 0 below (length depth-ordered-children)
+	  do (funcall function (aref depth-ordered-children i)))))
+
+(defmethod map-over-children-bottom-to-top
+    (function (zone any-number-of-children-mixin))
+  (ensure-depth-ordered-children zone)
+  (let ((depth-ordered-children (depth-ordered-children zone)))
+    (loop for i downfrom (1- (length depth-ordered-children)) to 0
+	  do (funcall function (aref depth-ordered-children i)))))

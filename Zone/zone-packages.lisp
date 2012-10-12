@@ -27,4 +27,6 @@
    #:compound-sequence-zone
    #:dependent-gives-mixin
    #:independent-gives-mixin
+   #:at-most-one-child-mixin
+   #:any-number-of-children-mixin
    ))
