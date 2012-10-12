@@ -6,7 +6,6 @@
    #:pile #:pile*
    #:grid
    #:bboard #:bboard*
-   #:sponge
-   #:vbrick
-   #:hbrick
+   #:sponge #:sponge* #:hsponge #:hsponge* #:vsponge  #:vsponge*
+   #:brick #:brick* #:hbrick #:hbrick* #:vbrick #:vbrick*
    ))

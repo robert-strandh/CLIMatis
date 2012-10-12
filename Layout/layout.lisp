@@ -2,7 +2,31 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Vbox 
+;;; Utilities
+
+(defun coerce-to-list-of-at-most-one-zone (thing)
+  (let ((result
+	  (cond ((or (null thing) (and (consp thing) (null (cdr thing))))
+		 thing)
+		((consp thing)
+		 (error "The list can have at most one element ~s"
+			thing))
+		((and (vectorp thing) (< (length thing) 2))
+		 (coerce thing 'list))
+		((vectorp thing)
+		 (error "The vector can have at most one element ~s"
+			thing))
+		(t
+		 (error "A proper sequence of length at most 1 required ~s"
+			thing)))))
+    (unless (null result)
+      (unless (clim3-zone:zone-p (car result))
+	(error "A zone was expected ~s" (car result))))
+    result))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VBOX. 
 
 (defclass vbox (clim3-zone:compound-sequence-zone
 		clim3-zone:dependent-gives-mixin
@@ -10,12 +34,12 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone vbox))
-  (setf (clim3-zone:vgive zone)
-	(rigidity:combine-in-series
-	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone))))
   (setf (clim3-zone:hgive zone)
 	(rigidity:combine-in-parallel
-	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone)))))
+	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone))))
+  (setf (clim3-zone:vgive zone)
+	(rigidity:combine-in-series
+	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))))
   
 (defmethod clim3-zone:impose-layout ((zone vbox) hpos vpos width height)
   (declare (ignore hpos vpos))
@@ -35,7 +59,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Hbox 
+;;; Class HBOX.
 
 (defclass hbox (clim3-zone:compound-sequence-zone
 		clim3-zone:dependent-gives-mixin
@@ -43,12 +67,12 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone hbox))
-  (setf (clim3-zone:vgive zone)
-	(rigidity:combine-in-parallel
-	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone))))
   (setf (clim3-zone:hgive zone)
 	(rigidity:combine-in-series
-	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone)))))
+	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone))))
+  (setf (clim3-zone:vgive zone)
+	(rigidity:combine-in-parallel
+	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))))
   
 (defmethod clim3-zone:impose-layout ((zone hbox) hpos vpos width height)
   (declare (ignore hpos vpos))
@@ -68,7 +92,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Pile
+;;; Class PILE.
 
 (defclass pile (clim3-zone:compound-sequence-zone
 		clim3-zone:dependent-gives-mixin
@@ -76,12 +100,12 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone pile))
-  (setf (clim3-zone:vgive zone)
-	(rigidity:combine-in-parallel
-	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone))))
   (setf (clim3-zone:hgive zone)
 	(rigidity:combine-in-parallel
-	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone)))))
+	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone))))
+  (setf (clim3-zone:vgive zone)
+	(rigidity:combine-in-parallel
+	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))))
   
 (defmethod clim3-zone:impose-layout ((zone pile) hpos vpos width height)
   (declare (ignore hpos vpos))
@@ -97,7 +121,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Grid
+;;; Class GRID.
 
 (defclass grid (clim3-zone:compound-zone
 		clim3-zone:dependent-gives-mixin
@@ -147,7 +171,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Bboard
+;;; Class BBOARD.
 ;;;
 ;;; This a zone that lets its children be positioned wherever they want.
 
@@ -179,44 +203,190 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Sponge.  A very elastic zone.
+;;; Class SPONGE.
+;;;
+;;; A sponge is a zone that can have at most one child.  It ignores
+;;; the gives of its child, and imposes its own, which makes it very
+;;; elastic, both horizontally and vertically.
 
-(defclass sponge (clim3-zone:atomic-zone)
+(defclass sponge (clim3-zone:compound-zone
+		  clim3-zone:independent-gives-mixin
+		  clim3-zone:at-most-one-child-mixin)
   ()
   (:default-initargs :hgive (rigidity:little-rigid)
 		     :vgive (rigidity:little-rigid)))
 
-(defun sponge ()
-  (make-instance 'sponge))
+(defun sponge (children)
+  (make-instance
+   'sponge
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun sponge* (&rest children)
+  (make-instance
+   'sponge
+   :children (coerce-to-list-of-at-most-one-zone children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Vbrick and hbrick.  Very rigid zones. 
+;;; Class HSPONGE.
+;;;
+;;; A hsponge is a zone that can have at most one child.  It ignores
+;;; the horizontal give of its child, and imposes its own, which makes
+;;; it very elastic horizontally.  It copies the vertical give of its
+;;; child, or if it has no child, makes it very elastic vertically.
 
-(defclass vbrick (clim3-zone:atomic-zone)
-  ()
-  (:default-initargs :hgive (rigidity:little-rigid)))
+(defclass hsponge (clim3-zone:compound-zone
+		   clim3-zone:dependent-gives-mixin
+		   clim3-zone:at-most-one-child-mixin)
+  ())
 
-(defmethod initialize-instance :after ((zone vbrick) &key (height nil height-p))
-  (unless height-p
-    (error "No natural height given."))
-  (check-type height (real (0)))
-  (setf (clim3-zone:vgive zone) (rigidity:very-rigid height)))
-  
-(defun vbrick (height)
-  (make-instance 'vbrick :height height))
+(defmethod clim3-zone:combine-child-gives ((zone hsponge))
+  (setf (clim3-zone:hgive zone)
+	(rigidity:little-rigid))
+  (setf (clim3-zone:vgive zone)
+	(if (null (clim3-zone:children zone))
+	    (rigidity:little-rigid)
+	    (clim3-zone:vgive (car (clim3-zone:children zone))))))
 
-(defclass hbrick (clim3-zone:atomic-zone)
-  ()
-  (:default-initargs :vgive (rigidity:little-rigid)))
+(defun hsponge (children)
+  (make-instance
+   'hsponge
+   :children (coerce-to-list-of-at-most-one-zone children)))
 
-(defmethod initialize-instance :after ((zone hbrick) &key (width nil width-p))
-  (unless width-p
-    (error "No natural width given."))
-  (check-type width (real (0)))
-  (setf (clim3-zone:hgive zone) (rigidity:very-rigid width)))
-  
-(defun hbrick (width)
-  (make-instance 'hbrick :width width))
+(defun hsponge* (&rest children)
+  (make-instance
+   'hsponge
+   :children (coerce-to-list-of-at-most-one-zone children)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VSPONGE.
+;;;
+;;; A vsponge is a zone that can have at most one child.  It ignores
+;;; the vertical give of its child, and imposes its own, which makes
+;;; it very elastic vertically.  It copies the horizontal give of its
+;;; child, or if it has no child, makes it very elastic horizontally.
 
+(defclass vsponge (clim3-zone:compound-zone
+		   clim3-zone:dependent-gives-mixin
+		   clim3-zone:at-most-one-child-mixin)
+  ())
+
+(defmethod clim3-zone:combine-child-gives ((zone vsponge))
+  (setf (clim3-zone:hgive zone)
+	(if (null (clim3-zone:children zone))
+	    (rigidity:little-rigid)
+	    (clim3-zone:hgive (car (clim3-zone:children zone)))))
+  (setf (clim3-zone:vgive zone)
+	(rigidity:little-rigid)))
+
+(defun vsponge (children)
+  (make-instance
+   'vsponge
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun vsponge* (&rest children)
+  (make-instance
+   'vsponge
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class BRICK.
+;;;
+;;; A brick is a zone that can have at most one child.  It ignores
+;;; the gives of its child, and imposes its own, which makes it very
+;;; rigid, both horizontally and vertically.
+
+(defclass brick (clim3-zone:compound-zone
+		 clim3-zone:independent-gives-mixin
+		 clim3-zone:at-most-one-child-mixin)
+  ())
+
+(defun brick (width height children)
+  (make-instance
+   'brick
+   :hgive (rigidity:very-rigid width)
+   :vgive (rigidity:very-rigid height)
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun brick* (width height &rest children)
+  (make-instance
+   'brick
+   :hgive (rigidity:very-rigid width)
+   :vgive (rigidity:very-rigid height)
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class HBRICK.
+;;;
+;;; A hbrick is a zone that can have at most one child.  It ignores
+;;; the horizontal give of its child, and imposes its own, which makes
+;;; it very rigid horizontally.  It copies the vertical give of its
+;;; child, or if it has no child, makes it very elastic vertically.
+
+(defclass hbrick (clim3-zone:compound-zone
+		  clim3-zone:dependent-gives-mixin
+		  clim3-zone:at-most-one-child-mixin)
+  ())
+
+(defmethod clim3-zone:combine-child-gives ((zone hbrick))
+  (setf (clim3-zone:vgive zone)
+	(if (null (clim3-zone:children zone))
+	    (rigidity:little-rigid)
+	    (clim3-zone:vgive (car (clim3-zone:children zone))))))
+
+(defmethod clim3-zone:invalidate-gives ((zone hbrick))
+  (unless (null (clim3-zone:vgive zone))
+    (setf (clim3-zone:vgive zone) nil)
+    (clim3-zone:notify-child-gives-invalid zone (clim3-zone:parent zone))))
+
+(defun hbrick (width children)
+  (make-instance
+   'hbrick
+   :hgive (rigidity:very-rigid width)
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun hbrick* (width &rest children)
+  (make-instance
+   'hbrick
+   :hgive (rigidity:very-rigid width)
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VBRICK.
+;;;
+;;; A vbrick is a zone that can have at most one child.  It ignores
+;;; the vertical give of its child, and imposes its own, which makes
+;;; it very elastic vertically.  It copies the horizontal give of its
+;;; child, or if it has no child, makes it very elastic horizontally.
+
+(defclass vbrick (clim3-zone:compound-zone
+		  clim3-zone:dependent-gives-mixin
+		  clim3-zone:at-most-one-child-mixin)
+  ())
+
+(defmethod clim3-zone:combine-child-gives ((zone vbrick))
+  (setf (clim3-zone:hgive zone)
+	(if (null (clim3-zone:children zone))
+	    (rigidity:little-rigid)
+	    (clim3-zone:hgive (car (clim3-zone:children zone))))))
+
+(defmethod clim3-zone:invalidate-gives ((zone vbrick))
+  (unless (null (clim3-zone:hgive zone))
+    (setf (clim3-zone:hgive zone) nil)
+    (clim3-zone:notify-child-gives-invalid zone (clim3-zone:parent zone))))
+
+(defun vbrick (height children)
+  (make-instance
+   'vbrick
+   :vgive (rigidity:very-rigid height)
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun vbrick* (height &rest children)
+  (make-instance
+   'vbrick
+   :vgive (rigidity:very-rigid height)
+   :children (coerce-to-list-of-at-most-one-zone children)))
