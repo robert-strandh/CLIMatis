@@ -24,7 +24,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Zone.
+;;; Class ZONE.
 ;;;
 ;;; The position of a zone is in the coordinate system of its parent.
 ;;; 
@@ -238,7 +238,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Atomic zone.
+;;; Class ATOMIC-ZONE.
 ;;; 
 ;;; An atomic zone is a zone with no children.  
 
@@ -273,7 +273,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Compound zone.
+;;; Class COMPOUND-ZONE.
 ;;;
 ;;; A compound zone is any zone that may have some children.
 
@@ -407,7 +407,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Compound simple zone.
+;;; Class COMPOUND-SIMPLE-ZONE.
 ;;;
 ;;; A compound simple zone is a compound zone in which the order of
 ;;; the children is of no importance.  We store the children in a
@@ -456,7 +456,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Compound sequence zone.
+;;; Class COMPOUND-SEQUENCE-ZONE.
 ;;;
 ;;; A compound sequence zone is a compound zone that imposes a linear
 ;;; order of the children.  The linear order may for instance
@@ -488,7 +488,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Compound matrix zone.
+;;; Class COMPOUND-MATRIX-ZONE.
 ;;;
 ;;; A compound matrix zone is a compound zone that imposes a
 ;;; 2-dimensional arrangement of its children.  We store the children
@@ -513,7 +513,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Classed DEPENDENT-GIVES-MIXIN and INDEPENDENT-GIVES-MIXIN.
+;;; Classes DEPENDENT-GIVES-MIXIN and INDEPENDENT-GIVES-MIXIN.
 ;;;
 ;;; Exactly one of these classes should be mixed into any compound
 ;;; zone.  They each supply one method on NOTIFY-CHILD-GIVES-INVALID,
