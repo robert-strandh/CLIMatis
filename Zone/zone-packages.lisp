@@ -26,6 +26,8 @@
    #:compound-simple-zone
    #:compound-sequence-zone
    #:dependent-gives-mixin
+   #:hdependent-gives-mixin
+   #:vdependent-gives-mixin
    #:independent-gives-mixin
    #:at-most-one-child-mixin
    #:any-number-of-children-mixin
