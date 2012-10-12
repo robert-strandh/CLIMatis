@@ -18,9 +18,13 @@
    #:combine-child-gives
    #:notify-connect
    #:notify-disconnect
+   #:notify-child-gives-invalid
+   #:invalidate-gives
    #:impose-layout
    #:atomic-zone
    #:compound-zone
    #:compound-simple-zone
    #:compound-sequence-zone
+   #:dependent-gives-mixin
+   #:independent-gives-mixin
    ))

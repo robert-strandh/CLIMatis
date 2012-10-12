@@ -189,6 +189,55 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function NOTIFY-CHILD-GIVES-INVALID.
+;;;
+;;; This function is called on a child and a parent when the gives of
+;;; the child are invalidated for some reason (see the function
+;;; INVALIDATE GIVES).  If the gives of the parent zone depend on the
+;;; gives of its children, then this call must provoke a call to
+;;; INVALIDATE-GIVES with the parent as an argument. 
+;;;
+;;; Two default methods are supplied.  The first default method is
+;;; specialized on a NULL parent and it does nothing.  This way, a
+;;; zone and its parent are always valid arguments to this function,
+;;; even though the zone is disconnected.  The second default method
+;;; is specialized on a parent of type ZONE and it signals an error.
+;;; By doing it this way, we compel zones to make an explicit choice
+;;; concerning the action of this function.
+
+(defgeneric notify-child-gives-invalid (child parent))
+
+(defmethod notify-child-gives-invalid ((child zone) (parent null))
+  nil)
+
+(defmethod notify-child-gives-invalid ((child zone) (parent zone))
+  (error "No action specified for zone ~s" parent))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function INVALIDATE-GIVES.
+;;;
+;;; This function is used to indicate that the gives of some zone are
+;;; no longer valid.  The reason for that could be that the gives
+;;; depend on the contents and the contents changed, or that the gives
+;;; of the zone depend on it being connected to some client, and it
+;;; got disconnected.
+;;;
+;;; If both the gives of the zone are alread invalid, then this
+;;; function does nothing.  Otherwise, it invalidates them and calls
+;;; the function NOTIFY-CHILD-GIVES-INVALID with the zone and its
+;;; parent.
+
+(defgeneric invalidate-gives (zone))
+
+(defmethod invalidate-gives ((zone zone))
+  (unless (and (null (hgive zone)) (null (vgive zone)))
+    (setf (hgive zone) nil)
+    (setf (vgive zone) nil)
+    (notify-child-gives-invalid zone (parent zone))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Atomic zone.
 ;;; 
 ;;; An atomic zone is a zone with no children.  
@@ -356,7 +405,6 @@
   (map-over-children #'compute-gives zone)
   (combine-child-gives zone))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Compound simple zone.
@@ -364,6 +412,9 @@
 ;;; A compound simple zone is a compound zone in which the order of
 ;;; the children is of no importance.  We store the children in a
 ;;; list.
+;;;
+;;; This class is not meant to be instantiated directly.  Instead, it
+;;; is a base class for other zone classes.
 
 (defclass compound-simple-zone (compound-zone)
   ()
@@ -411,6 +462,9 @@
 ;;; order of the children.  The linear order may for instance
 ;;; determine relative positions of the children.  We store the
 ;;; children in a list.
+;;;
+;;; This class is not meant to be instantiated directly.  Instead, it
+;;; is a base class for other zone classes.
 
 (defclass compound-sequence-zone (compound-zone)
   ()
@@ -439,6 +493,9 @@
 ;;; A compound matrix zone is a compound zone that imposes a
 ;;; 2-dimensional arrangement of its children.  We store the children
 ;;; as a 2-dimensional array. 
+;;;
+;;; This class is not meant to be instantiated directly.  Instead, it
+;;; is a base class for other zone classes.
 
 (defclass compound-matrix-zone (compound-zone)
   ()
@@ -453,5 +510,27 @@
 (defmethod initialize-instance :after ((zone compound-matrix-zone) &key (children #2A()))
   (setf (slot-value zone '%children) #2A())
   (setf (children zone) children))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Classed DEPENDENT-GIVES-MIXIN and INDEPENDENT-GIVES-MIXIN.
+;;;
+;;; Exactly one of these classes should be mixed into any compound
+;;; zone.  They each supply one method on NOTIFY-CHILD-GIVES-INVALID,
+;;; specializing the PARENT parameter.  The method specialized for
+;;; DEPENDENT-GIVES-MIXIN calls INVALIDATE-GIVES, and the method
+;;; specialized for INDEPENDENT-GIVES-MIXIN does nothing. 
+
+(defclass dependent-gives-mixin () ())
+
+(defmethod notify-child-gives-invalid ((child zone)
+				       (parent dependent-gives-mixin))
+  (invalidate-gives parent))
+
+(defclass independent-gives-mixin () ())
+
+(defmethod notify-child-gives-invalid ((child zone)
+				       (parent independent-gives-mixin))
+  nil)
 
 
