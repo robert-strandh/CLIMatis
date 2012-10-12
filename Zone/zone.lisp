@@ -315,26 +315,6 @@
   ((%children :initarg :children :accessor children)
    (%depth-ordered-children :initform nil :accessor depth-ordered-children)))
 
-
-(defun ensure-depth-ordered-children (zone)
-  (when (null (depth-ordered-children zone))
-    (let ((children '()))
-      (map-over-children (lambda (child) (push child children)) zone)
-      (setf (depth-ordered-children zone)
-	    (sort (coerce children 'vector) #'< :key #'depth)))))
-
-(defmethod map-over-children-top-to-bottom (function (zone compound-zone))
-  (ensure-depth-ordered-children zone)
-  (let ((depth-ordered-children (depth-ordered-children zone)))
-    (loop for i from 0 below (length depth-ordered-children)
-	  do (funcall function (aref depth-ordered-children i)))))
-
-(defmethod map-over-children-bottom-to-top (function (zone compound-zone))
-  (ensure-depth-ordered-children zone)
-  (let ((depth-ordered-children (depth-ordered-children zone)))
-    (loop for i downfrom (1- (length depth-ordered-children)) to 0
-	  do (funcall function (aref depth-ordered-children i)))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function COMBINE-CHILD-GIVES.
@@ -506,7 +486,7 @@
   (new-children (zone at-most-one-child-mixin))
   (let ((children-before (children zone)))
     (unless (null children-before)
-      (setf (parent (car children-before) nil))
+      (setf (parent (car children-before)) nil)
       (notify-disconnect (client zone) (car children-before) zone)))
   (let ((children-after
 	  (cond ((or (null new-children)
