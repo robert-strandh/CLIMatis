@@ -209,12 +209,23 @@
 ;;; the gives of its child, and imposes its own, which makes it very
 ;;; elastic, both horizontally and vertically.
 
-(defclass sponge (clim3-zone:compound-zone
+(defclass sponge (clim3-zone:compound-simple-zone
 		  clim3-zone:independent-gives-mixin
 		  clim3-zone:at-most-one-child-mixin)
   ()
   (:default-initargs :hgive (rigidity:little-rigid)
 		     :vgive (rigidity:little-rigid)))
+
+;;; No method on combine-child-gives is required, because such a
+;;; method already exists for clim3-zone:independent-gives-mixin, and
+;;; it does nothing. 
+
+;;; The :before method sets the corresponding slots.  Impose the
+;;; layout on the child if any.
+(defmethod clim3-zone:impose-layout ((zone sponge) hpos vpos width height)
+  (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) hpos vpos width height))))
 
 (defun sponge (children)
   (make-instance
@@ -235,8 +246,8 @@
 ;;; it very elastic horizontally.  It copies the vertical give of its
 ;;; child, or if it has no child, makes it very elastic vertically.
 
-(defclass hsponge (clim3-zone:compound-zone
-		   clim3-zone:dependent-gives-mixin
+(defclass hsponge (clim3-zone:compound-simple-zone
+		   clim3-zone:vdependent-gives-mixin
 		   clim3-zone:at-most-one-child-mixin)
   ())
 
@@ -247,6 +258,13 @@
 	(if (null (clim3-zone:children zone))
 	    (rigidity:little-rigid)
 	    (clim3-zone:vgive (car (clim3-zone:children zone))))))
+
+;;; The :before method sets the corresponding slots.  Impose the
+;;; layout on the child if any.
+(defmethod clim3-zone:impose-layout ((zone hsponge) hpos vpos width height)
+  (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) hpos vpos width height))))
 
 (defun hsponge (children)
   (make-instance
@@ -267,8 +285,8 @@
 ;;; it very elastic vertically.  It copies the horizontal give of its
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
-(defclass vsponge (clim3-zone:compound-zone
-		   clim3-zone:dependent-gives-mixin
+(defclass vsponge (clim3-zone:compound-simple-zone
+		   clim3-zone:hdependent-gives-mixin
 		   clim3-zone:at-most-one-child-mixin)
   ())
 
@@ -279,6 +297,13 @@
 	    (clim3-zone:hgive (car (clim3-zone:children zone)))))
   (setf (clim3-zone:vgive zone)
 	(rigidity:little-rigid)))
+
+;;; The :before method sets the corresponding slots.  Impose the
+;;; layout on the child if any.
+(defmethod clim3-zone:impose-layout ((zone vsponge) hpos vpos width height)
+  (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) hpos vpos width height))))
 
 (defun vsponge (children)
   (make-instance
@@ -298,10 +323,21 @@
 ;;; the gives of its child, and imposes its own, which makes it very
 ;;; rigid, both horizontally and vertically.
 
-(defclass brick (clim3-zone:compound-zone
+(defclass brick (clim3-zone:compound-simple-zone
 		 clim3-zone:independent-gives-mixin
 		 clim3-zone:at-most-one-child-mixin)
   ())
+
+;;; No method on combine-child-gives is required, because such a
+;;; method already exists for clim3-zone:independent-gives-mixin, and
+;;; it does nothing. 
+
+;;; The :before method sets the corresponding slots.  Impose the
+;;; layout on the child if any.
+(defmethod clim3-zone:impose-layout ((zone brick) hpos vpos width height)
+  (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) hpos vpos width height))))
 
 (defun brick (width height children)
   (make-instance
@@ -326,8 +362,8 @@
 ;;; it very rigid horizontally.  It copies the vertical give of its
 ;;; child, or if it has no child, makes it very elastic vertically.
 
-(defclass hbrick (clim3-zone:compound-zone
-		  clim3-zone:dependent-gives-mixin
+(defclass hbrick (clim3-zone:compound-simple-zone
+		  clim3-zone:vdependent-gives-mixin
 		  clim3-zone:at-most-one-child-mixin)
   ())
 
@@ -337,10 +373,12 @@
 	    (rigidity:little-rigid)
 	    (clim3-zone:vgive (car (clim3-zone:children zone))))))
 
-(defmethod clim3-zone:invalidate-gives ((zone hbrick))
-  (unless (null (clim3-zone:vgive zone))
-    (setf (clim3-zone:vgive zone) nil)
-    (clim3-zone:notify-child-gives-invalid zone (clim3-zone:parent zone))))
+;;; The :before method sets the corresponding slots.  Impose the
+;;; layout on the child if any.
+(defmethod clim3-zone:impose-layout ((zone hbrick) hpos vpos width height)
+  (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) hpos vpos width height))))
 
 (defun hbrick (width children)
   (make-instance
@@ -363,8 +401,8 @@
 ;;; it very elastic vertically.  It copies the horizontal give of its
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
-(defclass vbrick (clim3-zone:compound-zone
-		  clim3-zone:dependent-gives-mixin
+(defclass vbrick (clim3-zone:compound-simple-zone
+		  clim3-zone:hdependent-gives-mixin
 		  clim3-zone:at-most-one-child-mixin)
   ())
 
@@ -374,10 +412,12 @@
 	    (rigidity:little-rigid)
 	    (clim3-zone:hgive (car (clim3-zone:children zone))))))
 
-(defmethod clim3-zone:invalidate-gives ((zone vbrick))
-  (unless (null (clim3-zone:hgive zone))
-    (setf (clim3-zone:hgive zone) nil)
-    (clim3-zone:notify-child-gives-invalid zone (clim3-zone:parent zone))))
+;;; The :before method sets the corresponding slots.  Impose the
+;;; layout on the child if any.
+(defmethod clim3-zone:impose-layout ((zone vbrick) hpos vpos width height)
+  (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) hpos vpos width height))))
 
 (defun vbrick (height children)
   (make-instance
