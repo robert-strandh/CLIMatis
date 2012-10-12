@@ -5,7 +5,8 @@
 ;;; Vbox 
 
 (defclass vbox (clim3-zone:compound-sequence-zone
-		clim3-zone:dependent-gives-mixin)
+		clim3-zone:dependent-gives-mixin
+		clim3-zone:any-number-of-children-mixin)
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone vbox))
@@ -37,7 +38,8 @@
 ;;; Hbox 
 
 (defclass hbox (clim3-zone:compound-sequence-zone
-		clim3-zone:dependent-gives-mixin)
+		clim3-zone:dependent-gives-mixin
+		clim3-zone:any-number-of-children-mixin)
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone hbox))
@@ -69,7 +71,8 @@
 ;;; Pile
 
 (defclass pile (clim3-zone:compound-sequence-zone
-		clim3-zone:dependent-gives-mixin)
+		clim3-zone:dependent-gives-mixin
+		clim3-zone:any-number-of-children-mixin)
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone pile))
@@ -97,7 +100,8 @@
 ;;; Grid
 
 (defclass grid (clim3-zone:compound-zone
-		clim3-zone:dependent-gives-mixin)
+		clim3-zone:dependent-gives-mixin
+		clim3-zone:any-number-of-children-mixin)
   ((%combined-rows :initform nil :accessor combined-rows)
    (%combined-cols :initform nil :accessor combined-cols)))
 
@@ -148,7 +152,8 @@
 ;;; This a zone that lets its children be positioned wherever they want.
 
 (defclass bboard (clim3-zone:compound-zone
-		  clim3-zone:independent-gives-mixin)
+		  clim3-zone:independent-gives-mixin
+		  clim3-zone:any-number-of-children-mixin)
   ()
   (:default-initargs :vgive (rigidity:little-rigid)
 		     :hgive (rigidity:little-rigid)))
