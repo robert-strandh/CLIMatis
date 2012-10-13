@@ -92,7 +92,7 @@
 	  for zone = (car entry)
 	  do (when (and (typep zone 'clim3-input:motion)
 			(member zone (pointer-zones zone-entry) :test #'eq))
-	       (funcall (clim3-input:handler zone) (car entry) (cadr entry))))
+	       (funcall (clim3-input:handler zone) (cadr entry) (caddr entry))))
     ;; Save new zones
     (setf (pointer-zones zone-entry)
 	  (mapcar #'car new-zone-entries))))
