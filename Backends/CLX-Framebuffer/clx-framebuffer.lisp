@@ -178,8 +178,6 @@
 				  :button-motion :button-press :button-release
 				  :enter-window :leave-window
 				  :exposure
-				  :focus-change
-				  :keymap-state
 				  :pointer-motion))))
     (xlib:map-window (window zone-entry))
     ;; Create an adequate gcontext for this window.
@@ -392,29 +390,60 @@
 ;;;
 ;;; Handling events.
 
-(defun event-handler (&rest event-slots &key display event-key send-event-p
-		      &allow-other-keys)
-  (declare (ignore display event-key event-slots send-event-p))
-  ;; (xlib:event-case (display)
-  ;;   (:key-press (code x y state)
-  ;;      (search-zone (car (children *port*)) ; This is clearly wrong
-  ;; 		    (make-instance 'key-press-event
-  ;; 		      :interpretations (aref (keyboard-mapping *port*) code)
-  ;; 		      :modifier-state state)
-  ;; 		    x y))
-  ;;   (:key-release (code x y state)
-  ;;      (search-zone (car (children *port*)) ; This is clearly wrong
-  ;; 		    (make-instance 'key-release-event
-  ;; 		      :interpretations (aref (keyboard-mapping *port*) code)
-  ;; 		      :modifier-state state)
-  ;; 		    x y)))
-  ;; Do this better by only updating for relevant zone entries.
-  (loop for zone-entry in (zone-entries *port*)
-	do (handle-pointer-positions zone-entry)
-	   (update zone-entry))
-  t)
+(defun handle-other (zone-entry)
+  (handle-pointer-positions zone-entry)
+  (update zone-entry))
+
+(defun handle-key-press (zone-entry code state hpos vpos)
+  (format *debug-io* "key press ~s ~s ~s ~s~%" code state hpos vpos)
+  (update zone-entry))
+  
+(defun handle-key-release (zone-entry code state hpos vpos)
+  (format *debug-io* "key release ~s ~s ~s ~s~%" code state hpos vpos)
+  (update zone-entry))
+  
+(defun handle-button-press (zone-entry code state hpos vpos)
+  (format *debug-io* "button press ~s ~s ~s ~s~%" code state hpos vpos)
+  (update zone-entry))
+  
+(defun handle-button-release (zone-entry code state hpos vpos)
+  (format *debug-io* "button release ~s ~s ~s ~s~%" code state hpos vpos)
+  (update zone-entry))
 
 (defun event-loop (port)
-  (loop do (let ((*port* port))
-	     (xlib:process-event (display port) :handler #'event-handler))))
-
+  (let ((*port* port))
+    (xlib:event-case ((display port))
+      (:key-press
+       (window code state x y)
+       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
+	 (unless (null entry)
+	   (handle-key-press entry code state x y)))
+       nil)
+      (:key-release
+       (window code state x y)
+       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
+	 (unless (null entry)
+	   (handle-key-release entry code state x y)))
+       nil)
+      (:button-press
+       (window code state x y)
+       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
+	 (unless (null entry)
+	   (handle-button-press entry code state x y)))
+       nil)
+      (:button-release
+       (window code state x y)
+       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
+	 (unless (null entry)
+	   (handle-button-release entry code state x y)))
+       nil)
+      ((:exposure :motion-notify :enter-notify :leave-notify)
+       (window)
+       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
+	 (unless (null entry)
+	   (handle-other entry))))
+      (t
+       ()
+       (loop for zone-entry in (zone-entries port)
+	     do (handle-other zone-entry))
+       nil))))
