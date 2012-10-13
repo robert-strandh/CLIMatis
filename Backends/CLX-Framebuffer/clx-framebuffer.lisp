@@ -44,7 +44,62 @@
    (%gcontext :accessor gcontext)
    (%window :accessor window)
    (%pixel-array :accessor pixel-array)
-   (%image :accessor image)))
+   (%image :accessor image)
+   (%pointer-zones :initform '() :accessor pointer-zones)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Handle pointer position
+
+(defun handle-pointer-positions (zone-entry)
+  (let ((new-zone-entries '()))
+    (multiple-value-bind (hpos vpos same-screen-p)
+	(xlib:pointer-position (window zone-entry))
+      ;; FIXME: Figure out what to do with same-screen-p
+      (declare (ignore same-screen-p))
+      (labels ((traverse (zone hpos vpos)
+		 (unless (or (< hpos 0)
+			     (< vpos 0)
+			     (> hpos (clim3-zone:width zone))
+			     (> vpos (clim3-zone:height zone)))
+		   (when (or (typep zone 'clim3-input:enter)
+			     (typep zone 'clim3-input:leave)
+			     (typep zone 'clim3-input:motion))
+		     (push (list zone hpos vpos)
+			   new-zone-entries))
+		   (clim3-zone:map-over-children-top-to-bottom
+		    (lambda (child)
+		      (traverse child
+				(- hpos (clim3-zone:hpos child))
+				(- vpos (clim3-zone:vpos child))))
+		    zone))))
+	(traverse (zone zone-entry) hpos vpos)))
+    (setf new-zone-entries (nreverse new-zone-entries))
+    ;; Handle leave zones.
+    (loop for zone in (pointer-zones zone-entry)
+	  do (when (and (typep zone 'clim3-input:leave)
+			(not (member zone new-zone-entries
+				     :test #'eq :key #'car)))
+	       (funcall (clim3-input:handler zone))))
+    ;; Handle enter zones.
+    (loop for entry in new-zone-entries
+	  for zone = (car entry)
+	  do (when (and (typep zone 'clim3-input:enter)
+			(not (member zone (pointer-zones zone-entry) :test #'eq)))
+	       (funcall (clim3-input:handler zone))))
+    ;; Handle motion zones.
+    (loop for entry in new-zone-entries
+	  for zone = (car entry)
+	  do (when (and (typep zone 'clim3-input:motion)
+			(member zone (pointer-zones zone-entry) :test #'eq))
+	       (funcall (clim3-input:handler zone) (car entry) (cadr entry))))
+    ;; Save new zones
+    (setf (pointer-zones zone-entry)
+	  (mapcar #'car new-zone-entries))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Update zones.
 
 (defgeneric paint (zone port hstart vstart hend vend))
 
@@ -203,17 +258,25 @@
 		       (ash (round (* 255 new-b)) 0))))
     (setf (aref pa vp hp) new-pixel)))
 
+;;; Speed up painting of opaque zones by not calling
+;;; paint-pixel in an inner loop.
+(defun fill-area (color hstart vstart hend vend)
+  (let ((pa *pixel-array*)
+	(hs (+ hstart *hpos*))
+	(vs (+ vstart *vpos*))
+	(he (+ hend *hpos*))
+	(ve (+ vend *vpos*))
+	(pixel (+ (ash (round (* 255 (clim3-color:red color))) 16)
+		  (ash (round (* 255 (clim3-color:green color))) 8)
+		  (ash (round (* 255 (clim3-color:blue color))) 0))))
+    (loop for vpos from vs below ve
+	  do (loop for hpos from hs below he
+		   do (setf (aref pa vpos hpos) pixel)))))
+
 (defmethod paint ((zone clim3-graphics:opaque)
 		  (port clx-framebuffer-port)
 		  hstart vstart hend vend)
-  (let ((color (clim3-graphics:color zone)))
-    (loop for hpos from hstart below hend
-	  do (loop for vpos from vstart below vend
-		   do (paint-pixel hpos vpos
-				   (clim3-color:red color)
-				   (clim3-color:green color)
-				   (clim3-color:blue color)
-				   1.0)))))
+  (fill-area (clim3-graphics:color zone) hstart vstart hend vend))
 
 ;;; Pait an array of opacities.  The bounding rectangle defined by
 ;;; hstart, hend, vstart, and vend is not outside the array
@@ -347,7 +410,8 @@
   ;; 		    x y)))
   ;; Do this better by only updating for relevant zone entries.
   (loop for zone-entry in (zone-entries *port*)
-	do (update zone-entry))
+	do (handle-pointer-positions zone-entry)
+	   (update zone-entry))
   t)
 
 (defun event-loop (port)
