@@ -247,9 +247,10 @@
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
 (defmethod clim3-zone:impose-layout ((zone sponge) hpos vpos width height)
+  (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) hpos vpos width height))))
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
 
 (defun sponge (children)
   (make-instance
@@ -286,9 +287,10 @@
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
 (defmethod clim3-zone:impose-layout ((zone hsponge) hpos vpos width height)
+  (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) hpos vpos width height))))
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
 
 (defun hsponge (children)
   (make-instance
@@ -325,9 +327,10 @@
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
 (defmethod clim3-zone:impose-layout ((zone vsponge) hpos vpos width height)
+  (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) hpos vpos width height))))
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
 
 (defun vsponge (children)
   (make-instance
@@ -359,9 +362,10 @@
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
 (defmethod clim3-zone:impose-layout ((zone brick) hpos vpos width height)
+  (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) hpos vpos width height))))
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
 
 (defun brick (width height children)
   (make-instance
@@ -400,9 +404,10 @@
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
 (defmethod clim3-zone:impose-layout ((zone hbrick) hpos vpos width height)
+  (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) hpos vpos width height))))
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
 
 (defun hbrick (width children)
   (make-instance
@@ -439,9 +444,10 @@
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
 (defmethod clim3-zone:impose-layout ((zone vbrick) hpos vpos width height)
+  (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) hpos vpos width height))))
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
 
 (defun vbrick (height children)
   (make-instance
