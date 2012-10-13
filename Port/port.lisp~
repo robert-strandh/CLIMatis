@@ -1,7 +1,0 @@
-(in-package #:clim3-port)
-
-(defclass port () ())
-
-(defgeneric make-port (display-server))
-
-(defgeneric port-paint (zone port start-x start-y end-x end-y))
