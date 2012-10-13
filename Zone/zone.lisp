@@ -334,8 +334,7 @@
 (defgeneric (setf children) (new-children compound-zone))
 
 (defclass compound-zone (zone)
-  ((%children :initarg :children :accessor children)
-   (%depth-ordered-children :initform nil :accessor depth-ordered-children)))
+  ((%children :initarg :children :accessor children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
