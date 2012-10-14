@@ -18,6 +18,7 @@
 ;;;
 ;;; The handler is called with the following arguments:
 ;;;
+;;;   the zone
 ;;;   key-code   
 ;;;   modifiers
 
@@ -32,6 +33,7 @@
 ;;;
 ;;; The handler is called with the following arguments:
 ;;;
+;;;   the zone
 ;;;   key-code   
 ;;;   modifiers
 
@@ -46,6 +48,7 @@
 ;;;
 ;;; The handler is called with the following arguments:
 ;;;
+;;;   the zone
 ;;;   button-code   
 ;;;   modifiers
 
@@ -72,7 +75,9 @@
 ;;;
 ;;; Class ENTER.
 ;;;
-;;; The handler is called with no arguments.
+;;; The handler is called with the following arguments:
+;;;
+;;;   the zone
 
 (defclass enter (input) ())
 
@@ -83,7 +88,9 @@
 ;;;
 ;;; Class LEAVE.
 ;;;
-;;; The handler is called with no arguments.
+;;; The handler is called with the following arguments:
+;;;
+;;;   the zone
 
 (defclass leave (input) ())
 
@@ -96,8 +103,9 @@
 ;;;
 ;;; The handler is called with the following arguments:
 ;;;
-;;; hpos
-;;; vpos
+;;;   the zone
+;;;   hpos
+;;;   vpos
 
 (defclass motion (input) ())
 
