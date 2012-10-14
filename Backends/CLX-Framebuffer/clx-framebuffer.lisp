@@ -80,19 +80,19 @@
 	  do (when (and (typep zone 'clim3-input:leave)
 			(not (member zone new-zone-entries
 				     :test #'eq :key #'car)))
-	       (funcall (clim3-input:handler zone))))
+	       (funcall (clim3-input:handler zone) zone)))
     ;; Handle enter zones.
     (loop for entry in new-zone-entries
 	  for zone = (car entry)
 	  do (when (and (typep zone 'clim3-input:enter)
 			(not (member zone (pointer-zones zone-entry) :test #'eq)))
-	       (funcall (clim3-input:handler zone))))
+	       (funcall (clim3-input:handler zone) zone)))
     ;; Handle motion zones.
     (loop for entry in new-zone-entries
 	  for zone = (car entry)
 	  do (when (and (typep zone 'clim3-input:motion)
 			(member zone (pointer-zones zone-entry) :test #'eq))
-	       (funcall (clim3-input:handler zone) (cadr entry) (caddr entry))))
+	       (funcall (clim3-input:handler zone) zone (cadr entry) (caddr entry))))
     ;; Save new zones
     (setf (pointer-zones zone-entry)
 	  (mapcar #'car new-zone-entries))))
@@ -388,26 +388,125 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Keycodes, keysyms, etc.
+
+(defparameter *modifier-names*
+  #(:shift :lock :control :meta :hyper :super :modifier-4 :modifier-5))
+
+(defparameter +shift-mask+      #b00000001)
+(defparameter +lock-mask+       #b00000010)
+(defparameter +control-mask+    #b00000100)
+(defparameter +meta-mask+       #b00001000)
+(defparameter +hyper-mask+      #b00010000)
+(defparameter +super-mask+      #b00100000)
+(defparameter +modifier-4-mask+ #b01000000)
+(defparameter +modifier-5-mask+ #b10000000)
+
+(defun modifier-names (mask)
+  (loop for i from 0 below 8
+	when (plusp (logand (ash 1 i) mask))
+	  collect (aref *modifier-names* i)))
+
+(defun keycode-is-modifier-p (port keycode)
+  (some (lambda (modifiers)
+	  (member keycode modifiers))
+	(multiple-value-list (xlib:modifier-mapping (display port)))))
+
+(defmethod clim3-port:port-standard-key-processor
+    ((port clx-framebuffer-port) handler-fun keycode modifiers)
+  (if (keycode-is-modifier-p port keycode)
+      nil
+      (let ((keysyms (vector (xlib:keycode->keysym (display port) keycode 0)
+			     (xlib:keycode->keysym (display port) keycode 1)
+			     (xlib:keycode->keysym (display port) keycode 2)
+			     (xlib:keycode->keysym (display port) keycode 3))))
+	(funcall handler-fun
+		 (cond ((= (aref keysyms 0) (aref keysyms 1))
+			(cons (code-char (aref keysyms 0))
+			      (modifier-names modifiers)))
+		       ((plusp (logand +shift-mask+ modifiers))
+			(cons (code-char (aref keysyms 1))
+			      (modifier-names
+			       (logandc2 modifiers +shift-mask+))))
+		       (t
+			(cons (code-char (aref keysyms 0))
+			      (modifier-names modifiers))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Handling events.
 
 (defun handle-other (zone-entry)
   (handle-pointer-positions zone-entry)
   (update zone-entry))
 
+;;; Some code factoring is needed here. 
 (defun handle-key-press (zone-entry code state hpos vpos)
-  (format *debug-io* "key press ~s ~s ~s ~s~%" code state hpos vpos)
+  (labels ((traverse (zone hpos vpos)
+	     (unless (or (< hpos 0)
+			 (< vpos 0)
+			 (> hpos (clim3-zone:width zone))
+			 (> vpos (clim3-zone:height zone)))
+	       (when (typep zone 'clim3-input:key-press)
+		 (funcall (clim3-input:handler zone) zone code state))
+	       (clim3-zone:map-over-children-top-to-bottom
+		(lambda (child)
+		  (traverse child
+			    (- hpos (clim3-zone:hpos child))
+			    (- vpos (clim3-zone:vpos child))))
+		zone))))
+	(traverse (zone zone-entry) hpos vpos))
   (update zone-entry))
   
 (defun handle-key-release (zone-entry code state hpos vpos)
-  (format *debug-io* "key release ~s ~s ~s ~s~%" code state hpos vpos)
+  (labels ((traverse (zone hpos vpos)
+	     (unless (or (< hpos 0)
+			 (< vpos 0)
+			 (> hpos (clim3-zone:width zone))
+			 (> vpos (clim3-zone:height zone)))
+	       (when (typep zone 'clim3-input:key-release)
+		 (funcall (clim3-input:handler zone) zone code state))
+	       (clim3-zone:map-over-children-top-to-bottom
+		(lambda (child)
+		  (traverse child
+			    (- hpos (clim3-zone:hpos child))
+			    (- vpos (clim3-zone:vpos child))))
+		zone))))
+	(traverse (zone zone-entry) hpos vpos))
   (update zone-entry))
   
 (defun handle-button-press (zone-entry code state hpos vpos)
-  (format *debug-io* "button press ~s ~s ~s ~s~%" code state hpos vpos)
+  (labels ((traverse (zone hpos vpos)
+	     (unless (or (< hpos 0)
+			 (< vpos 0)
+			 (> hpos (clim3-zone:width zone))
+			 (> vpos (clim3-zone:height zone)))
+	       (when (typep zone 'clim3-input:button-press)
+		 (funcall (clim3-input:handler zone) zone code state))
+	       (clim3-zone:map-over-children-top-to-bottom
+		(lambda (child)
+		  (traverse child
+			    (- hpos (clim3-zone:hpos child))
+			    (- vpos (clim3-zone:vpos child))))
+		zone))))
+	(traverse (zone zone-entry) hpos vpos))
   (update zone-entry))
   
 (defun handle-button-release (zone-entry code state hpos vpos)
-  (format *debug-io* "button release ~s ~s ~s ~s~%" code state hpos vpos)
+  (labels ((traverse (zone hpos vpos)
+	     (unless (or (< hpos 0)
+			 (< vpos 0)
+			 (> hpos (clim3-zone:width zone))
+			 (> vpos (clim3-zone:height zone)))
+	       (when (typep zone 'clim3-input:button-release)
+		 (funcall (clim3-input:handler zone) zone code state))
+	       (clim3-zone:map-over-children-top-to-bottom
+		(lambda (child)
+		  (traverse child
+			    (- hpos (clim3-zone:hpos child))
+			    (- vpos (clim3-zone:vpos child))))
+		zone))))
+	(traverse (zone zone-entry) hpos vpos))
   (update zone-entry))
 
 (defun event-loop (port)
