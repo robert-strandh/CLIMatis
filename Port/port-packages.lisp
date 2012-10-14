@@ -10,5 +10,7 @@
    #:text-width
    #:text-style-ascent
    #:text-style-descent
+   #:port-standard-key-processor
+   #:standard-key-processor
    ))
   

@@ -81,3 +81,32 @@
 ;;; baseline of any of the characters in the text style.
 
 (defgeneric text-style-descent (port text-style))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function PORT-STANDARD-KEY-PROCESSOR.
+;;;
+
+(defgeneric port-standard-key-processor (port handler-fun keycode modifier))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Function STANDARD-KEY-PROCESSOR.
+;;;
+;;; Take a function of one argument, and return a function that can be
+;;; used as a handler function for a key-press or a key-release zone.
+;;;
+;;; The function passed as an argument is called with the standard
+;;; interpretation of the key that was pressed, in the form of a list.
+;;; The first element of the list is a character, and the remaining
+;;; elements of the list are keywords that name modifier keys.
+;;;
+;;; The function returned calls the generic-function
+;;; PORT-STANDARD-KEY-PROCESSOR with the port, the function given to
+;;; this function as an argument, the keycode and the modifier. 
+
+(defun standard-key-processor (handler-fun)
+  (lambda (zone keycode modifiers)
+    (port-standard-key-processor
+     (clim3-zone:client zone) handler-fun keycode modifiers)))
+  
