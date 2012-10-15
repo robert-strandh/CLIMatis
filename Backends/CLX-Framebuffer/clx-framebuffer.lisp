@@ -49,6 +49,16 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Handle connect.
+;;;
+
+(defmethod clim3-zone:notify-connect
+    ((port clx-framebuffer-port) child parent)
+  (declare (ignore child parent))
+  nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Handle disconnect.
 ;;;
 ;;; We maintain an invariant whereby the connected zones with a client
