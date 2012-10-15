@@ -49,6 +49,27 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Handle disconnect.
+;;;
+;;; We maintain an invariant whereby the connected zones with a client
+;;; slot of nil represent a suffix of the zone hierarcy.  We connect
+;;; lazily, so that a zone that requires a client, but that has a
+;;; client slot of nil, recursively asks for the client of its parent.  
+
+;;; To maintain the invariant cited above when a zone is disconnected
+;;; and then connected again, perhaps after some modifications, we
+;;; prefer to set the client of every zone in the hierarchy to nil
+;;; when the root of the hierarchy is disconnected.  
+(defmethod clim3-zone:notify-disconnect
+    ((port clx-framebuffer-port) child parent)
+  (declare (ignore parent))
+  (setf (clim3-zone:parent child) nil)
+  (clim3-zone:map-over-children
+   (lambda (grandchild) (clim3-zone:notify-disconnect port grandchild child))
+   child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Handle pointer position
 
 (defun handle-pointer-positions (zone-entry)
