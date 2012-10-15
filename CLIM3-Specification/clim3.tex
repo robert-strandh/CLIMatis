@@ -574,13 +574,70 @@ detail.
 
 \subsection{Moving a zone}
 
+If the zone is the root zone, then we might want to ask the display
+server to move the corresponding window. 
+
+If the zone is the child of bboard zone, then we need to render it in
+a different place next time. 
+
+If the zone is the child of a scroller zone, the scrollbar will have
+to be rendered differently next time. 
+
+If the zone if part of a layout zone that imposes positions of the
+child, then moving it will have no effect. 
+
 \subsection{Resizing a zone}
+
+If the zone is a root zone, we either ask the display server to resize
+the corresponding window, or we do nothing, assuming that the window
+manager has already decided the size of the corresponding window. 
+
+If the zone is the child of bboard zone, then we need to render it
+differently next time. 
+
+If the zone is the child of a scroller zone, the scrollbar will have
+to be rendered differently next time. 
+
+If the zone if part of a layout zone that imposes positions of the
+child, then resizing it will have no effect. 
 
 \subsection{Modifying the depth of a zone}
 
+If the zone is a root zone, we might ask the window manager to raise
+or bury the corresponding window, but we might do nothing. 
+
+Otherwise, the sibling zones will be rendered in a different order
+next time.
+
 \subsection{Modifying the gives of a zone}
 
+If the zone is the root zone, we might compute the natural size and
+ask the display server to resize the corresponding window, or we might
+do nothing.  
+
+If the zone is the child of a bboard zone or a scroller zone, then a
+new natural size must be determined, and then we do as if we resized
+it.
+
+If the zone is the child of a layout zone that computes its gives from
+the gives of its children, then the parent must have its gives
+invalidated, so that they are recomputed next time it is rendered.
+This invalidation must propagate up the hierarchy until a zone is
+reached that does not take child gives into account. 
+
 \subsection{Changing the children of a zone}
+
+If the zone is a bboard zone, new children must have valid gives so
+that we can compute their natural sizes before rendering
+
+If the zone is a scroller zone, we must make sure the child has a
+valid give so that we can compute its natural size before rendering.
+
+If the zone is the child of a layout zone that computes its gives from
+the gives of its children, then the parent must have its gives
+invalidated, so that they are recomputed next time it is rendered.
+This invalidation must propagate up the hierarchy until a zone is
+reached that does not take child gives into account. 
 
 \section{Zone placement protocol}
 
