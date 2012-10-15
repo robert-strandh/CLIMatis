@@ -521,6 +521,67 @@ top-level zone.
 
 \chapter{Zone protocls}
 
+\section{Purpose}
+
+The purpose of the zone protocols is twofold:
+
+\begin{itemize}
+\item The main purpose is to make certain operations simple and
+  transparent to applications.  See below for details.
+\item The secondary purpose is to optimize rendering so that even for
+  very large data sets, the response time is reasonable.
+\end{itemize}
+
+Applications should be able to manipulate both connected and
+disconnected zone hierarchies in a painless way.  Operations available
+to an application are:
+
+\begin{itemize}
+\item An application should be able to move a zone by setting its
+  horizontal and vertical positions.  The result of the operation
+  should be immediately visible after the next iteration of the event
+  loop.  Though of course, it is possible that the zone being moved by
+  the application is again moved by its parent zone, if the parent
+  zone is a layout zone that imposes a position of its children.  In
+  that case, there will be no visible effect.
+\item An application should be able to resize a zone by setting its
+  width and height.  The result of the operation should be immediately
+  visible after the next iteration of the event loop.  Though of
+  course, it is again possible that the zone being resized by the
+  application is again resized by its parent zone, if the parent zone
+  is a layout zone that imposes the size of its children.  In that
+  case, there will be no visible effect.
+\item an application should be able to modify the depth of a zone.  
+\item An application should be able to modify the horizontal or the
+  vertical gives of a zone.  When the give of the zone is assigned
+  permanently, then the effect of this operation should be immediately
+  visible after the next iteration of the event loop.  Though, again,
+  if the give of the zone is a function of the give of its children,
+  then this modification will be immediately undone, so that there is
+  no visible effect.
+\item an application should be able to change the children of a
+  compound zone. 
+\end{itemize}
+
+Notice that the effects of the modifications are synchronized with the
+event loop, and that the event loop is responsible for the ultimate
+rendering of the zone hierarchy.  Therefore, an application can make
+multiple changes to the zone hierarchy as a result of a single event,
+and only the final result of those changes will be rendered.  
+
+Let us examine the consequences of these operations in greater
+detail. 
+
+\subsection{Moving a zone}
+
+\subsection{Resizing a zone}
+
+\subsection{Modifying the depth of a zone}
+
+\subsection{Modifying the gives of a zone}
+
+\subsection{Changing the children of a zone}
+
 \section{Zone placement protocol}
 
 \subsection{Generic functions}
