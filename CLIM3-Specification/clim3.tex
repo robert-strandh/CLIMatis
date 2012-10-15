@@ -523,11 +523,7 @@ top-level zone.
 
 \section{Zone placement protocol}
 
-\subsection{Class \texttt{zone}}
-
-The class \texttt{zone} is the base class for all zones. 
-
-\subsection{Generic functions for zone placement}
+\subsection{Generic functions}
 
 \subsubsection{Generic functions \texttt{hpos} and \texttt{(setf hpos)}}
 
@@ -552,6 +548,13 @@ Return and set the current height of the zone.
 
 Return and set the current depth of the zone.
 
+\subsection{Classes}
+
+\subsubsection{Class \texttt{zone}}
+
+The class \texttt{zone} is the base class for all zones. 
+
+
 \section{Zone genealogy protocol}
 
 \subsection{Generic functions}
@@ -564,7 +567,39 @@ Return and set the parent of a zone.
 
 Return and set the children of a zone.
 
-\section{Layout zones}
+\subsubsection{Generic function \texttt{map-over-children}}
+
+\subsubsection{Generic function \texttt{map-over-children-top-to-bottom}}
+
+\subsubsection{Generic function \texttt{map-over-children-bottom-to-top}}
+
+\subsection{Classes}
+
+\subsubsection{Class \texttt{atomic-zone}}
+
+\subsubsection{Class \texttt{compound-zone}}
+
+\subsubsection{Class \texttt{compound-simple-zone}}
+
+\subsubsection{Class \texttt{compound-sequence-zone}}
+
+\subsubsection{Class \texttt{compound-matrix-zone}}
+
+\subsubsection{Class \texttt{at-most-one-child-mixin}}
+
+\subsubsection{Class \texttt{any-number-of-children-mixin}}
+
+
+\section{Zone Layout protocol}
+
+\subsection{Generic functions}
+
+\subsection{Classes}
+
+\subsubsection{Class \texttt{dependent-gives-mixin}}
+\subsubsection{Class \texttt{hdependent-gives-mixin}}
+\subsubsection{Class \texttt{vdependent-gives-mixin}}
+\subsubsection{Class \texttt{independent-gives-mixin}}
 
 \section{Application frame}
 
