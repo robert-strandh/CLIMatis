@@ -708,7 +708,115 @@ Return and set the children of a zone.
 \subsubsection{Class \texttt{any-number-of-children-mixin}}
 
 
-\section{Zone Layout protocol}
+\section{Gives invalidation protocol}
+
+The gives invalidation protocol is divided into four functions
+for maximum flexibility to client code, three of them generic, and one
+is an ordinary function.
+
+\subsection{Generic functions and methods}
+
+\subsubsection{Generic function \texttt{gives-valid-p}}
+\label{generic-function-gives-valid-p}
+
+This function returns true if and only if the gives of the zone are
+valid.  
+
+For zones with gives that can not be invalidated, such as bboard
+zones, scroller zones, and atomic zones with gives that do not depend
+on a client, this function always returns \emph{true}.
+
+The methods of this function are paired up with methods for
+\texttt{mark-gives-invalid} so that they both use the same mechanism. 
+
+This function should return \emph{false} after a call has been made to
+\texttt{mark-gives-invalid}, and should return \emph{true} after a
+call has been made to \texttt{compute-gives}.  
+
+A method specialized for \texttt{dependent-gives-mixin} is supplied
+that returns \emph{true} of and only if both the \texttt{vgive} and
+the \texttt{hgive} of the zone are \texttt{nil}
+
+A method specialized for \texttt{hdependent-gives-mixin} is supplied
+that returns \emph{true} if and only if the \texttt{hgive} of the zone
+is \texttt{nil}.
+
+A method specialized for \texttt{vdependent-gives-mixin} is supplied
+that returns \emph{true} if and only if the \texttt{vgive} of the zone
+is \texttt{nil}.
+
+A method specialized for \texttt{independent-gives-mixin} is supplied
+that always returns \emph{true}. 
+
+\subsubsection{Generic function \texttt{mark-gives-invalid}}
+\label{generic-function-mark-gives-invalid}
+
+This function marks the zone as having invalid gives.  
+
+For zones with gives that can not be invalidated, such as bboard
+zones, scroller zones, and atomic zones with gives that do not depend
+on a client, this function signals an error.
+
+Different subclasses of \texttt{zone} do this differently.  Some set
+both the hgive and the vgive to \texttt{nil}.  Some others set one but
+not the other.  Some may use a completely different mechanism.
+
+The methods of this function are paired up with methods for
+\texttt{gives-invalid-p} so that they both use the same mechanism.
+
+A method specialized for \texttt{dependent-gives-mixin} is supplied
+that sets both the \texttt{vgive} and the \texttt{hgive} of the zone
+to \texttt{nil}
+
+A method specialized for \texttt{hdependent-gives-mixin} is supplied
+that sets the \texttt{hgive} of the zone to \texttt{nil}.
+
+A method specialized for \texttt{vdependent-gives-mixin} is supplied
+that sets the \texttt{vgive} of the zone to \texttt{nil}.
+
+A method specialized for \texttt{independent-gives-mixin} is supplied
+that signals an error.
+
+\subsubsection{Generic function \texttt{notify-child-gives-invalid}}
+\label{generic-function-notify-child-gives-invalid}
+
+This function is called on a child and a parent when the gives of the
+child are invalidated for some reason (see the function
+\texttt{invalidate-gives}).  Methods on this generic function
+specialized to parent zones (the second argument) whose gives depend
+on the gives of its children must call \texttt{invalidate-gives} with
+the parent as an argument.
+
+Two default methods are supplied.  The first default method is
+specialized on a \texttt{null} parent and it does nothing.  This way,
+a zone and its parent are always valid arguments to this function,
+even though the zone is disconnected.  The second default method is
+specialized on a parent of type \texttt{zone} and it signals an error.
+By doing it this way, we compel zones to make an explicit choice
+concerning the action of this function.
+
+Other methods are supplied for certain mixin classes.  For the mixin
+classes \texttt{dependent-gives-mixin},
+\texttt{hdependent-gives-mixin}, and \texttt{vdependent-gives-mixin},
+a method is supplied that calls \texttt{invalidate-gives} with the
+parent as an argument, as stipulated above.  For the class
+\texttt{independent-gives-mixin}, a method is supplied that does
+nothing.
+
+\subsubsection{Function \texttt{invalidate-gives}}
+
+This function is used to indicate that the gives of some zone are no
+longer valid.  The reason for that could be that the gives depend on
+the contents and the contents changed, or that the gives of the zone
+depend on it being connected to some client, and it got disconnected.
+
+If the gives of the zone are already invalid, i.e.,
+\texttt{gives-valid-p} returns \emph{false}, then this function does
+nothing.  Otherwise, it marks them invalid by calling
+\texttt{mark-gives-invalid} and calls the function
+\texttt{notify-child-gives-invalid} with the zone and its parent.
+
+\section{Zone layout protocol}
 
 \subsection{Generic functions}
 
