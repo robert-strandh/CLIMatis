@@ -143,35 +143,35 @@ some others may chose to create a single window for the top zone.
 Zones are either \emph{atomic} or \emph{compound}.  An atomic
 zone represents an elementary graphics object such as a line, a
 rectangle, an ellipse, or an image.  A compound zone contains
-a \emph{sequence} (not necessarily in the sense of \cl{}) of
-\emph{children}.  The children are other zones and the sequence
-represents the \emph{order} in which the children are drawn.  
+a bunch of children organized in a way that depends on the specific
+compound zone.  It could be a \cl{} list, a \cl{} two-dimensional
+array, or something else.  Each zone has a \emph{position}, a
+\emph{size}, and a \emph{depth}.  The position and the depth represent
+information relating to the \emph{parent} of the zone.  The depths 
+of the children of a compound zone determine the order in which
+children are traversed for things like drawing. 
 
 In terms of zone composition operations, zones on the same level
 of the hierarchy are composed using the \emph{compose-over} operation,
 in the order determined by the sequence of zones, and for a compound
 zone, the result of the composition of the children is composed with
 the parent, which is considered to be a zone with opacity $0$
-outside the zone and $1$ inside it.  An \emph{opaque compound zone}
-is computed as if its bottom child were a totally opaque zone with
-some \emph{background color}. 
+outside the zone and $1$ inside it.
 
 Most zones are not created with exact sizes, because the exact size of
 a zone may depend on the backend.  This is in particular the case for
-a \emph{text zone} the size of which depends on the \emph{font} used to
-render it, and the font is specific to each backend.  Instead, when
-requested by the parent zone, each zone must generate a \emph{space
-  requirement} object.  As a function of this space requirement, space
-is then allocated, and the zone must adjust itself to that space.
-Creating space requirements and allocating space is part of the
-\emph{layout protocol} and the layout protocol is invoked whenever a
-zone hierarchy is attached to a port and then after each event that
-might potentially result in a modification to the zone hierarchy, or
-when the application explicitly requests it because the zone hierarchy
-might have changed as a result of some application activity.  In most
-cases, \clim{} will detect that there are no or very few modifications
-to the zone hierarchy, and minimize the actions that need to be taken
-as a result. 
+a \emph{text zone} the size of which depends on the \emph{font} used
+to render it, and the font is specific to each backend.  Instead, each
+zone has a horizontal and a vertical \emph{give}.  A give is an object
+that represents the difficulty with which a zone can change its size
+in that dimension.  A (somewhat flawed) metaphor would be to liken the
+zone to a \emph{spring}, that generates a certain \emph{force} as a
+response to an attempt to expand or contract it.  Some zones have
+gives assigned at creation time, but that can be modified later.
+Others, such as many compound layout zones, compute their gives as a
+function of the gives of their children.  Yet others, in particular
+\emph{text} compute their gives by consulting the port that it is
+connected to.  
 
 Applications can manipulate the zone hierarchy in several different
 ways:  
@@ -187,15 +187,12 @@ not have to be redrawn.
 
 \item Simpler application might generate new zone hierarchies every
 time around the command loop.  In this case, \clim{} will have to
-redraw the entire contents of the zone.  To minimize flickering,
-applications may request that \emph{double buffering} be used in this
-case.
+redraw the entire contents of the zone. 
 
-\item An application
-may produce a new sequence of children for each iteration of the
-command loop such that some or all of the new zones are \emph{the
-  same} as the existing ones.  \clim{} will compare the new sequence
-to the old one, and again minimize redrawing. 
+\item An application may produce a new sequence of children for each
+  iteration of the command loop such that some or all of the new zones
+  are \emph{the same} as the existing ones.  \clim{} will compare the
+  new sequence to the old one, and again minimize redrawing.
 
 \item An application may \emph{move} a zone.  Since the canvas uses
   integer coordinates, \clim{} might then be able to move the pixels
@@ -522,15 +519,50 @@ top-level zone.
   zone hierarchy.
 \end{itemize}
 
-\chapter{Zone subclasses}
+\chapter{Zone protocls}
 
-\section{Moving and resizing zones}
+\section{Zone placement protocol}
 
-A zone cannot move, so to obtain the effect of a moving zone, we
-use the following trick: A zone $d$ that should be moved is made the
-single child of a zone $D$.  To ``move'' $d$, replace $D$ by $D'$
-which is like $D$ but with a different position.  The same method is
-used to ``change the size'' of a zone. 
+\subsection{Class \texttt{zone}}
+
+The class \texttt{zone} is the base class for all zones. 
+
+\subsection{Generic functions for zone placement}
+
+\subsubsection{Generic functions \texttt{hpos} and \texttt{(setf hpos)}}
+
+Return and set the current horizontal position of the zone relative to
+its parent.
+
+
+\subsubsection{Generic functions \texttt{vpos} and \texttt{(setf vpos)}}
+
+Return and set the current vertical position of the zone relative to
+its parent.
+
+\subsubsection{Generic functions \texttt{width} and \texttt{(setf width)}}
+
+Return and set the current width of the zone.
+
+\subsubsection{Generic functions \texttt{height} and \texttt{(setf height)}}
+
+Return and set the current height of the zone.
+
+\subsubsection{Generic functions \texttt{depth} and \texttt{(setf depth)}}
+
+Return and set the current depth of the zone.
+
+\section{Zone genealogy protocol}
+
+\subsection{Generic functions}
+
+\subsubsection{Generic functions \texttt{parent} and \texttt{(setf parent)}}
+
+Return and set the parent of a zone.
+
+\subsubsection{Generic functions \texttt{children} and \texttt{(setf children)}}
+
+Return and set the children of a zone.
 
 \section{Layout zones}
 
