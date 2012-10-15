@@ -193,15 +193,8 @@
 ;;;
 ;;; This function returns true if and only if the gives of the zone
 ;;; are valid.  
-;;;
-;;; The default method (specialized for ZONE) returns false if and
-;;; only if either the hgive and the vgive (or both) of the zone are
-;;; NIL.
 
 (defgeneric gives-valid-p (zone))
-
-(defmethod gives-valid-p ((zone zone))
-  (and (not (null (hgive zone))) (not (null (vgive zone)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -209,7 +202,7 @@
 ;;;
 ;;; This function marks the zone as having invalid gives. 
 ;;;
-;;; Differnet subclasses of ZONE do this differently.  Some set both
+;;; Different subclasses of ZONE do this differently.  Some set both
 ;;; the hgive and the vgive to NIL.  Some others set one but not the
 ;;; other.  Some may use a completely different mechanism.  
 
@@ -251,12 +244,15 @@
 ;;; of the zone depend on it being connected to some client, and it
 ;;; got disconnected.
 ;;;
-;;; If both the gives of the zone are alread invalid, then this
-;;; function does nothing.  Otherwise, it invalidates them and calls
-;;; the function NOTIFY-CHILD-GIVES-INVALID with the zone and its
-;;; parent.
+;;; If the gives of the zone are already invalid, i.e., if
+;;; GIVES-VALID-P returns false, then this function does nothing.
+;;; Otherwise, it marks them as invalid and calls the function
+;;; NOTIFY-CHILD-GIVES-INVALID with the zone and its parent.
 
-(defgeneric invalidate-gives (zone))
+(defun invalidate-gives (zone)
+  (when (gives-valid-p zone)
+    (mark-gives-invalid zone)
+    (notify-child-gives-invalid zone (parent zone))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -468,6 +464,11 @@
 
 (defclass dependent-gives-mixin () ())
 
+
+(defmethod gives-valid-p ((zone dependent-gives-mixin))
+  (and (not (null (hgive zone)))
+       (not (null (vgive zone)))))
+
 (defmethod mark-gives-invalid ((zone dependent-gives-mixin))
   (setf (hgive zone) nil)
   (setf (vgive zone) nil))
@@ -476,16 +477,14 @@
 				       (parent dependent-gives-mixin))
   (invalidate-gives parent))
 
-(defmethod invalidate-gives ((zone dependent-gives-mixin))
-  (when (gives-valid-p zone)
-    (mark-gives-invalid zone)
-    (notify-child-gives-invalid zone (parent zone))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class HDEPENDENT-GIVES-MIXIN.
 
 (defclass hdependent-gives-mixin () ())
+
+(defmethod gives-valid-p ((zone hdependent-gives-mixin))
+  (not (null (hgive zone))))
 
 (defmethod mark-gives-invalid ((zone hdependent-gives-mixin))
   (setf (hgive zone) nil))
@@ -494,34 +493,30 @@
 				       (parent hdependent-gives-mixin))
   (invalidate-gives parent))
 
-(defmethod invalidate-gives ((zone dependent-gives-mixin))
-  (when (gives-valid-p zone)
-    (mark-gives-invalid zone)
-    (notify-child-gives-invalid zone (parent zone))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class VDEPENDENT-GIVES-MIXIN.
 
-(defmethod mark-gives-invalid ((zone hdependent-gives-mixin))
-  (setf (hgive zone) nil))
-
 (defclass vdependent-gives-mixin () ())
+
+(defmethod gives-valid-p ((zone vdependent-gives-mixin))
+  (not (null (vgive zone))))
+
+(defmethod mark-gives-invalid ((zone vdependent-gives-mixin))
+  (setf (vgive zone) nil))
 
 (defmethod notify-child-gives-invalid ((child zone)
 				       (parent vdependent-gives-mixin))
   (invalidate-gives parent))
-
-(defmethod invalidate-gives ((zone dependent-gives-mixin))
-  (when (gives-valid-p zone)
-    (mark-gives-invalid zone)
-    (notify-child-gives-invalid zone (parent zone))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class INDEPENDENT-GIVES-MIXIN.
 
 (defclass independent-gives-mixin () ())
+
+(defmethod gives-valid-p ((zone independent-gives-mixin))
+  t)
 
 (defmethod mark-gives-invalid ((zone independent-gives-mixin))
   (error "Attempt to marks as invalid the gives of an independent zone ~s"
@@ -533,10 +528,6 @@
 
 (defmethod clim3-zone:combine-child-gives ((zone independent-gives-mixin))
   nil)
-
-(defmethod invalidate-gives ((zone independent-gives-mixin))
-  (error "Attempt to invalidate gives of an independent zone ~s"
-	 zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
