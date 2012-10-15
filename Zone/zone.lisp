@@ -324,12 +324,15 @@
 ;;; call this function with the exact same value as was return by a
 ;;; call to CHILDREN.  
 ;;;
-;;; There is an :around method on this function (see below),
-;;; specialized on COMPOUND-ZONE.  It always calls the primary
-;;; methods, but it also does some extra work such as error checking
+;;; There are :around methods on this function (see below).  One is
+;;; specialized for AT-MOST-ONE-CHILD-MIXIN, and the other for
+;;; ANY-NUMBER-OF-CHILDREN-MIXIN, both subclasses of COMPOUND-ZONE.
+;;; These :round methods always call the primary methods, but they
+;;; also do some extra work such as error checking, setting the parent
+;;; of every new child, removing the parent of every removed child,
 ;;; and client notification.  The :around mehod calls CHILDREN, which
 ;;; has as a consequence that in order to use (SETF CHILDREN) the
-;;; corresponding slot must be bound. 
+;;; corresponding slot must be bound.
 
 (defgeneric (setf children) (new-children compound-zone))
 
