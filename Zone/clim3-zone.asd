@@ -7,6 +7,7 @@
    (:file "gives-change" :depends-on ("zone-packages"))
    (:file "geometry-change" :depends-on ("zone-packages"))
    (:file "genealogy-change" :depends-on ("zone-packages"))
+   (:file "connection-change" :depends-on ("zone-packages"))
    (:file "genealogy" :depends-on ("zone-packages"))
    (:file "geometry" :depends-on ("zone-packages"))
    (:file "gives" :depends-on ("zone-packages"))
@@ -14,6 +15,7 @@
 			      "gives-change"
 			      "geometry-change"
 			      "genealogy-change"
+			      "connection-change"
 			      "genealogy"
 			      "geometry"
 			      "gives"))))

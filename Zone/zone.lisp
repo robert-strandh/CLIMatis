@@ -107,41 +107,14 @@
 	(width zone) width
 	(height zone) height))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function NOTIFY-CONNECT.
-;;;
-;;; This function is called when a zone Z becomes the child of some
-;;; other zone P.  It is called with the client of P, Z, and P as
-;;; arguments.
-;;;
-;;; The default method (on NULL) does nothing. 
-;;;
-;;; Client code will typically specialize at least on the type of the
-;;; client.
-
-
-(defgeneric notify-connect (client child parent))
-
+;;; Default method on NOTIFY-CONNECT.  It is specialized for a NULL
+;;; client and it does nothing.
 (defmethod notify-connect ((client null) child parent)
   (declare (ignore child parent))
   nil)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function NOTIFY-DISCONNECT.
-;;;
-;;; This function is called when a zone Z is removed as the child of
-;;; some other zone P.  It is called with the client of P, Z, and P as
-;;; arguments.
-;;;
-;;; The default method (on NULL) does nothing. 
-;;;
-;;; Client code will typically specialize at least on the type of the
-;;; client.
-
-(defgeneric notify-disconnect (client child parent))
-
+;;; Default method on NOTIFY-DISCONNECT.  It is specialized for a NULL
+;;; client and it does nothing.
 (defmethod notify-disconnect ((client null) child parent)
   (declare (ignore child parent))
   nil)
@@ -169,12 +142,6 @@
 ;;; choose an action as a result of a call to this function. 
 (defmethod notify-child-gives-changed ((child zone) (parent zone))
   (error "No action specified for zone ~s" parent))
-
-;;; Default method on NOTIFY-CHILDREN-CHANGED NULL.
-;;; This method does nothing, thus allowing this generic function to
-;;; be called with any parent.
-(defmethod notify-children-changed ((parent null))
-  nil)
 
 ;;; Default method on NOTIFY-CHILDREN-CHANGED for ZONE.
 ;;; This method signals an error, forcing the parent zone type to
