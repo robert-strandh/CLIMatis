@@ -5,4 +5,9 @@
   :components
   ((:file "zone-packages" :depends-on ())
    (:file "gives-change" :depends-on ("zone-packages"))
-   (:file "zone" :depends-on ("zone-packages" "gives-change"))))
+   (:file "geometry-change" :depends-on ("zone-packages"))
+   (:file "genealogy" :depends-on ("zone-packages"))
+   (:file "zone" :depends-on ("zone-packages"
+			      "gives-change"
+			      "geometry-change"
+			      "genealogy"))))
