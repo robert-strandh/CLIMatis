@@ -8,6 +8,9 @@
 \def\zone{zone}
 \def\code#1{\texttt{#1}}
 
+\setlength{\parskip}{0.3cm}
+\setlength{\parindent}{0cm}
+
 \title{\clim{}\\ A new interface manager for\\ \cl{}}
 \author{Robert Strandh}
 
@@ -639,32 +642,186 @@ invalidated, so that they are recomputed next time it is rendered.
 This invalidation must propagate up the hierarchy until a zone is
 reached that does not take child gives into account. 
 
-\section{Zone placement protocol}
+\section{Zone geometry protocol}
 
 \subsection{Generic functions}
 
-\subsubsection{Generic functions \texttt{hpos} and \texttt{(setf hpos)}}
+\subsubsection{Generic function \texttt{hpos}}
 
-Return and set the current horizontal position of the zone relative to
-its parent.
+Return the current horizontal position of the zone relative to its
+parent.  
+
+If the zone is the root zone and it is connected to some display
+server, then depending on the display server, this value may or
+may not reflect the position of the corresponding top-level
+window on the display. 
+
+\subsubsection{Generic function \texttt{(setf hpos)}}
+
+Set the current horizontal position of the zone relative to its
+parent.  
+
+Calling this function is the normal way of setting the position of
+a zone that is the child of a layout zone that does not impose the
+position of its children, such as a bboard zone or a scroller
+zone.
+
+Setting the position of a zone may not have the effect that an
+application expects.  If the zone is the child of a layout zone
+that imposes the position of its children, then the change will be
+undone before the next time around the event loop, so that no
+visible effect can be detected.  
+
+If the zone is the root zone and it is connected to some display
+server, then depending on the display server, this value may or
+may not affect the position of the corresponding top-level window
+on the display.
+
+Calling this function triggers the geometry-change protocol,
+informing the parent that a change has taken place.  
+
+\subsubsection{Generic function \texttt{set-hpos}}
+
+Set the current horizontal position of the zone relative to its
+parent, without triggering the geometry-change protocol.
+
+This function is similar to \texttt{(setf hpos)}, with the difference
+that it does not trigger the geometry-change protocol.  It is used
+exclusively by internal protocols to avoid infinite recursions when a
+parent needs to set the position of a child as a result of some
+previous change.
+
+\subsubsection{Generic function \texttt{vpos}}
+
+Return the current vertical position of the zone relative to its
+parent.  
+
+If the zone is the root zone and it is connected to some display
+server, then depending on the display server, this value may or
+may not reflect the position of the corresponding top-level window
+on the display.
+
+\subsubsection{Generic function \texttt{(setf vpos)}}
+
+Set the current vertical position of the zone relative to its
+parent.
+
+Calling this function is the normal way of setting the position of
+a zone that is the child of a layout zone that does not impose the
+position of its children, such as a bboard zone or a scroller
+zone.
+
+Setting the position of a zone may not have the effect that an
+application expects.  If the zone is the child of a layout zone
+that imposes the position of its children, then the change will be
+undone before the next time around the event loop, so that no
+visible effect can be detected.  
+
+If the zone is the root zone and it is connected to some display
+server, then depending on the display server, this value may or
+may not affect the position of the corresponding top-level window
+on the display.
+
+Calling this function triggers the geometry-change protocol,
+informing the parent that a change has taken place.  
+
+\subsubsection{Generic function \texttt{set-vpos}}
+
+Set the current vertical position of the zone relative to its
+parent, without triggering the geometry-change protocol.
+
+This function is similar to \texttt{(setf vpos)}, with the difference
+that it does not trigger the geometry-change protocol.  It is used
+exclusively by internal protocols to avoid infinite recursions when a
+parent needs to set the position of a child as a result of some
+previous change.
+
+\subsubsection{Generic function \texttt{width}}
+
+Return the current width of the zone.  
+
+If the zone is the root zone and it is connected to some display
+server, then depending on the display server, this value may or
+may not reflect the width of the corresponding top-level window.
+
+\subsubsection{Generic function \texttt{(setf width)}}
+
+Set the current width of the zone.
+
+Calling this function is the normal way of setting the width of a
+zone that is the child of a layout zone that does not impose the
+size of its children, such as a bboard zone or a scroller zone.
+
+Setting the position of a zone may not have the effect that an
+application expects.  If the zone is the child of a layout zone
+that imposes the size of its children, then the change will be
+undone before the next time around the event loop, so that no
+visible effect can be detected.
+
+If the zone is the root zone and it is connected to some display
+server, then depending on the display server, this value may or
+may not affect the width of the corresponding top-level window
+on the display.
+
+Calling this function triggers the geometry-change protocol,
+informing the parent that a change has taken place.  
+
+\subsubsection{Generic function \texttt{set-width}}
+
+Set the current width of the zone relative to its parent, without
+triggering the geometry-change protocol.
+
+This function is similar to \texttt{(setf width)}, with the difference
+that it does not trigger the geometry-change protocol.  It is used
+exclusively by internal protocols to avoid infinite recursions when a
+parent needs to set the width of a child as a result of some previous
+change.
+
+\subsubsection{Generic function \texttt{height}}
+
+Return the current height of the zone.
+
+If the zone is the root zone and it is connected to some display
+server, then depending on the display server, this value may or
+may not reflect the height of the corresponding top-level window.
+
+\subsubsection{Generic function \texttt{(setf height)}}
+
+Set the current height of the zone.
+
+Calling this function is the normal way of setting the height of a
+zone that is the child of a layout zone that does not impose the
+size of its children, such as a bboard zone or a scroller zone.
+
+Setting the position of a zone may not have the effect that an
+application expects.  If the zone is the child of a layout zone
+that imposes the size of its children, then the change will be
+undone before the next time around the event loop, so that no
+visible effect can be detected.
+
+If the zone is the root zone and it is connected to some display
+server, then depending on the display server, this value may or
+may not affect the height of the corresponding top-level window on
+the display.
+
+Calling this function triggers the geometry-change protocol,
+informing the parent that a change has taken place.
+
+\subsubsection{Generic function \texttt{set-height}}
+
+Set the current height of the zone relative to its parent, without
+triggering the geometry-change protocol.
+
+This function is similar to \texttt{(setf height)}, with the
+difference that it does not trigger the geometry-change protocol.  It
+is used exclusively by internal protocols to avoid infinite recursions
+when a parent needs to set the height of a child as a result of some
+previous change.
+
+\subsubsection{Generic function \texttt{depth}}
 
 
-\subsubsection{Generic functions \texttt{vpos} and \texttt{(setf vpos)}}
-
-Return and set the current vertical position of the zone relative to
-its parent.
-
-\subsubsection{Generic functions \texttt{width} and \texttt{(setf width)}}
-
-Return and set the current width of the zone.
-
-\subsubsection{Generic functions \texttt{height} and \texttt{(setf height)}}
-
-Return and set the current height of the zone.
-
-\subsubsection{Generic functions \texttt{depth} and \texttt{(setf depth)}}
-
-Return and set the current depth of the zone.
+\subsubsection{Generic function \texttt{(setf depth)}}
 
 \subsection{Classes}
 
@@ -677,19 +834,75 @@ The class \texttt{zone} is the base class for all zones.
 
 \subsection{Generic functions}
 
-\subsubsection{Generic functions \texttt{parent} and \texttt{(setf parent)}}
+\subsubsection{Generic function \texttt{parent}}
 
-Return and set the parent of a zone.
+Return the current parent of the zone. 
 
-\subsubsection{Generic functions \texttt{children} and \texttt{(setf children)}}
+The parent may be another zone, in which case the zone is a child of
+that zone, or it may be a client (typically a port), in which case the
+zone is the root zone of a hierarchy connected to that client, or it
+may be nil, in which case, this zone is the root zone of a hierarchy
+not currently connected to any client.
 
-Return and set the children of a zone.
+\subsubsection{Generic function \texttt{(setf parent)}}
 
-\subsubsection{Generic function \texttt{map-over-children}}
+Set the parent of a zone.
 
-\subsubsection{Generic function \texttt{map-over-children-top-to-bottom}}
+This generic function is part of the internal zone protocols.  It
+should not be used directly by applications.  It is called indirectly
+as a result of connecting the zone to a client, or as a result of
+adding or removing the zone as a child of some other zone by calling
+\texttt{(setf children)}.
 
-\subsubsection{Generic function \texttt{map-over-children-bottom-to-top}}
+\subsubsection{Generic function \texttt{children}}
+
+This generic function returns the children of a compound zone.  The
+representation of the return value depends on the subclass of
+\texttt{compound-zone}.  It could be a list, a vector, a 2-D array, or
+something else.
+
+\subsubsection{Generic function \texttt{(setf children)}}
+
+This generic function sets the children of a compound zone.  The
+acceptable representation of the children depends on the subclass of
+\texttt{compound-zone}.  It could be a list, a vector, a 2-D array, or
+something else.  However, the representation is consistent with what
+is returned by the \texttt{children} generic function, so that if a list is
+returned by that generic function, then a list is acceptable to this
+one too.  In particular, it is acceptable to call this function with
+the exact same value as was return by a call to \texttt{children}.
+
+There are \texttt{:around} methods on this function (see below).  One
+is specialized for \texttt{at-most-one-child-mixin}, and the other for
+\texttt{any-number-of-children-mixin}, both subclasses of
+\texttt{compound-zone}.  These \texttt{:around} methods always call
+the primary methods, but they also do some extra work such as error
+checking, setting the parent of every new child, removing the parent
+of every removed child, and client notification.  The \texttt{:around}
+method calls \texttt{children}, which has as a consequence that in
+order to use \texttt{(setf children)} the corresponding slot must be
+bound.
+
+There is one \texttt{:after} method specialized for
+\texttt{compound-zone} that calls
+
+\subsubsection{generic function \texttt{map-over-children}}
+
+the first argument is a function of a single argument.  the second
+argument is a zone.  this function calls the function given as the
+first argument on each child of the zone given as a second argument.  
+
+\subsubsection{generic function \texttt{map-over-children-top-to-bottom}}
+
+the first argument is a function of a single argument.  the second
+argument is a zone.  this function calls the function given as the
+first argument on each child of the zone given as a second argument.  
+
+\subsubsection{generic function \texttt{map-over-children-bottom-to-top}}
+
+The first argument is a function of a single argument.  The second
+argument is a zone.  This function calls the function given as the
+first argument on each child of the zone given as a second argument.  
 
 \subsection{Classes}
 
