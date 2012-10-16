@@ -4,10 +4,10 @@
    #:zone
    #:zone-p
    #:parent
-   #:hpos #:vpos
-   #:width #:height
-   #:hgive #:vgive
-   #:depth
+   #:hpos #:vpos #:set-hpos #:set-vpos
+   #:width #:height #:set-width #:set-height
+   #:hgive #:vgive #:set-hgive #:set-vgive
+   #:depth #:set-depth
    #:client
    #:natural-size
    #:children
