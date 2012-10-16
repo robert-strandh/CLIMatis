@@ -46,7 +46,7 @@
   (unless (gives-valid-p zone)
     (compute-gives zone)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function IMPOSE-LAYOUT.
 ;;;
@@ -60,3 +60,24 @@
 
 (defgeneric impose-layout (zone hpos vpos width height))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function CHILD-LAYOUTS-VALID-P.
+;;;
+
+(defgeneric child-layouts-valid-p (compound-zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function IMPOSE-CHILD-LAYOUTS.
+
+(defgeneric impose-child-layouts (compound-zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Function ENSURE-CHILD-LAYOUTS-VALID.
+
+(defun ensure-child-layouts-valid (compound-zone)
+  (unless (child-layouts-valid-p compound-zone)
+    (impose-child-layouts compound-zone)
+    (setf (child-layouts-valid-p compound-zone) t)))
