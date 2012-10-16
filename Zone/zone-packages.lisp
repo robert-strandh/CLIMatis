@@ -14,6 +14,7 @@
    #:map-over-children
    #:map-over-children-top-to-bottom
    #:map-over-children-bottom-to-top
+   #:ensure-gives-valid
    #:compute-gives
    #:combine-child-gives
    #:notify-connect
