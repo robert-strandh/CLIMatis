@@ -5,7 +5,7 @@
    #:zone-p
    #:parent
    #:hpos #:vpos #:set-hpos #:set-vpos
-   #:width #:height #:set-width #:set-height
+   #:width #:height
    #:hgive #:vgive #:set-hgive #:set-vgive
    #:depth #:set-depth
    #:client

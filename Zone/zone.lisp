@@ -36,12 +36,16 @@
 ;;; the children.  Setting the position and the dimensions of a child
 ;;; of such a layout zone will move and resize the child. 
 
+(defgeneric client (zone))
+
+(defgeneric (setf client) (new-client zone))
+
 (defclass zone ()
   ((%parent :initarg :parent :initform nil :accessor parent)
    (%hpos :initform 0 :initarg :hpos :accessor hpos :writer set-hpos)
    (%vpos :initform 0 :initarg :vpos :accessor vpos :writer set-vpos)
-   (%width :accessor width :writer set-width)
-   (%height :accessor height :writer set-height)
+   (%width :accessor width)
+   (%height :accessor height)
    (%hgive :initarg :hgive :accessor hgive :writer set-hgive)
    (%vgive :initarg :vgive :accessor vgive :writer set-vgive)
    ;; The depth is used to determine an order between the children of
@@ -67,9 +71,6 @@
 ;;; the parent zone of the change. 
 (defmethod (setf vgive) :after (new-vgive zone)
   (notify-child-gives-changed zone (parent zone)))
-
-(defgeneric client (zone))
-(defgeneric (setf client) (new-client zone))
 
 ;;; Return as two values the natural width and the natural height of
 ;;; the zone.  We use this function to determine the size of a zone
@@ -98,7 +99,7 @@
 ;;; This function is called in order to set the position and
 ;;; dimensions of a zone.  The zone must comply.  The :before method
 ;;; on ZONE sets the hpos, the vpos, the width and the height of the
-;;; zone by calling (SETF HPOS), (SETF VPOS), (SETF WIDTH), and (SETF
+;;; zone by calling SET-HPOS, SET-VPOS, (SETF WIDTH), and (SETF
 ;;; HEIGHT).  The contract of the primary method is to take the
 ;;; consequences of the size imposition, for instance to recursively
 ;;; impose sizes on the children.
@@ -108,8 +109,8 @@
 (defmethod impose-layout :before ((zone zone) hpos vpos width height)
   (set-hpos hpos zone)
   (set-vpos vpos zone)
-  (set-width width zone)
-  (set-height height zone))
+  (setf (width zone) width)
+  (setf (height zone) height))
 
 ;;; Default method on NOTIFY-CONNECT.  It is specialized for a NULL
 ;;; client and it does nothing.
@@ -413,7 +414,7 @@
 				       (parent independent-gives-mixin))
   nil)
 
-(defmethod clim3-zone:combine-child-gives ((zone independent-gives-mixin))
+(defmethod combine-child-gives ((zone independent-gives-mixin))
   nil)
 
 (defmethod notify-children-changed ((zone dependent-gives-mixin))

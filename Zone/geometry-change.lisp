@@ -2,7 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function NOTIFY-CHILD-GEOMETRY-CHANGED.
+;;; Generic function NOTIFY-CHILD-POSITION-CHANGED.
 ;;;
 ;;; This generic function is called whenever the position or size of
 ;;; the zone is explicitly changed by a call to (SETF HPOS), (SETF
@@ -16,5 +16,5 @@
 ;;; By doing it this way, we compel zones to make an explicit choice
 ;;; concerning the action of this function.
 
-(defgeneric notify-child-geometry-changed (child parent))
+(defgeneric notify-child-position-changed (child parent))
 

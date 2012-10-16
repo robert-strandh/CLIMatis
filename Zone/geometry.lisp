@@ -37,7 +37,7 @@
 ;;; may not affect the position of the corresponding top-level window
 ;;; on the display.
 ;;;
-;;; Calling this function triggers the geometry-change protocol,
+;;; Calling this function triggers the position-change protocol,
 ;;; informing the parent that a change has taken place.  
 
 (defgeneric (setf hpos) (new-hpos zone))
@@ -47,10 +47,10 @@
 ;;; Generic function SET-HPOS.
 ;;;
 ;;; Set the current horizontal position of the zone relative to its
-;;; parent, without triggering the geometry-change protocol.
+;;; parent, without triggering the position-change protocol.
 ;;;
 ;;; This function is similar to (SETF HPOS), with the difference that
-;;; it does not trigger the geometry-change protocol.  It is used
+;;; it does not trigger the position-change protocol.  It is used
 ;;; exclusively by internal protocols to avoid infinite recursions
 ;;; when a parent needs to set the position of a child as a result of
 ;;; some previous change.
@@ -94,7 +94,7 @@
 ;;; may not affect the position of the corresponding top-level window
 ;;; on the display.
 ;;;
-;;; Calling this function triggers the geometry-change protocol,
+;;; Calling this function triggers the position-change protocol,
 ;;; informing the parent that a change has taken place.  
 
 (defgeneric (setf vpos) (new-vpos zone))
@@ -104,10 +104,10 @@
 ;;; Generic function SET-VPOS.
 ;;;
 ;;; Set the current vertical position of the zone relative to its
-;;; parent, without triggering the geometry-change protocol.
+;;; parent, without triggering the position-change protocol.
 ;;;
 ;;; This function is similar to (SETF VPOS), with the difference that
-;;; it does not trigger the geometry-change protocol.  It is used
+;;; it does not trigger the position-change protocol.  It is used
 ;;; exclusively by internal protocols to avoid infinite recursions
 ;;; when a parent needs to set the position of a child as a result of
 ;;; some previous change.
@@ -121,8 +121,8 @@
 ;;; Return the current width of the zone.  
 ;;; 
 ;;; If the zone is the root zone and it is connected to some display
-;;; server, then depending on the display server, this value may or
-;;; may not reflect the width of the corresponding top-level window.
+;;; server, then this value reflects the width of the corresponding
+;;; top-level window.
 
 (defgeneric width (zone))
 
@@ -132,40 +132,17 @@
 ;;;
 ;;; Set the current width of the zone.
 ;;;
-;;; Calling this function is the normal way of setting the width of a
-;;; zone that is the child of a layout zone that does not impose the
-;;; size of its children, such as a bboard zone or a scroller zone.
+;;; Applications should never call this function.  It is used only by
+;;; layout zones to set the dimensions of children, and by ports to
+;;; set the size of the root zone to be equal to the size of the
+;;; corresponding window.
 ;;;
-;;; Setting the position of a zone may not have the effect that an
-;;; application expects.  If the zone is the child of a layout zone
-;;; that imposes the size of its children, then the change will be
-;;; undone before the next time around the event loop, so that no
-;;; visible effect can be detected.
-;;;
-;;; If the zone is the root zone and it is connected to some display
-;;; server, then depending on the display server, this value may or
-;;; may not affect the width of the corresponding top-level window
-;;; on the display.
-;;;
-;;; Calling this function triggers the geometry-change protocol,
-;;; informing the parent that a change has taken place.  
+;;; Applications can influence the dimensions of a zone, provided that
+;;; it is the child of a zone that does not impose the dimensions such
+;;; as a bboard zone or a scroller zone, by changing the gives of the
+;;; zone so as to give it different natural dimensions.
 
 (defgeneric (setf width) (new-width zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function SET-WIDTH.
-;;;
-;;; Set the current width of the zone relative to its parent, without
-;;; triggering the geometry-change protocol.
-;;;
-;;; This function is similar to (SETF WIDTH), with the difference that
-;;; it does not trigger the geometry-change protocol.  It is used
-;;; exclusively by internal protocols to avoid infinite recursions
-;;; when a parent needs to set the width of a child as a result of
-;;; some previous change.
-
-(defgeneric set-width (new-width zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -174,8 +151,8 @@
 ;;; Return the current height of the zone.
 ;;;
 ;;; If the zone is the root zone and it is connected to some display
-;;; server, then depending on the display server, this value may or
-;;; may not reflect the height of the corresponding top-level window.
+;;; server, then this value reflects the height of the corresponding
+;;; top-level window.
 
 (defgeneric height (zone))
 
@@ -185,40 +162,18 @@
 ;;;
 ;;; Set the current height of the zone.
 ;;;
-;;; Calling this function is the normal way of setting the height of a
-;;; zone that is the child of a layout zone that does not impose the
-;;; size of its children, such as a bboard zone or a scroller zone.
 ;;;
-;;; Setting the position of a zone may not have the effect that an
-;;; application expects.  If the zone is the child of a layout zone
-;;; that imposes the size of its children, then the change will be
-;;; undone before the next time around the event loop, so that no
-;;; visible effect can be detected.
+;;; Applications should never call this function.  It is used only by
+;;; layout zones to set the dimensions of children, and by ports to
+;;; set the size of the root zone to be equal to the size of the
+;;; corresponding window.
 ;;;
-;;; If the zone is the root zone and it is connected to some display
-;;; server, then depending on the display server, this value may or
-;;; may not affect the height of the corresponding top-level window on
-;;; the display.
-;;;
-;;; Calling this function triggers the geometry-change protocol,
-;;; informing the parent that a change has taken place.
+;;; Applications can influence the dimensions of a zone, provided that
+;;; it is the child of a zone that does not impose the dimensions such
+;;; as a bboard zone or a scroller zone, by changing the gives of the
+;;; zone so as to give it different natural dimensions.
 
 (defgeneric (setf height) (new-height zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function SET-HEIGHT.
-;;;
-;;; Set the current height of the zone relative to its parent, without
-;;; triggering the geometry-change protocol.
-;;;
-;;; This function is similar to (SETF HEIGHT), with the difference that
-;;; it does not trigger the geometry-change protocol.  It is used
-;;; exclusively by internal protocols to avoid infinite recursions
-;;; when a parent needs to set the height of a child as a result of
-;;; some previous change.
-
-(defgeneric set-height (new-height zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
