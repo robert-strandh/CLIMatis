@@ -240,17 +240,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function NOTIFY-CHILDREN-CHANGED.
-;;;
-;;; This function is called when the children of some compound zone
-;;; have changed, such as when a child has been added or removed.  
-;;; 
-;;; FIXME: say more.
-
-(defgeneric notify-children-changed (zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Generic function COMBINE-CHILD-GIVES.
 ;;;
 ;;; This generic function is charged with combining the give of each
