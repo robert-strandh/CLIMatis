@@ -236,3 +236,11 @@
 
 (defgeneric (setf depth) (new-depth zone))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function SET-DEPTH.
+;;;
+;;; FIXME: add comment 
+
+(defgeneric SET-DEPTH (new-depth zone))
+
