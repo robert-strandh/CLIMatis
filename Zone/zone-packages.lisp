@@ -21,6 +21,9 @@
    #:notify-disconnect
    #:notify-child-gives-invalid
    #:invalidate-gives
+   #:child-layouts-valid-p
+   #:impose-child-layouts
+   #:ensure-child-layouts-valid
    #:impose-layout
    #:atomic-zone
    #:compound-zone
