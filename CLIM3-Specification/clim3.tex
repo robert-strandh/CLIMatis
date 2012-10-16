@@ -921,11 +921,11 @@ first argument on each child of the zone given as a second argument.
 \subsubsection{Class \texttt{any-number-of-children-mixin}}
 
 
-\section{Gives invalidation protocol}
+\section{Gives change protocol}
 
-The gives invalidation protocol is divided into four functions
-for maximum flexibility to client code, three of them generic, and one
-is an ordinary function.
+The gives change protocol is divided into four functions for maximum
+flexibility to client code, three of them generic, and one is an
+ordinary function.
 
 \subsection{Generic functions and methods}
 
@@ -1030,6 +1030,44 @@ nothing.  Otherwise, it marks them invalid by calling
 \texttt{notify-child-gives-invalid} with the zone and its parent.
 
 \section{Zone layout protocol}
+
+The zone layout protocol is designed so that if the zone hierarchy is
+appropriately designed, then layout can be done incrementally for good
+performance. 
+
+In any hierarchy of zones, some zones may have valid gives and some
+zones may have invalid gives.  Atomic zones whose gives do not depend
+on any client are always valid.  Atomic zones whose gives depend on
+some client may or may not be valid.  If the zone hierarchy is not
+connected to a client, they are invalid. 
+
+A compound zone whose gives depend on the gives of its children will
+have invalid gives if any of the children has invalid gives.  We
+maintain this invariant by using the gives change protocol.  Thus, the
+only case where a (compound) zone can have valid gives even though
+some child has invalid gives is when that zone is such that its gives
+are independent of the gives of the children.  In particular, this is
+the case for scroller zones and bboard zones.
+
+When a zone is rendered, its position and size must be known.  In
+addition, we require that a zone that is rendered also have valid
+gives, even though this is not strictly necessary.
+
+The size and sometimes the position of a zone are set by the parent.
+If the parent is a port, then the port must set these parameters
+before rendering the zone.  Sometimes, when a zone is rendered, it is
+possible that its children do not have the correct position and size.
+For instance, if the position of a child of a hbox zone is modified by
+the application, then it is likely wrong, so it must be fixed before
+the hbox zone can be rendered.  Similarly, if the gives of a child of
+a bbox zone have changed, then the natural size of that child is very
+likely wrong, so it must be fixed before the bbox zone can be
+rendered.
+
+When the position or the gives of a zone change, we want to delay the
+fixes until the parent zone must be rendered.  We do this by
+maintaining a flag in compound zones that indicate whether the child
+geometries are valid or not.  
 
 \subsection{Generic functions}
 
