@@ -36,20 +36,224 @@
 ;;; the children.  Setting the position and the dimensions of a child
 ;;; of such a layout zone will move and resize the child. 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function PARENT.
+;;;
+;;; Return the current parent of the zone. 
+;;;
+;;; The parent may be another zone, in which case the zone is a child
+;;; of that zone, or it may be a client (typically a port), in which
+;;; case the zone is the root zone of a hierarchy connected to that
+;;; client, or it may be nil, in which case, this zone is the root
+;;; zone of a hierarchy not currently connected to any client.
+
 (defgeneric parent (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF PARENT).
+;;;
+;;; Set the parent of a zone.
+;;;
+;;; This generic function is part of the internal zone protocols.  It
+;;; should not be used directly by applications.  It is called
+;;; indirectly as a result of connecting the zone to a client, or as a
+;;; result of adding or removing the zone as a child of some other
+;;; zone by calling (SETF CHILDREN). 
+
 (defgeneric (setf parent) (new-parent zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic fucntion HPOS.
+;;;
+;;; Return the current horizontal position of the zone relative to its
+;;; parent.  
+;;;
+;;; If the zone is the root zone and it is connected to some display
+;;; server, then depending on the display server, this value may or
+;;; may not reflect the position of the corresponding top-level
+;;; window on the display. 
+
 (defgeneric hpos (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF HPOS).
+;;;
+;;; Set the current horizontal position of the zone relative to its
+;;; parent.  
+;;;
+;;; Calling this function is the normal way of setting the position of
+;;; a zone that is the child of a layout zone that does not impose the
+;;; position of its children, such as a bboard zone or a scroller
+;;; zone.
+;;;
+;;; Setting the position of a zone may not have the effect that an
+;;; application expects.  If the zone is the child of a layout zone
+;;; that imposes the position of its children, then the change will be
+;;; undone before the next time around the event loop, so that no
+;;; visible effect can be detected.  
+;;;
+;;; If the zone is the root zone and it is connected to some display
+;;; server, then depending on the display server, this value may or
+;;; may not affect the position of the corresponding top-level window
+;;; on the display.
+;;;
+;;; Calling this function triggers the geometry-change protcol,
+;;; informing the parent that a change has taken place.  
+
 (defgeneric (setf hpos) (new-hpos zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic fucntion VPOS.
+;;;
+;;; Return the current vertical position of the zone relative to its
+;;; parent.  
+;;;
+;;; If the zone is the root zone and it is connected to some display
+;;; server, then depending on the display server, this value may or
+;;; may not reflect the position of the corresponding top-level window
+;;; on the display.
+
 (defgeneric vpos (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF VPOS).
+;;;
+;;; Set the current vertical position of the zone relative to its
+;;; parent.
+;;;
+;;; Calling this function is the normal way of setting the position of
+;;; a zone that is the child of a layout zone that does not impose the
+;;; position of its children, such as a bboard zone or a scroller
+;;; zone.
+;;;
+;;; Setting the position of a zone may not have the effect that an
+;;; application expects.  If the zone is the child of a layout zone
+;;; that imposes the position of its children, then the change will be
+;;; undone before the next time around the event loop, so that no
+;;; visible effect can be detected.  
+;;;
+;;; If the zone is the root zone and it is connected to some display
+;;; server, then depending on the display server, this value may or
+;;; may not affect the position of the corresponding top-level window
+;;; on the display.
+;;;
+;;; Calling this function triggers the geometry-change protcol,
+;;; informing the parent that a change has taken place.  
+
 (defgeneric (setf vpos) (new-vpos zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic fucntion WIDTH.
+;;;
+;;; Return the current width of the zone.  
+;;; 
+;;; If the zone is the root zone and it is connected to some display
+;;; server, then depending on the display server, this value may or
+;;; may not reflect the width of the corresponding top-level window.
+
 (defgeneric width (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF WIDTH).
+;;;
+;;; Set the current width of the zone.
+;;;
+;;; Calling this function is the normal way of setting the width of a
+;;; zone that is the child of a layout zone that does not impose the
+;;; size of its children, such as a bboard zone or a scroller zone.
+;;;
+;;; Setting the position of a zone may not have the effect that an
+;;; application expects.  If the zone is the child of a layout zone
+;;; that imposes the size of its children, then the change will be
+;;; undone before the next time around the event loop, so that no
+;;; visible effect can be detected.
+;;;
+;;; If the zone is the root zone and it is connected to some display
+;;; server, then depending on the display server, this value may or
+;;; may not affect the width of the corresponding top-level window
+;;; on the display.
+;;;
+;;; Calling this function triggers the geometry-change protcol,
+;;; informing the parent that a change has taken place.  
+
 (defgeneric (setf width) (new-width zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic fucntion HEIGHT.
+;;;
+;;; Return the current height of the zone.
+;;;
+;;; If the zone is the root zone and it is connected to some display
+;;; server, then depending on the display server, this value may or
+;;; may not reflect the height of the corresponding top-level window.
+
 (defgeneric height (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF HEIGHT).
+;;;
+;;; Set the current height of the zone.
+;;;
+;;; Calling this function is the normal way of setting the height of a
+;;; zone that is the child of a layout zone that does not impose the
+;;; size of its children, such as a bboard zone or a scroller zone.
+;;;
+;;; Setting the position of a zone may not have the effect that an
+;;; application expects.  If the zone is the child of a layout zone
+;;; that imposes the size of its children, then the change will be
+;;; undone before the next time around the event loop, so that no
+;;; visible effect can be detected.
+;;;
+;;; If the zone is the root zone and it is connected to some display
+;;; server, then depending on the display server, this value may or
+;;; may not affect the height of the corresponding top-level window on
+;;; the display.
+;;;
+;;; Calling this function triggers the geometry-change protcol,
+;;; informing the parent that a change has taken place.
+
 (defgeneric (setf height) (new-height zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function HGIVE.
+
 (defgeneric hgive (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF HGIVE).
+
 (defgeneric (setf hgive) (new-hgive zone))
+
+(defmethod (setf hgive) :after ((new-hgive cons) zone)
+  (notify-child-gives-changed zone (parent zone)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function VGIVE.
+
 (defgeneric vgive (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF HGIVE).
+
 (defgeneric (setf vgive) (new-vgive zone))
+
+(defmethod (setf vgive) :after ((new-vgive cons) zone)
+  (notify-child-gives-changed zone (parent zone)))
+
 (defgeneric depth (zone))
 (defgeneric (setf depth) (new-depth zone))
 (defgeneric client (zone))
@@ -236,6 +440,43 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function NOTIFY-CHILD-GIVES-CHANGED.
+;;;
+;;; This function is similar to NOTIFY-CHILD-GIVES-INVALID, except
+;;; that it is called when a child has its gives altered from one set
+;;; of valid gives to another set of valid gives.  Although we do not
+;;; exploit this possibility, we could have the parent do something
+;;; smarter than just invalidating its gives.  For the predefined
+;;; classed, we do the same thing as NOTIFY-CHILD-GIVES-INVALID.
+;;; 
+;;; This function is called on a child and a parent when the gives of
+;;; the child are altered for some reason, typically because of an
+;;; explicit assignment to the gives of the child i.e, a call either
+;;; to (SETF VGIVE) or to (SETF HGIVE).  Methods specialized on
+;;; parents with gives that depend on the gives of its children, can
+;;; choose to recompute the gives of the parent (provided the parent
+;;; gives are still valid) and make a recursive call to the
+;;; grandparent, or it can choose to invalidate the gives of the
+;;; parent.
+;;;
+;;; Two default methods are supplied.  The first default method is
+;;; specialized on a NULL parent and it does nothing.  This way, a
+;;; zone and its parent are always valid arguments to this function,
+;;; even though the zone is disconnected.  The second default method
+;;; is specialized on a parent of type ZONE and it signals an error.
+;;; By doing it this way, we compel zones to make an explicit choice
+;;; concerning the action of this function.
+
+(defgeneric notify-child-gives-changed (child parent))
+
+(defmethod notify-child-gives-changed ((child zone) (parent null))
+  nil)
+
+(defmethod notify-child-gives-changed ((child zone) (parent zone))
+  (error "No action specified for zone ~s" parent))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic function INVALIDATE-GIVES.
 ;;;
 ;;; This function is used to indicate that the gives of some zone are
@@ -323,17 +564,30 @@
 ;;; There are :around methods on this function (see below).  One is
 ;;; specialized for AT-MOST-ONE-CHILD-MIXIN, and the other for
 ;;; ANY-NUMBER-OF-CHILDREN-MIXIN, both subclasses of COMPOUND-ZONE.
-;;; These :round methods always call the primary methods, but they
+;;; These :around methods always call the primary methods, but they
 ;;; also do some extra work such as error checking, setting the parent
 ;;; of every new child, removing the parent of every removed child,
 ;;; and client notification.  The :around mehod calls CHILDREN, which
 ;;; has as a consequence that in order to use (SETF CHILDREN) the
 ;;; corresponding slot must be bound.
+;;;
+;;; There is one :after method specialized for COMPOUND-ZONE that calls 
 
 (defgeneric (setf children) (new-children compound-zone))
 
 (defclass compound-zone (zone)
   ((%children :initarg :children :accessor children)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function NOTIFY-CHILDREN-CHANGED.
+;;;
+;;; This function is called when the children of some compound zone
+;;; have changed, such as when a child has been added or removed.  
+;;; 
+;;; FIXME: say more.
+
+(defgeneric notify-children-changed (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -477,6 +731,13 @@
 				       (parent dependent-gives-mixin))
   (invalidate-gives parent))
 
+(defmethod notify-child-gives-changed ((child zone)
+				       (parent dependent-gives-mixin))
+  (invalidate-gives parent))
+
+(defmethod notify-children-changed ((zone dependent-gives-mixin))
+  (invalidate-gives zone))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class HDEPENDENT-GIVES-MIXIN.
@@ -493,6 +754,13 @@
 				       (parent hdependent-gives-mixin))
   (invalidate-gives parent))
 
+(defmethod notify-child-gives-changed ((child zone)
+				       (parent hdependent-gives-mixin))
+  (invalidate-gives parent))
+
+(defmethod notify-children-changed ((zone hdependent-gives-mixin))
+  (invalidate-gives zone))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class VDEPENDENT-GIVES-MIXIN.
@@ -508,6 +776,13 @@
 (defmethod notify-child-gives-invalid ((child zone)
 				       (parent vdependent-gives-mixin))
   (invalidate-gives parent))
+
+(defmethod notify-child-gives-changed ((child zone)
+				       (parent vdependent-gives-mixin))
+  (invalidate-gives parent))
+
+(defmethod notify-children-changed ((zone vdependent-gives-mixin))
+  (invalidate-gives zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -526,7 +801,14 @@
 				       (parent independent-gives-mixin))
   nil)
 
+(defmethod notify-child-gives-changed ((child zone)
+				       (parent independent-gives-mixin))
+  nil)
+
 (defmethod clim3-zone:combine-child-gives ((zone independent-gives-mixin))
+  nil)
+
+(defmethod notify-children-changed ((zone dependent-gives-mixin))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
