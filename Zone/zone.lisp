@@ -175,9 +175,15 @@
 (defclass compound-zone (zone)
   ((%children :initarg :children :accessor children)))
 
-;;; For a compound zone, in order to compute all gives, we
-;;; recursively compute the gives of the children and then
-;;; combine the result. 
+;;; For a compound zone, in order to compute all gives, we call
+;;; ENSURE-GIVES-VALID on each child and then combine the result by
+;;; calling COMBINE-CHILD-GIVES.
+;;;
+;;; Although it is not safe to attemps to combien the gives of the
+;;; children of all compound zones, we know that this function will
+;;; only be called on a zone with invalid gives, and all compound
+;;; zones that can have invalid gives also know how to combine the
+;;; gives of the children.
 (defmethod compute-gives ((zone compound-zone))
   (map-over-children #'compute-gives zone)
   (combine-child-gives zone))
@@ -381,8 +387,10 @@
 				       (parent independent-gives-mixin))
   nil)
 
+;;; There should never be an attempt to combine the child gives of a
+;;; zone whose gives are independent of the gives of its children. 
 (defmethod combine-child-gives ((zone independent-gives-mixin))
-  nil)
+  (error "Attempt to combine the child gives of ~s" zone))
 
 (defmethod notify-children-changed ((zone dependent-gives-mixin))
   nil)

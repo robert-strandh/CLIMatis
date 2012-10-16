@@ -8,9 +8,11 @@
 ;;; of a zone.  It is only called on a zone with invalid gives.  
 ;;;
 ;;; There will be a method specialized for each atomic zone whose
-;;; gives depend on the current client.  We also supply a default
-;;; method specialized for COMPOUND-ZONE, and that calls
-;;; COMBINE-CHILD-GIVES.
+;;; gives depend on the current client.  
+;;;
+;;; We also supply a default method specialized for COMPOUND-ZONE.
+;;; That method calls ENSURE-GIVES-VALID on each child, and then calls
+;;; COMBINE-CHILD-GIVES to combine the result. 
 ;;;
 ;;; After a call to this function, the gives of the zone are valid as
 ;;; reported by GIVES-VALID-P. 
