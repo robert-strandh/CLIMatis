@@ -173,7 +173,8 @@
 ;;; A compound zone is any zone that may have some children.
 
 (defclass compound-zone (zone)
-  ((%children :initarg :children :accessor children)))
+  ((%children :initarg :children :accessor children)
+   (%child-layouts-valid-p :initform nil :accessor child-layouts-valid-p)))
 
 ;;; For a compound zone, in order to compute all gives, we call
 ;;; ENSURE-GIVES-VALID on each child and then combine the result by
