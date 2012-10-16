@@ -11,6 +11,9 @@
 ;;; gives depend on the current client.  We also supply a default
 ;;; method specialized for COMPOUND-ZONE, and that calls
 ;;; COMBINE-CHILD-GIVES.
+;;;
+;;; After a call to this function, the gives of the zone are valid as
+;;; reported by GIVES-VALID-P. 
 
 (defgeneric compute-gives (zone))
 
@@ -24,6 +27,9 @@
 ;;;
 ;;; This function will be called only on compound zones with gives
 ;;; that depend on the gives of the children.
+;;;
+;;; After a call to this function, the gives of the zone are valid as
+;;; reported by GIVES-VALID-P.
 
 (defgeneric combine-child-gives (compound-zone))
 
