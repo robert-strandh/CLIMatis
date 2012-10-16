@@ -1,6 +1,9 @@
 (in-package #:clim3-clx-framebuffer)
 
 (defparameter *port* nil)
+(defparameter *hpos* nil)
+(defparameter *vpos* nil)
+(defparameter *pixel-array* nil)
 
 (defclass clx-framebuffer-port (clim3-port:port)
   ((%display :accessor display)
@@ -242,10 +245,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Painting.
-
-(defparameter *hpos* nil)
-(defparameter *vpos* nil)
-(defparameter *pixel-array* nil)
 
 (defmethod paint ((zone clim3-zone:atomic-zone)
 		  (port clx-framebuffer-port)
