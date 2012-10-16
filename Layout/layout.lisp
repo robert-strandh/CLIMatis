@@ -58,12 +58,14 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone vbox))
-  (setf (clim3-zone:hgive zone)
-	(rigidity:combine-in-parallel
-	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone))))
-  (setf (clim3-zone:vgive zone)
-	(rigidity:combine-in-series
-	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))))
+  (clim3-zone:set-hgive
+   (rigidity:combine-in-parallel
+    (mapcar #'clim3-zone:hgive (clim3-zone:children zone)))
+   zone)
+  (clim3-zone:set-vgive
+   (rigidity:combine-in-series
+    (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))
+    zone))
   
 (defmethod clim3-zone:impose-layout ((zone vbox) hpos vpos width height)
   (declare (ignore hpos vpos))
@@ -91,12 +93,14 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone hbox))
-  (setf (clim3-zone:hgive zone)
-	(rigidity:combine-in-series
-	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone))))
-  (setf (clim3-zone:vgive zone)
-	(rigidity:combine-in-parallel
-	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))))
+  (clim3-zone:set-hgive
+   (rigidity:combine-in-series
+    (mapcar #'clim3-zone:hgive (clim3-zone:children zone)))
+   zone)
+  (clim3-zone:set-vgive
+   (rigidity:combine-in-parallel
+    (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))
+   zone))
   
 (defmethod clim3-zone:impose-layout ((zone hbox) hpos vpos width height)
   (declare (ignore hpos vpos))
@@ -124,12 +128,14 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone pile))
-  (setf (clim3-zone:hgive zone)
-	(rigidity:combine-in-parallel
-	 (mapcar #'clim3-zone:hgive (clim3-zone:children zone))))
-  (setf (clim3-zone:vgive zone)
-	(rigidity:combine-in-parallel
-	 (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))))
+  (clim3-zone:set-hgive
+   (rigidity:combine-in-parallel
+    (mapcar #'clim3-zone:hgive (clim3-zone:children zone)))
+   zone)
+  (clim3-zone:set-vgive
+   (rigidity:combine-in-parallel
+    (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))
+   zone))
   
 (defmethod clim3-zone:impose-layout ((zone pile) hpos vpos width height)
   (declare (ignore hpos vpos))
@@ -161,22 +167,26 @@
 	   (setf (combined-cols zone)
 		 (loop for col from 0 below cols
 		       collect (clim3-zone:hgive (aref children 0 col))))
-	   (setf (clim3-zone:hgive zone)
-		 (rigidity:combine-in-series (combined-cols zone)))
-	   (setf (clim3-zone:vgive zone)
-		 (rigidity:combine-in-parallel
-		  (loop for col from 0 below cols
-			collect (clim3-zone:vgive (aref children 0 col))))))
+	   (clim3-zone:set-hgive
+	    (rigidity:combine-in-series (combined-cols zone))
+	    zone)
+	   (clim3-zone:set-vgive
+	    (rigidity:combine-in-parallel
+	     (loop for col from 0 below cols
+		   collect (clim3-zone:vgive (aref children 0 col))))
+	    zone))
 	  ((= cols 1)
 	   (setf (combined-rows zone)
 		 (loop for row from 0 below rows
 		       collect (clim3-zone:vgive (aref children 0 row))))
-	   (setf (clim3-zone:hgive zone)
-		 (rigidity:combine-in-parallel
-		  (loop for row from 0 below rows
-			collect (clim3-zone:hgive (aref children 0 row)))))
-	   (setf (clim3-zone:vgive zone)
-		 (rigidity:combine-in-series (combined-rows zone))))
+	   (clim3-zone:set-hgive
+	    (rigidity:combine-in-parallel
+	     (loop for row from 0 below rows
+		   collect (clim3-zone:hgive (aref children 0 row))))
+	    zone)
+	   (clim3-zone:set-vgive
+	    (rigidity:combine-in-series (combined-rows zone))
+	    zone))
 	  (t
 	   (setf (combined-rows zone)
 		 (loop for row from 0 below rows
@@ -188,10 +198,12 @@
 		       collect (rigidity:combine-in-parallel
 				(loop for row from 0 below rows
 				      collect (clim3-zone:hgive (aref children row col))))))
-	   (setf (clim3-zone:hgive zone)
-		 (rigidity:combine-in-series (combined-cols children)))
-	   (setf (clim3-zone:vgive zone)
-		 (rigidity:combine-in-series (combined-rows children)))))))
+	   (clim3-zone:set-hgive
+	    (rigidity:combine-in-series (combined-cols children))
+	    zone)
+	   (clim3-zone:set-vgive
+	    (rigidity:combine-in-series (combined-rows children))
+	    zone)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -277,12 +289,14 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone hsponge))
-  (setf (clim3-zone:hgive zone)
-	(rigidity:little-rigid))
-  (setf (clim3-zone:vgive zone)
-	(if (null (clim3-zone:children zone))
-	    (rigidity:little-rigid)
-	    (clim3-zone:vgive (car (clim3-zone:children zone))))))
+  (clim3-zone:set-hgive
+   (rigidity:little-rigid)
+   zone)
+  (clim3-zone:set-vgive
+   (if (null (clim3-zone:children zone))
+       (rigidity:little-rigid)
+       (clim3-zone:vgive (car (clim3-zone:children zone))))
+   zone))
 
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
@@ -317,12 +331,14 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone vsponge))
-  (setf (clim3-zone:hgive zone)
-	(if (null (clim3-zone:children zone))
-	    (rigidity:little-rigid)
-	    (clim3-zone:hgive (car (clim3-zone:children zone)))))
-  (setf (clim3-zone:vgive zone)
-	(rigidity:little-rigid)))
+  (clim3-zone:set-hgive
+   (if (null (clim3-zone:children zone))
+       (rigidity:little-rigid)
+       (clim3-zone:hgive (car (clim3-zone:children zone))))
+   zone)
+  (clim3-zone:set-vgive
+   (rigidity:little-rigid)
+   zone))
 
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
@@ -396,10 +412,11 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone hbrick))
-  (setf (clim3-zone:vgive zone)
-	(if (null (clim3-zone:children zone))
-	    (rigidity:little-rigid)
-	    (clim3-zone:vgive (car (clim3-zone:children zone))))))
+  (clim3-zone:set-vgive
+   (if (null (clim3-zone:children zone))
+       (rigidity:little-rigid)
+       (clim3-zone:vgive (car (clim3-zone:children zone))))
+   zone))
 
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.
@@ -436,10 +453,11 @@
   ())
 
 (defmethod clim3-zone:combine-child-gives ((zone vbrick))
-  (setf (clim3-zone:hgive zone)
-	(if (null (clim3-zone:children zone))
-	    (rigidity:little-rigid)
-	    (clim3-zone:hgive (car (clim3-zone:children zone))))))
+  (clim3-zone:set-hgive
+   (if (null (clim3-zone:children zone))
+       (rigidity:little-rigid)
+       (clim3-zone:hgive (car (clim3-zone:children zone))))
+   zone))
 
 ;;; The :before method sets the corresponding slots.  Impose the
 ;;; layout on the child if any.

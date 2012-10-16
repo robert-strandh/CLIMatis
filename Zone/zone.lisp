@@ -36,15 +36,6 @@
 ;;; the children.  Setting the position and the dimensions of a child
 ;;; of such a layout zone will move and resize the child. 
 
-(defmethod (setf hgive) :after ((new-hgive cons) zone)
-  (notify-child-gives-changed zone (parent zone)))
-
-(defmethod (setf vgive) :after ((new-vgive cons) zone)
-  (notify-child-gives-changed zone (parent zone)))
-
-(defgeneric client (zone))
-(defgeneric (setf client) (new-client zone))
-
 (defclass zone ()
   ((%parent :initarg :parent :initform nil :accessor parent)
    (%hpos :initform 0 :initarg :hpos :accessor hpos :writer set-hpos)
@@ -66,6 +57,19 @@
 
 (defun zone-p (object)
   (typep object 'zone))
+
+;;; After the hgive of a zone has been explicitly modified, we notify
+;;; the parent zone of the change. 
+(defmethod (setf hgive) :after (new-hgive zone)
+  (notify-child-gives-changed zone (parent zone)))
+
+;;; After the vgive of a zone has been explicitly modified, we notify
+;;; the parent zone of the change. 
+(defmethod (setf vgive) :after (new-vgive zone)
+  (notify-child-gives-changed zone (parent zone)))
+
+(defgeneric client (zone))
+(defgeneric (setf client) (new-client zone))
 
 ;;; Return as two values the natural width and the natural height of
 ;;; the zone.  We use this function to determine the size of a zone
@@ -102,10 +106,10 @@
 (defgeneric impose-layout (zone hpos vpos width height))
 
 (defmethod impose-layout :before ((zone zone) hpos vpos width height)
-  (setf (hpos zone) hpos
-	(vpos zone) vpos
-	(width zone) width
-	(height zone) height))
+  (set-hpos hpos zone)
+  (set-vpos vpos zone)
+  (set-width width zone)
+  (set-height height zone))
 
 ;;; Default method on NOTIFY-CONNECT.  It is specialized for a NULL
 ;;; client and it does nothing.
@@ -198,8 +202,8 @@
 ;;; Generic function COMBINE-CHILD-GIVES.
 ;;;
 ;;; This generic function is charged with combining the give of each
-;;; child of a compound zone, and calling the functions (SETF HGIVE)
-;;; and (SETF VGIVE) to set the result for the zone.
+;;; child of a compound zone, and calling the functions SET-HGIVE
+;;; and SET-VGIVE to set the result for the zone.
 
 (defgeneric combine-child-gives (compound-zone))
 
