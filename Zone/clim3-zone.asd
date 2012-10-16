@@ -11,6 +11,7 @@
    (:file "genealogy" :depends-on ("zone-packages"))
    (:file "geometry" :depends-on ("zone-packages"))
    (:file "gives" :depends-on ("zone-packages"))
+   (:file "layout" :depends-on ("zone-packages"))
    (:file "zone" :depends-on ("zone-packages"
 			      "gives-change"
 			      "position-change"
@@ -18,4 +19,5 @@
 			      "connection-change"
 			      "genealogy"
 			      "geometry"
-			      "gives"))))
+			      "gives"
+			      "layout"))))

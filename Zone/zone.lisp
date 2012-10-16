@@ -80,32 +80,9 @@
   (values (round (rigidity:natural-size (hgive zone)))
 	  (round (rigidity:natural-size (vgive zone)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function COMPUTE-GIVES.
-;;;
-;;; This function is responsible for first recursively calling itself
-;;; recursively on all the children of the zone, second for computing
-;;; the gives of the zone itself, and third, for setting the gives of
-;;; the zone to the result of the computation.  The order in which it
-;;; recursively calls itself on the children is not defined.
-
-(defgeneric compute-gives (zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function IMPOSE-LAYOUT.
-;;;
-;;; This function is called in order to set the position and
-;;; dimensions of a zone.  The zone must comply.  The :before method
-;;; on ZONE sets the hpos, the vpos, the width and the height of the
-;;; zone by calling SET-HPOS, SET-VPOS, (SETF WIDTH), and (SETF
-;;; HEIGHT).  The contract of the primary method is to take the
-;;; consequences of the size imposition, for instance to recursively
-;;; impose sizes on the children.
-
-(defgeneric impose-layout (zone hpos vpos width height))
-
+;;; The :before method sets the hpos, the vpos, the width and the
+;;; height of the zone by calling SET-HPOS, SET-VPOS, (SETF WIDTH),
+;;; and (SETF HEIGHT).
 (defmethod impose-layout :before ((zone zone) hpos vpos width height)
   (set-hpos hpos zone)
   (set-vpos vpos zone)
@@ -197,16 +174,6 @@
 
 (defclass compound-zone (zone)
   ((%children :initarg :children :accessor children)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function COMBINE-CHILD-GIVES.
-;;;
-;;; This generic function is charged with combining the give of each
-;;; child of a compound zone, and calling the functions SET-HGIVE
-;;; and SET-VGIVE to set the result for the zone.
-
-(defgeneric combine-child-gives (compound-zone))
 
 ;;; For a compound zone, in order to compute all gives, we
 ;;; recursively compute the gives of the children and then
