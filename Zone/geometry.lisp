@@ -2,7 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic fucntion HPOS.
+;;; Generic function HPOS.
 ;;;
 ;;; Return the current horizontal position of the zone relative to its
 ;;; parent.  
@@ -37,7 +37,7 @@
 ;;; may not affect the position of the corresponding top-level window
 ;;; on the display.
 ;;;
-;;; Calling this function triggers the geometry-change protcol,
+;;; Calling this function triggers the geometry-change protocol,
 ;;; informing the parent that a change has taken place.  
 
 (defgeneric (setf hpos) (new-hpos zone))
@@ -47,7 +47,7 @@
 ;;; Generic function SET-HPOS.
 ;;;
 ;;; Set the current horizontal position of the zone relative to its
-;;; parent, without triggering the gemetry-change protocol.
+;;; parent, without triggering the geometry-change protocol.
 ;;;
 ;;; This function is similar to (SETF HPOS), with the difference that
 ;;; it does not trigger the geometry-change protocol.  It is used
@@ -59,7 +59,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic fucntion VPOS.
+;;; Generic function VPOS.
 ;;;
 ;;; Return the current vertical position of the zone relative to its
 ;;; parent.  
@@ -94,7 +94,7 @@
 ;;; may not affect the position of the corresponding top-level window
 ;;; on the display.
 ;;;
-;;; Calling this function triggers the geometry-change protcol,
+;;; Calling this function triggers the geometry-change protocol,
 ;;; informing the parent that a change has taken place.  
 
 (defgeneric (setf vpos) (new-vpos zone))
@@ -104,7 +104,7 @@
 ;;; Generic function SET-VPOS.
 ;;;
 ;;; Set the current vertical position of the zone relative to its
-;;; parent, without triggering the gemetry-change protocol.
+;;; parent, without triggering the geometry-change protocol.
 ;;;
 ;;; This function is similar to (SETF VPOS), with the difference that
 ;;; it does not trigger the geometry-change protocol.  It is used
@@ -116,7 +116,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic fucntion WIDTH.
+;;; Generic function WIDTH.
 ;;;
 ;;; Return the current width of the zone.  
 ;;; 
@@ -147,7 +147,7 @@
 ;;; may not affect the width of the corresponding top-level window
 ;;; on the display.
 ;;;
-;;; Calling this function triggers the geometry-change protcol,
+;;; Calling this function triggers the geometry-change protocol,
 ;;; informing the parent that a change has taken place.  
 
 (defgeneric (setf width) (new-width zone))
@@ -157,7 +157,7 @@
 ;;; Generic function SET-WIDTH.
 ;;;
 ;;; Set the current width of the zone relative to its parent, without
-;;; triggering the gemetry-change protocol.
+;;; triggering the geometry-change protocol.
 ;;;
 ;;; This function is similar to (SETF WIDTH), with the difference that
 ;;; it does not trigger the geometry-change protocol.  It is used
@@ -169,7 +169,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic fucntion HEIGHT.
+;;; Generic function HEIGHT.
 ;;;
 ;;; Return the current height of the zone.
 ;;;
@@ -200,7 +200,7 @@
 ;;; may not affect the height of the corresponding top-level window on
 ;;; the display.
 ;;;
-;;; Calling this function triggers the geometry-change protcol,
+;;; Calling this function triggers the geometry-change protocol,
 ;;; informing the parent that a change has taken place.
 
 (defgeneric (setf height) (new-height zone))
@@ -210,7 +210,7 @@
 ;;; Generic function SET-HEIGHT.
 ;;;
 ;;; Set the current height of the zone relative to its parent, without
-;;; triggering the gemetry-change protocol.
+;;; triggering the geometry-change protocol.
 ;;;
 ;;; This function is similar to (SETF HEIGHT), with the difference that
 ;;; it does not trigger the geometry-change protocol.  It is used

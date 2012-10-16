@@ -59,7 +59,7 @@
 ;;; These :around methods always call the primary methods, but they
 ;;; also do some extra work such as error checking, setting the parent
 ;;; of every new child, removing the parent of every removed child,
-;;; and client notification.  The :around mehod calls CHILDREN, which
+;;; and client notification.  The :around method calls CHILDREN, which
 ;;; has as a consequence that in order to use (SETF CHILDREN) the
 ;;; corresponding slot must be bound.
 ;;;
