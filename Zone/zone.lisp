@@ -108,6 +108,21 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function SET-HPOS.
+;;;
+;;; Set the current horizontal position of the zone relative to its
+;;; parent, without triggering the gemetry-change protocol.
+;;;
+;;; This function is similar to (SETF HPOS), with the difference that
+;;; it does not trigger the geometry-change protocol.  It is used
+;;; exclusively by internal protocols to avoid infinite recursions
+;;; when a parent needs to set the position of a child as a result of
+;;; some previous change.
+
+(defgeneric set-hpos (new-hpos zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic fucntion VPOS.
 ;;;
 ;;; Return the current vertical position of the zone relative to its
@@ -150,6 +165,21 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function SET-VPOS.
+;;;
+;;; Set the current vertical position of the zone relative to its
+;;; parent, without triggering the gemetry-change protocol.
+;;;
+;;; This function is similar to (SETF VPOS), with the difference that
+;;; it does not trigger the geometry-change protocol.  It is used
+;;; exclusively by internal protocols to avoid infinite recursions
+;;; when a parent needs to set the position of a child as a result of
+;;; some previous change.
+
+(defgeneric set-vpos (new-vpos zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic fucntion WIDTH.
 ;;;
 ;;; Return the current width of the zone.  
@@ -185,6 +215,21 @@
 ;;; informing the parent that a change has taken place.  
 
 (defgeneric (setf width) (new-width zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function SET-WIDTH.
+;;;
+;;; Set the current width of the zone relative to its parent, without
+;;; triggering the gemetry-change protocol.
+;;;
+;;; This function is similar to (SETF WIDTH), with the difference that
+;;; it does not trigger the geometry-change protocol.  It is used
+;;; exclusively by internal protocols to avoid infinite recursions
+;;; when a parent needs to set the width of a child as a result of
+;;; some previous change.
+
+(defgeneric set-width (new-width zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -226,6 +271,21 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function SET-HEIGHT.
+;;;
+;;; Set the current height of the zone relative to its parent, without
+;;; triggering the gemetry-change protocol.
+;;;
+;;; This function is similar to (SETF HEIGHT), with the difference that
+;;; it does not trigger the geometry-change protocol.  It is used
+;;; exclusively by internal protocols to avoid infinite recursions
+;;; when a parent needs to set the height of a child as a result of
+;;; some previous change.
+
+(defgeneric set-height (new-height zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic function HGIVE.
 
 (defgeneric hgive (zone))
@@ -261,17 +321,17 @@
 
 (defclass zone ()
   ((%parent :initarg :parent :initform nil :accessor parent)
-   (%hpos :initform 0 :initarg :hpos :accessor hpos)
-   (%vpos :initform 0 :initarg :vpos :accessor vpos)
-   (%width :accessor width)
-   (%height :accessor height)
-   (%hgive :initarg :hgive :accessor hgive)
-   (%vgive :initarg :vgive :accessor vgive)
+   (%hpos :initform 0 :initarg :hpos :accessor hpos :writer set-hpos)
+   (%vpos :initform 0 :initarg :vpos :accessor vpos :writer set-vpos)
+   (%width :accessor width :writer set-width)
+   (%height :accessor height :writer set-height)
+   (%hgive :initarg :hgive :accessor hgive :writer set-hgive)
+   (%vgive :initarg :vgive :accessor vgive :writer set-vgive)
    ;; The depth is used to determine an order between the children of
    ;; a compound zone.  This order is used to determine in which order
    ;; children are painted, and in which order input zones are
    ;; searched for event handlers.  The depth can be any real number.
-   (%depth :initform 0 :initarg :depth :accessor depth)
+   (%depth :initform 0 :initarg :depth :accessor depth :writer set-depth)
    ;; A zone can belong to at most one client at a time.  If this
    ;; value is NIL, then the zone currently does not belong to any
    ;; client.  The nature of this object is entirely determined by
