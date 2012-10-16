@@ -77,6 +77,17 @@
 	  for child in children
 	  do (clim3-zone:impose-layout child 0 vpos width height))))
 
+(defmethod clim3-zone:impose-child-layouts ((zone vbox))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone))
+	 (vertical-gives (mapcar #'clim3-zone:vgive children))
+	 (heights (rigidity:sizes-in-series vertical-gives height)))
+    (loop for vpos = 0 then (+ vpos height)
+	  for height in heights
+	  for child in children
+	  do (clim3-zone:impose-layout child 0 vpos width height))))
+  
 (defun vbox (children)
   (make-instance 'vbox :children (coerce-to-list-of-zones children)))
 
@@ -112,6 +123,17 @@
 	  for child in children
 	  do (clim3-zone:impose-layout child hpos 0 width height))))
 
+(defmethod clim3-zone:impose-child-layouts ((zone vbox))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone))
+	 (horizontal-gives (mapcar #'clim3-zone:hgive children))
+	 (widths (rigidity:sizes-in-series horizontal-gives width)))
+    (loop for hpos = 0 then (+ hpos width)
+	  for width in widths
+	  for child in children
+	  do (clim3-zone:impose-layout child hpos 0 width height))))
+
 (defun hbox (children)
   (make-instance 'hbox :children (coerce-to-list-of-zones children)))
 
@@ -140,6 +162,13 @@
 (defmethod clim3-zone:impose-layout ((zone pile) hpos vpos width height)
   (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
+    (loop for child in children
+	  do (clim3-zone:impose-layout child 0 0 width height))))
+
+(defmethod clim3-zone:impose-child-layouts ((zone pile))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
     (loop for child in children
 	  do (clim3-zone:impose-layout child 0 0 width height))))
 
@@ -231,6 +260,16 @@
 	      (clim3-zone:hpos child) (clim3-zone:vpos child)
 	      width height))))
 
+(defmethod clim3-zone:impose-child-layouts ((zone bboard))
+  (loop for child in (clim3-zone:children zone)
+	do (clim3-zone:ensure-gives-valid child)
+	   (multiple-value-bind (width height)
+	       (clim3-zone:natural-size child)
+	     (clim3-zone:impose-layout
+	      child
+	      (clim3-zone:hpos child) (clim3-zone:vpos child)
+	      width height))))
+
 (defun bboard (children)
   (make-instance 'bboard :children (coerce-to-list-of-zones children)))
 
@@ -261,6 +300,13 @@
 (defmethod clim3-zone:impose-layout ((zone sponge) hpos vpos width height)
   (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
+
+(defmethod clim3-zone:impose-child-layouts ((zone sponge))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
     (unless (null children)
       (clim3-zone:impose-layout (car children) 0 0 width height))))
 
@@ -306,6 +352,13 @@
     (unless (null children)
       (clim3-zone:impose-layout (car children) 0 0 width height))))
 
+(defmethod clim3-zone:impose-child-layouts ((zone hsponge))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
+
 (defun hsponge (children)
   (make-instance
    'hsponge
@@ -348,6 +401,13 @@
     (unless (null children)
       (clim3-zone:impose-layout (car children) 0 0 width height))))
 
+(defmethod clim3-zone:impose-child-layouts ((zone vsponge))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
+
 (defun vsponge (children)
   (make-instance
    'vsponge
@@ -380,6 +440,13 @@
 (defmethod clim3-zone:impose-layout ((zone brick) hpos vpos width height)
   (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
+
+(defmethod clim3-zone:impose-child-layouts ((zone brick))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
     (unless (null children)
       (clim3-zone:impose-layout (car children) 0 0 width height))))
 
@@ -426,6 +493,13 @@
     (unless (null children)
       (clim3-zone:impose-layout (car children) 0 0 width height))))
 
+(defmethod clim3-zone:impose-child-layouts ((zone hbrick))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
+
 (defun hbrick (width children)
   (make-instance
    'hbrick
@@ -464,6 +538,13 @@
 (defmethod clim3-zone:impose-layout ((zone vbrick) hpos vpos width height)
   (declare (ignore hpos vpos))
   (let ((children (clim3-zone:children zone)))
+    (unless (null children)
+      (clim3-zone:impose-layout (car children) 0 0 width height))))
+
+(defmethod clim3-zone:impose-child-layouts ((zone vbrick))
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
     (unless (null children)
       (clim3-zone:impose-layout (car children) 0 0 width height))))
 
