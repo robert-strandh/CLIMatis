@@ -4,4 +4,5 @@
   :depends-on (:rigidity)
   :components
   ((:file "zone-packages" :depends-on ())
-   (:file "zone" :depends-on ("zone-packages"))))
+   (:file "gives-change" :depends-on ("zone-packages"))
+   (:file "zone" :depends-on ("zone-packages" "gives-change"))))
