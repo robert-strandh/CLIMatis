@@ -36,32 +36,8 @@
 ;;; the children.  Setting the position and the dimensions of a child
 ;;; of such a layout zone will move and resize the child. 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function HGIVE.
-
-(defgeneric hgive (zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function (SETF HGIVE).
-
-(defgeneric (setf hgive) (new-hgive zone))
-
 (defmethod (setf hgive) :after ((new-hgive cons) zone)
   (notify-child-gives-changed zone (parent zone)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function VGIVE.
-
-(defgeneric vgive (zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function (SETF HGIVE).
-
-(defgeneric (setf vgive) (new-vgive zone))
 
 (defmethod (setf vgive) :after ((new-vgive cons) zone)
   (notify-child-gives-changed zone (parent zone)))
@@ -192,6 +168,18 @@
 ;;; This method signals an error, forcing the parent zone type to
 ;;; choose an action as a result of a call to this function. 
 (defmethod notify-child-gives-changed ((child zone) (parent zone))
+  (error "No action specified for zone ~s" parent))
+
+;;; Default method on NOTIFY-CHILDREN-CHANGED for ZONE and NULL.
+;;; This method does nothing, thus allowing this generic function to
+;;; be called with any zone and its parent.
+(defmethod notify-children-changed ((child zone) (parent null))
+  nil)
+
+;;; Default method on NOTIFY-CHILDREN-CHANGED for ZONE and ZONE.
+;;; This method signals an error, forcing the parent zone type to
+;;; choose an action as a result of a call to this function. 
+(defmethod notify-children-changed ((child zone) (parent zone))
   (error "No action specified for zone ~s" parent))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
