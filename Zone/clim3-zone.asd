@@ -9,9 +9,11 @@
    (:file "genealogy-change" :depends-on ("zone-packages"))
    (:file "genealogy" :depends-on ("zone-packages"))
    (:file "geometry" :depends-on ("zone-packages"))
+   (:file "gives" :depends-on ("zone-packages"))
    (:file "zone" :depends-on ("zone-packages"
 			      "gives-change"
 			      "geometry-change"
 			      "genealogy-change"
 			      "genealogy"
-			      "geometry"))))
+			      "geometry"
+			      "gives"))))

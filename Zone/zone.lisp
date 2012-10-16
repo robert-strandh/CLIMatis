@@ -170,16 +170,16 @@
 (defmethod notify-child-gives-changed ((child zone) (parent zone))
   (error "No action specified for zone ~s" parent))
 
-;;; Default method on NOTIFY-CHILDREN-CHANGED for ZONE and NULL.
+;;; Default method on NOTIFY-CHILDREN-CHANGED NULL.
 ;;; This method does nothing, thus allowing this generic function to
-;;; be called with any zone and its parent.
-(defmethod notify-children-changed ((child zone) (parent null))
+;;; be called with any parent.
+(defmethod notify-children-changed ((parent null))
   nil)
 
-;;; Default method on NOTIFY-CHILDREN-CHANGED for ZONE and ZONE.
+;;; Default method on NOTIFY-CHILDREN-CHANGED for ZONE.
 ;;; This method signals an error, forcing the parent zone type to
 ;;; choose an action as a result of a call to this function. 
-(defmethod notify-children-changed ((child zone) (parent zone))
+(defmethod notify-children-changed ((parent zone))
   (error "No action specified for zone ~s" parent))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
