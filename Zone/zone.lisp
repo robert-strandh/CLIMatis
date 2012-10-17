@@ -70,7 +70,9 @@
 ;;; Do lazy client propagation.  Look for the closest non-nil client
 ;;; up the hierarchy, and set the client slot of all intermediate
 ;;; zones on the way back.
-(defun find-client (zone)
+(defgeneric find-client (zone))
+
+(defmethod find-client ((zone zone))
   (cond ((not (null (client zone)))
 	 (client zone))
 	((null (parent zone))
