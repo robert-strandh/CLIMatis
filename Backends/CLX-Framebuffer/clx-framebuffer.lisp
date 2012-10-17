@@ -165,13 +165,13 @@
 	       (= height (array-dimension pixel-array 0)))
 	  (loop for r from 0 below (array-dimension pixel-array 0)
 		do (loop for c from 0 below (array-dimension pixel-array 1)
-			 do (setf (aref pixel-array r c) #xaaaaaaaa)))
+			 do (setf (aref pixel-array r c) #xeeeeeeee)))
 	  (progn
 	    ;; FIXME: give the right pixel values
 	    (setf pixel-array
 		  (make-array (list height width)
 			      :element-type '(unsigned-byte 32)
-			      :initial-element #xaaaaaaaa))	  
+			      :initial-element #xeeeeeeee))	  
 	    (setf (image zone-entry)
 		  (xlib:create-image :bits-per-pixel 32
 				     :data (pixel-array zone-entry)
