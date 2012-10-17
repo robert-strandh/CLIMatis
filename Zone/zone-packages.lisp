@@ -8,7 +8,7 @@
    #:width #:height
    #:hgive #:vgive #:set-hgive #:set-vgive
    #:depth #:set-depth
-   #:client
+   #:find-client
    #:natural-size
    #:children
    #:map-over-children
@@ -17,8 +17,6 @@
    #:ensure-gives-valid
    #:compute-gives
    #:combine-child-gives
-   #:notify-connect
-   #:notify-disconnect
    #:notify-child-gives-invalid
    #:notify-child-gives-changed
    #:notify-children-changed
