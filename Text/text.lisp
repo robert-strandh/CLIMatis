@@ -27,16 +27,16 @@
 (defmethod clim3-zone:compute-gives ((zone text))
   (clim3-zone:set-hgive
    (rigidity:very-rigid
-    (clim3-port:text-width (clim3-zone:client zone)
+    (clim3-port:text-width (clim3-zone:find-client zone)
 			   (style zone)
 			   (chars zone)))
    zone)
   (clim3-zone:set-vgive
    (rigidity:very-rigid
     (+ (clim3-port:text-style-ascent
-	(clim3-zone:client zone) (style zone))
+	(clim3-zone:find-client zone) (style zone))
        (clim3-port:text-style-descent
-	(clim3-zone:client zone) (style zone))))
+	(clim3-zone:find-client zone) (style zone))))
    zone))
 
 (defun text (string style color)
