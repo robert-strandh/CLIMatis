@@ -12,22 +12,32 @@
 	   :initform (make-array 0 :element-type 'character)
 	   :accessor chars)))
 
+(defmethod (setf chars) :after (new-chars (zone text))
+  (declare (ignore new-chars))
+  (clim3-zone:invalidate-gives zone))
+
+(defmethod clim3-zone:mark-gives-invalid ((zone text))
+  (clim3-zone:set-vgive nil zone)
+  (clim3-zone:set-hgive nil zone))
+
 (defmethod clim3-zone:gives-valid-p ((zone text))
   (and (not (null (clim3-zone:vgive zone)))
        (not (null (clim3-zone:hgive zone)))))
 
 (defmethod clim3-zone:compute-gives ((zone text))
-  (setf (clim3-zone:hgive zone)
-	(rigidity:very-rigid
-	 (clim3-port:text-width (clim3-zone:client zone)
-				(style zone)
-				(chars zone))))
-  (setf (clim3-zone:vgive zone)
-	(rigidity:very-rigid
-	 (+ (clim3-port:text-style-ascent
-	     (clim3-zone:client zone) (style zone))
-	    (clim3-port:text-style-descent
-	     (clim3-zone:client zone) (style zone))))))
+  (clim3-zone:set-hgive
+   (rigidity:very-rigid
+    (clim3-port:text-width (clim3-zone:client zone)
+			   (style zone)
+			   (chars zone)))
+   zone)
+  (clim3-zone:set-vgive
+   (rigidity:very-rigid
+    (+ (clim3-port:text-style-ascent
+	(clim3-zone:client zone) (style zone))
+       (clim3-port:text-style-descent
+	(clim3-zone:client zone) (style zone))))
+   zone))
 
 (defun text (string style color)
   (make-instance 'text :style style :chars string :color color))
