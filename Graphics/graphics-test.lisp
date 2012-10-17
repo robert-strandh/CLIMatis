@@ -67,7 +67,6 @@
     (assert (= (clim3-zone:width zone) 32))
     (assert (= (clim3-zone:height zone) 54))))
 
-
 (defun test ()
   (test1)
   (test3)
