@@ -12,6 +12,10 @@
 	   :initform (make-array 0 :element-type 'character)
 	   :accessor chars)))
 
+(defmethod clim3-zone:gives-valid-p ((zone text))
+  (and (not (null (clim3-zone:vgive zone)))
+       (not (null (clim3-zone:hgive zone)))))
+
 (defmethod clim3-zone:compute-gives ((zone text))
   (setf (clim3-zone:hgive zone)
 	(rigidity:very-rigid

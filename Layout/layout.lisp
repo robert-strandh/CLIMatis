@@ -67,15 +67,11 @@
     (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))
     zone))
   
-(defmethod clim3-zone:impose-layout ((zone vbox) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let* ((children (clim3-zone:children zone))
-	 (vertical-gives (mapcar #'clim3-zone:vgive children))
-	 (heights (rigidity:sizes-in-series vertical-gives height)))
-    (loop for vpos = 0 then (+ vpos height)
-	  for height in heights
-	  for child in children
-	  do (clim3-zone:impose-layout child 0 vpos width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone vbox) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone vbox))
   (let* ((width (clim3-zone:width zone))
@@ -86,7 +82,9 @@
     (loop for vpos = 0 then (+ vpos height)
 	  for height in heights
 	  for child in children
-	  do (clim3-zone:impose-layout child 0 vpos width height))))
+	  do (clim3-zone:set-hpos 0 child)
+	     (clim3-zone:set-vpos vpos child)
+	     (clim3-zone:impose-size child width height))))
   
 (defun vbox (children)
   (make-instance 'vbox :children (coerce-to-list-of-zones children)))
@@ -113,17 +111,13 @@
     (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))
    zone))
   
-(defmethod clim3-zone:impose-layout ((zone hbox) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let* ((children (clim3-zone:children zone))
-	 (horizontal-gives (mapcar #'clim3-zone:hgive children))
-	 (widths (rigidity:sizes-in-series horizontal-gives width)))
-    (loop for hpos = 0 then (+ hpos width)
-	  for width in widths
-	  for child in children
-	  do (clim3-zone:impose-layout child hpos 0 width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone hbox) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone vbox))
+(defmethod clim3-zone:impose-child-layouts ((zone hbox))
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone))
@@ -132,7 +126,9 @@
     (loop for hpos = 0 then (+ hpos width)
 	  for width in widths
 	  for child in children
-	  do (clim3-zone:impose-layout child hpos 0 width height))))
+	  do (clim3-zone:set-hpos hpos child)
+	     (clim3-zone:set-vpos 0 child)
+	     (clim3-zone:impose-size child width height))))
 
 (defun hbox (children)
   (make-instance 'hbox :children (coerce-to-list-of-zones children)))
@@ -159,18 +155,20 @@
     (mapcar #'clim3-zone:vgive (clim3-zone:children zone)))
    zone))
   
-(defmethod clim3-zone:impose-layout ((zone pile) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let ((children (clim3-zone:children zone)))
-    (loop for child in children
-	  do (clim3-zone:impose-layout child 0 0 width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone pile) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone pile))
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
     (loop for child in children
-	  do (clim3-zone:impose-layout child 0 0 width height))))
+	  do (clim3-zone:set-hpos 0 child)
+	     (clim3-zone:set-vpos 0 child)
+	     (clim3-zone:impose-size child width height))))
 
 (defun pile (children)
   (make-instance 'pile :children (coerce-to-list-of-zones children)))
@@ -250,25 +248,12 @@
 (defmethod clim3-zone:combine-child-gives ((zone bboard))
   nil)
 
-(defmethod clim3-zone:impose-layout ((zone bboard) hpos vpos width height)
-  (declare (ignore hpos vpos width height))
-  (loop for child in (clim3-zone:children zone)
-	do (multiple-value-bind (width height)
-	       (clim3-zone:natural-size child)
-	     (clim3-zone:impose-layout
-	      child
-	      (clim3-zone:hpos child) (clim3-zone:vpos child)
-	      width height))))
-
 (defmethod clim3-zone:impose-child-layouts ((zone bboard))
   (loop for child in (clim3-zone:children zone)
 	do (clim3-zone:ensure-gives-valid child)
 	   (multiple-value-bind (width height)
 	       (clim3-zone:natural-size child)
-	     (clim3-zone:impose-layout
-	      child
-	      (clim3-zone:hpos child) (clim3-zone:vpos child)
-	      width height))))
+	     (clim3-zone:impose-size child width height))))
 
 (defun bboard (children)
   (make-instance 'bboard :children (coerce-to-list-of-zones children)))
@@ -295,20 +280,21 @@
 ;;; method already exists for clim3-zone:independent-gives-mixin, and
 ;;; it does nothing. 
 
-;;; The :before method sets the corresponding slots.  Impose the
-;;; layout on the child if any.
-(defmethod clim3-zone:impose-layout ((zone sponge) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let ((children (clim3-zone:children zone)))
-    (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone sponge) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone sponge))
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+      (let ((child (car children)))
+	(clim3-zone:set-hpos 0 child)
+	(clim3-zone:set-vpos 0 child)
+	(clim3-zone:impose-size child width height)))))
 
 (defun sponge (children)
   (make-instance
@@ -344,20 +330,21 @@
        (clim3-zone:vgive (car (clim3-zone:children zone))))
    zone))
 
-;;; The :before method sets the corresponding slots.  Impose the
-;;; layout on the child if any.
-(defmethod clim3-zone:impose-layout ((zone hsponge) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let ((children (clim3-zone:children zone)))
-    (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone hsponge) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone hsponge))
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+      (let ((child (car children)))
+	(clim3-zone:set-hpos 0 child)
+	(clim3-zone:set-vpos 0 child)
+	(clim3-zone:impose-size child width height)))))
 
 (defun hsponge (children)
   (make-instance
@@ -393,20 +380,21 @@
    (rigidity:little-rigid)
    zone))
 
-;;; The :before method sets the corresponding slots.  Impose the
-;;; layout on the child if any.
-(defmethod clim3-zone:impose-layout ((zone vsponge) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let ((children (clim3-zone:children zone)))
-    (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone vsponge) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone vsponge))
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+      (let ((child (car children)))
+	(clim3-zone:set-hpos 0 child)
+	(clim3-zone:set-vpos 0 child)
+	(clim3-zone:impose-size child width height)))))
 
 (defun vsponge (children)
   (make-instance
@@ -435,20 +423,21 @@
 ;;; method already exists for clim3-zone:independent-gives-mixin, and
 ;;; it does nothing. 
 
-;;; The :before method sets the corresponding slots.  Impose the
-;;; layout on the child if any.
-(defmethod clim3-zone:impose-layout ((zone brick) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let ((children (clim3-zone:children zone)))
-    (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone brick) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone brick))
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+      (let ((child (car children)))
+	(clim3-zone:set-hpos 0 child)
+	(clim3-zone:set-vpos 0 child)
+	(clim3-zone:impose-size child width height)))))
 
 (defun brick (width height children)
   (make-instance
@@ -485,20 +474,21 @@
        (clim3-zone:vgive (car (clim3-zone:children zone))))
    zone))
 
-;;; The :before method sets the corresponding slots.  Impose the
-;;; layout on the child if any.
-(defmethod clim3-zone:impose-layout ((zone hbrick) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let ((children (clim3-zone:children zone)))
-    (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone hbrick) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone hbrick))
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+      (let ((child (car children)))
+	(clim3-zone:set-hpos 0 child)
+	(clim3-zone:set-vpos 0 child)
+	(clim3-zone:impose-size child width height)))))
 
 (defun hbrick (width children)
   (make-instance
@@ -533,20 +523,21 @@
        (clim3-zone:hgive (car (clim3-zone:children zone))))
    zone))
 
-;;; The :before method sets the corresponding slots.  Impose the
-;;; layout on the child if any.
-(defmethod clim3-zone:impose-layout ((zone vbrick) hpos vpos width height)
-  (declare (ignore hpos vpos))
-  (let ((children (clim3-zone:children zone)))
-    (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone vbrick) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone vbrick))
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
     (unless (null children)
-      (clim3-zone:impose-layout (car children) 0 0 width height))))
+      (let ((child (car children)))
+	(clim3-zone:set-hpos 0 child)
+	(clim3-zone:set-vpos 0 child)
+	(clim3-zone:impose-size child width height)))))
 
 (defun vbrick (height children)
   (make-instance

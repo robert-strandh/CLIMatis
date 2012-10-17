@@ -50,6 +50,14 @@
    (%image :accessor image)
    (%pointer-zones :initform '() :accessor pointer-zones)))
 
+(defmethod clim3-zone:notify-child-gives-changed
+    (zone (port clx-framebuffer-port))
+  nil)
+
+(defmethod clim3-zone:notify-child-gives-invalid
+    (zone (port clx-framebuffer-port))
+  nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Handle connect.
@@ -144,17 +152,13 @@
 		   (pixel-array pixel-array)
 		   (image image))
       zone-entry
-    (let ((hpos (xlib:drawable-x window))
-	  (vpos (xlib:drawable-y window))
-	  (width (xlib:drawable-width window))
+    (let ((width (xlib:drawable-width window))
 	  (height (xlib:drawable-height window)))
       ;; Someone might have resized the window.  Make the zone
       ;; adjust to the current size if so. 
-      (unless (and (= hpos (clim3-zone:hpos zone))
-		   (= vpos (clim3-zone:vpos zone))
-		   (= width (clim3-zone:width zone))
+      (unless (and (= width (clim3-zone:width zone))
 		   (= height (clim3-zone:height zone)))
-	(clim3-zone:impose-layout zone hpos vpos width height))
+	(clim3-zone:impose-size zone width height))
       ;; Make sure the pixmap and the image object have the same
       ;; dimensions as the window.
       (if (and (= width (array-dimension pixel-array 1))
@@ -188,13 +192,13 @@
 
 (defmethod clim3-port:connect ((zone clim3-zone:zone)
 			       (port clx-framebuffer-port))
+  ;; FIXME: do this lazily.
   ;; Make sure every zone has this port as a client.
   (labels ((set-client (zone)
 	     (setf (clim3-zone:client zone) port)
 	     (clim3-zone:map-over-children #'set-client zone)))
     (set-client zone))
-  ;; Compute the gives of every zone.
-  (clim3-zone:compute-gives zone)
+  (clim3-zone:ensure-gives-valid zone)
   (let ((zone-entry (make-instance 'zone-entry)))
     ;; Ask for a window that has the natural size of the zone.  We may
     ;; not get it, though.
@@ -255,6 +259,8 @@
 (defmethod paint ((zone clim3-zone:compound-zone)
 		  (port clx-framebuffer-port)
 		  hstart vstart hend vend)
+  (clim3-zone:ensure-gives-valid zone)
+  (clim3-zone:ensure-child-layouts-valid zone)
   (clim3-zone:map-over-children-bottom-to-top
    (lambda (child)
      (let ((chstart (max 0 (- hstart (clim3-zone:hpos child))))

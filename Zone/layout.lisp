@@ -48,17 +48,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function IMPOSE-LAYOUT.
+;;; Generic function IMPOSE-SIZE.
 ;;;
-;;; This function is called in order to set the position and
-;;; dimensions of a zone.  The zone must comply.  The :before method
-;;; specialized for ZONE sets the hpos, the vpos, the width and the
-;;; height of the zone by calling SET-HPOS, SET-VPOS, (SETF WIDTH),
-;;; and (SETF HEIGHT).  The contract of the primary method is to take
-;;; the consequences of the size imposition, for instance to
-;;; recursively impose sizes on the children.
+;;; This function is called in order to set the size of a zone.  
 
-(defgeneric impose-layout (zone hpos vpos width height))
+(defgeneric impose-size (zone width height))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -66,6 +60,13 @@
 ;;;
 
 (defgeneric child-layouts-valid-p (compound-zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF CHILD-LAYOUTS-VALID-P).
+;;;
+
+(defgeneric (setf child-layouts-valid-p) (new-value compound-zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

@@ -1,6 +1,6 @@
 (in-package #:common-lisp-user)
 
-(defparameter *z6*
+(defparameter *z6a*
   (let* ((red (clim3-color:make-color 1.0 0.0 0.0))
 	 (blue (clim3-color:make-color 0.0 0.0 1.0))
 	 (red-zone (clim3-graphics:opaque red)))

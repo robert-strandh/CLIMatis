@@ -12,6 +12,9 @@
   (:default-initargs :vgive (rigidity:little-rigid)
 		     :hgive (rigidity:little-rigid)))
 
+(defmethod clim3-zone:gives-valid-p ((zone input))
+  t)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class KEY-PRESS.

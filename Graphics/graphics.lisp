@@ -32,6 +32,9 @@
   (:default-initargs :hgive (rigidity:little-rigid)
 		     :vgive (rigidity:little-rigid)))
 
+(defmethod clim3-zone:gives-valid-p ((zone opaque))
+  t)
+
 (defun opaque (color)
   (make-instance 'opaque :color color))
 
@@ -50,6 +53,9 @@
   (let ((dim (array-dimensions (opacities zone))))
     (setf (clim3-zone:hgive zone) (rigidity:very-rigid (cadr dim)))
     (setf (clim3-zone:vgive zone) (rigidity:very-rigid (car dim)))))
+
+(defmethod clim3-zone:gives-valid-p ((zone masked))
+  t)
 
 (defun masked (color opacities)
   (make-instance 'masked
