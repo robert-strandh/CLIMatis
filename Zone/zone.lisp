@@ -44,10 +44,10 @@
   ((%parent :initarg :parent :initform nil :accessor parent)
    (%hpos :initform 0 :initarg :hpos :accessor hpos :writer set-hpos)
    (%vpos :initform 0 :initarg :vpos :accessor vpos :writer set-vpos)
-   (%width :accessor width)
-   (%height :accessor height)
-   (%hgive :initarg :hgive :accessor hgive :writer set-hgive)
-   (%vgive :initarg :vgive :accessor vgive :writer set-vgive)
+   (%width :initform 0 :accessor width)
+   (%height :initform 0 :accessor height)
+   (%hgive :initform nil :initarg :hgive :accessor hgive :writer set-hgive)
+   (%vgive :initform nil :initarg :vgive :accessor vgive :writer set-vgive)
    ;; The depth is used to determine an order between the children of
    ;; a compound zone.  This order is used to determine in which order
    ;; children are painted, and in which order input zones are
@@ -80,15 +80,6 @@
   (values (round (rigidity:natural-size (hgive zone)))
 	  (round (rigidity:natural-size (vgive zone)))))
 
-;;; The :before method sets the hpos, the vpos, the width and the
-;;; height of the zone by calling SET-HPOS, SET-VPOS, (SETF WIDTH),
-;;; and (SETF HEIGHT).
-(defmethod impose-layout :before ((zone zone) hpos vpos width height)
-  (set-hpos hpos zone)
-  (set-vpos vpos zone)
-  (setf (width zone) width)
-  (setf (height zone) height))
-
 ;;; Default method on NOTIFY-CONNECT.  It is specialized for a NULL
 ;;; client and it does nothing.
 (defmethod notify-connect ((client null) child parent)
@@ -119,17 +110,9 @@
 (defmethod notify-child-gives-changed ((child zone) (parent null))
   nil)
 
-;;; Default method on NOTIFY-CHILD-GIVES-CHANGED for ZONE and ZONE.
-;;; This method signals an error, forcing the parent zone type to
-;;; choose an action as a result of a call to this function. 
-(defmethod notify-child-gives-changed ((child zone) (parent zone))
-  (error "No action specified for zone ~s" parent))
-
-;;; Default method on NOTIFY-CHILDREN-CHANGED for ZONE.
-;;; This method signals an error, forcing the parent zone type to
-;;; choose an action as a result of a call to this function. 
-(defmethod notify-children-changed ((parent zone))
-  (error "No action specified for zone ~s" parent))
+(defmethod impose-size :after ((zone zone) width height)
+  (setf (width zone) width)
+  (setf (height zone) height))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -161,9 +144,8 @@
 (defmethod compute-gives ((zone atomic-zone))
   nil)
 
-;;; Define a primary method for IMPOSE-LAYOUT that does nothing.  
-(defmethod impose-layout ((zone atomic-zone) hpos vpos width height)
-  (declare (ignore hpos vpos width height))
+(defmethod impose-size ((zone atomic-zone) width height)
+  (declare (ignore width height))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -186,8 +168,13 @@
 ;;; zones that can have invalid gives also know how to combine the
 ;;; gives of the children.
 (defmethod compute-gives ((zone compound-zone))
-  (map-over-children #'compute-gives zone)
+  (map-over-children #'ensure-gives-valid zone)
   (combine-child-gives zone))
+
+(defmethod (setf children) :after (new-children (zone compound-zone))
+  (declare (ignore new-children))
+  (notify-children-changed zone)
+  (setf (child-layouts-valid-p zone) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -393,7 +380,7 @@
 (defmethod combine-child-gives ((zone independent-gives-mixin))
   (error "Attempt to combine the child gives of ~s" zone))
 
-(defmethod notify-children-changed ((zone dependent-gives-mixin))
+(defmethod notify-children-changed ((zone independent-gives-mixin))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
