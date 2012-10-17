@@ -154,11 +154,7 @@
       zone-entry
     (let ((width (xlib:drawable-width window))
 	  (height (xlib:drawable-height window)))
-      ;; Someone might have resized the window.  Make the zone
-      ;; adjust to the current size if so. 
-      (unless (and (= width (clim3-zone:width zone))
-		   (= height (clim3-zone:height zone)))
-	(clim3-zone:impose-size zone width height))
+      (clim3-zone:impose-size zone width height)
       ;; Make sure the pixmap and the image object have the same
       ;; dimensions as the window.
       (if (and (= width (array-dimension pixel-array 1))
