@@ -108,5 +108,7 @@
 (defun standard-key-processor (handler-fun)
   (lambda (zone keycode modifiers)
     (port-standard-key-processor
-     (clim3-zone:client zone) handler-fun keycode modifiers)))
+     (clim3-zone:find-client zone) handler-fun keycode modifiers)))
   
+(defmethod clim3-zone:find-client ((port port))
+  port)
