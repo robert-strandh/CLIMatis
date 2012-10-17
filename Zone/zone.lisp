@@ -98,12 +98,6 @@
 (defmethod notify-child-gives-invalid ((child zone) (parent null))
   nil)
 
-;;; Default method on NOTIFY-CHILD-GIVES-INVALID for ZONE and ZONE.
-;;; This method signals an error, forcing the parent zone type to
-;;; choose an action as a result of a call to this function. 
-(defmethod notify-child-gives-invalid ((child zone) (parent zone))
-  (error "No action specified for zone ~s" parent))
-
 ;;; Default method on NOTIFY-CHILD-GIVES-CHANGED for ZONE and NULL.
 ;;; This method does nothing, thus allowing this generic function to
 ;;; be called with any zone and its parent.
@@ -157,6 +151,9 @@
 (defclass compound-zone (zone)
   ((%children :initarg :children :accessor children)
    (%child-layouts-valid-p :initform nil :accessor child-layouts-valid-p)))
+
+(defmethod initialize-instance :after ((zone compound-zone) &key)
+  (map-over-children (lambda (child) (setf (parent child) zone)) zone))
 
 ;;; For a compound zone, in order to compute all gives, we call
 ;;; ENSURE-GIVES-VALID on each child and then combine the result by
@@ -294,8 +291,8 @@
        (not (null (vgive zone)))))
 
 (defmethod mark-gives-invalid ((zone dependent-gives-mixin))
-  (setf (hgive zone) nil)
-  (setf (vgive zone) nil))
+  (set-hgive nil zone)
+  (set-vgive nil zone))
 
 (defmethod notify-child-gives-invalid ((child zone)
 				       (parent dependent-gives-mixin))
@@ -318,7 +315,7 @@
   (not (null (hgive zone))))
 
 (defmethod mark-gives-invalid ((zone hdependent-gives-mixin))
-  (setf (hgive zone) nil))
+  (set-hgive nil zone))
 
 (defmethod notify-child-gives-invalid ((child zone)
 				       (parent hdependent-gives-mixin))
@@ -341,7 +338,7 @@
   (not (null (vgive zone))))
 
 (defmethod mark-gives-invalid ((zone vdependent-gives-mixin))
-  (setf (vgive zone) nil))
+  (set-vgive nil zone))
 
 (defmethod notify-child-gives-invalid ((child zone)
 				       (parent vdependent-gives-mixin))
