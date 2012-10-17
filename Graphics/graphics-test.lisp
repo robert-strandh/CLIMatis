@@ -54,3 +54,16 @@
     (update port)
     (assert (= (clim3-zone:width zone) 2))
     (assert (= (clim3-zone:height zone) 4))))
+
+(defun test3 ()
+  (let ((port (make-instance 'test-port))
+	(zone (clim3-graphics:masked
+	       (clim3-color:make-color 0.5 0.5 0.5)
+	       (make-array '(50 30) :initial-element 0.5))))
+    (clim3-port:connect zone port)
+    (assert (eq (clim3-zone:parent zone) port))
+    (assert (eq (clim3-zone:find-client zone) port))
+    (update port)
+    (assert (= (clim3-zone:width zone) 32))
+    (assert (= (clim3-zone:height zone) 54))))
+
