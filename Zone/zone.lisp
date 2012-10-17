@@ -53,14 +53,31 @@
    ;; children are painted, and in which order input zones are
    ;; searched for event handlers.  The depth can be any real number.
    (%depth :initform 0 :initarg :depth :accessor depth :writer set-depth)
-   ;; A zone can belong to at most one client at a time.  If this
-   ;; value is NIL, then the zone currently does not belong to any
-   ;; client.  The nature of this object is entirely determined by
-   ;; client code.
-   (%client :initform nil :initarg :client :accessor client)))
+   ;; A zone can belong to at most one client at a time.  The nature
+   ;; of this object is entirely determined by client code.
+   (%client :initform nil :accessor client)))
 
 (defun zone-p (object)
   (typep object 'zone))
+
+(defmethod (setf parent) :after ((new-parent null) (zone zone))
+  (declare (ignore new-parent))
+  (labels ((nullify-clients (zone)
+	     (setf (client zone) nil)
+	     (map-over-children #'nullify-clients zone)))
+    (nullify-clients zone)))
+
+;;; Do lazy client propagation.  Look for the closest non-nil client
+;;; up the hierarchy, and set the client slot of all intermediate
+;;; zones on the way back.
+(defun find-client (zone)
+  (cond ((not (null (client zone)))
+	 (client zone))
+	((null (parent zone))
+	 nil)
+	(t
+	 (setf (client zone) (find-client (parent zone)))
+	 (client zone))))
 
 ;;; After the hgive of a zone has been explicitly modified, we notify
 ;;; the parent zone of the change. 
@@ -79,18 +96,6 @@
 (defun natural-size (zone)
   (values (round (rigidity:natural-size (hgive zone)))
 	  (round (rigidity:natural-size (vgive zone)))))
-
-;;; Default method on NOTIFY-CONNECT.  It is specialized for a NULL
-;;; client and it does nothing.
-(defmethod notify-connect ((client null) child parent)
-  (declare (ignore child parent))
-  nil)
-
-;;; Default method on NOTIFY-DISCONNECT.  It is specialized for a NULL
-;;; client and it does nothing.
-(defmethod notify-disconnect ((client null) child parent)
-  (declare (ignore child parent))
-  nil)
 
 ;;; Default method on NOTIFY-CHILD-GIVES-INVALID for ZONE and NULL.
 ;;; This method does nothing, thus allowing this generic function to
@@ -405,8 +410,7 @@
   (new-children (zone at-most-one-child-mixin))
   (let ((children-before (children zone)))
     (unless (null children-before)
-      (setf (parent (car children-before)) nil)
-      (notify-disconnect (client zone) (car children-before) zone)))
+      (setf (parent (car children-before)) nil)))
   (let ((children-after
 	  (cond ((or (null new-children)
 		     (and (consp new-children) (null (cdr new-children))))
@@ -427,8 +431,7 @@
 	(error "Attempt to connect a zone that is already connected ~s"
 	       (car children-after)))
       (unless (zone-p (car children-after))
-	(error "Child must be a zone: ~s" (car children-after)))
-      (notify-connect (client zone) (car children-after) zone))
+	(error "Child must be a zone: ~s" (car children-after))))
     (call-next-method children-after)))
 
 (defmethod map-over-children-top-to-bottom
@@ -483,20 +486,17 @@
 	     table-children-after)
     ;; Destroy the depth-ordered vector of children.
     (setf (depth-ordered-children zone) nil)
-    ;; Set parent of new children, and call NOTIFY-CONNECT.
+    ;; Set parent of new children.
     (maphash (lambda (new-child value)
 	       (declare (ignore value))
 	       (unless (gethash new-child table-children-before)
-		 (setf (parent new-child) zone)
-		 (notify-connect client new-child zone)))
+		 (setf (parent new-child) zone)))
 	     table-children-after)
-    ;; Set the parent of removed children to nil, and call
-    ;; NOTIFY-DISCONNECT.
+    ;; Set the parent of removed children to nil.
     (maphash (lambda (old-child value)
 	       (declare (ignore value))
 	       (unless (gethash old-child table-children-after)
-		 (setf (parent old-child) nil)
-		 (notify-disconnect client old-child zone)))
+		 (setf (parent old-child) nil)))
 	     table-children-before)))
 
 (defun ensure-depth-ordered-children (zone)
