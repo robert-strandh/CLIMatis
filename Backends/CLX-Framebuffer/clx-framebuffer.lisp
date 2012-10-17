@@ -60,37 +60,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Handle connect.
-;;;
-
-(defmethod clim3-zone:notify-connect
-    ((port clx-framebuffer-port) child parent)
-  (declare (ignore child parent))
-  nil)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Handle disconnect.
-;;;
-;;; We maintain an invariant whereby the connected zones with a client
-;;; slot of nil represent a suffix of the zone hierarcy.  We connect
-;;; lazily, so that a zone that requires a client, but that has a
-;;; client slot of nil, recursively asks for the client of its parent.  
-
-;;; To maintain the invariant cited above when a zone is disconnected
-;;; and then connected again, perhaps after some modifications, we
-;;; prefer to set the client of every zone in the hierarchy to nil
-;;; when the root of the hierarchy is disconnected.  
-(defmethod clim3-zone:notify-disconnect
-    ((port clx-framebuffer-port) child parent)
-  (declare (ignore parent))
-  (setf (clim3-zone:parent child) nil)
-  (clim3-zone:map-over-children
-   (lambda (grandchild) (clim3-zone:notify-disconnect port grandchild child))
-   child))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Handle pointer position
 
 (defun handle-pointer-positions (zone-entry)
@@ -188,12 +157,6 @@
 
 (defmethod clim3-port:connect ((zone clim3-zone:zone)
 			       (port clx-framebuffer-port))
-  ;; FIXME: do this lazily.
-  ;; Make sure every zone has this port as a client.
-  (labels ((set-client (zone)
-	     (setf (clim3-zone:client zone) port)
-	     (clim3-zone:map-over-children #'set-client zone)))
-    (set-client zone))
   (clim3-zone:ensure-gives-valid zone)
   (let ((zone-entry (make-instance 'zone-entry)))
     ;; Ask for a window that has the natural size of the zone.  We may
@@ -241,6 +204,15 @@
     ;; Make sure the window has the right contents.
     (let ((*port* port))
       (update zone-entry))))
+
+(defmethod clim3-port:disconnect (zone (port clx-framebuffer-port))
+  (let ((zone-entry (find zone (zone-entries port) :key #'zone)))
+    (xlib:free-gcontext (gcontext zone-entry))
+    (xlib:destroy-window (window zone-entry))
+    (setf (zone-entries port) (remove zone-entry (zone-entries port)))
+    (when (null (zone-entries port))
+      (xlib:close-display (display port)))
+    (setf (clim3-zone:parent zone) nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
