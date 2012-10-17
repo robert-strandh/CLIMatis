@@ -20,11 +20,14 @@
    #:notify-connect
    #:notify-disconnect
    #:notify-child-gives-invalid
+   #:notify-child-gives-changed
+   #:notify-children-changed
+   #:gives-valid-p
    #:invalidate-gives
    #:child-layouts-valid-p
    #:impose-child-layouts
    #:ensure-child-layouts-valid
-   #:impose-layout
+   #:impose-size
    #:atomic-zone
    #:compound-zone
    #:compound-simple-zone
