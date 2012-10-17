@@ -74,6 +74,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone vbox))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone))
@@ -118,6 +119,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone hbox))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone))
@@ -162,6 +164,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone pile))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
@@ -249,6 +252,7 @@
   nil)
 
 (defmethod clim3-zone:impose-child-layouts ((zone bboard))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (loop for child in (clim3-zone:children zone)
 	do (clim3-zone:ensure-gives-valid child)
 	   (multiple-value-bind (width height)
@@ -287,6 +291,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone sponge))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
@@ -337,6 +342,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone hsponge))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
@@ -387,6 +393,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone vsponge))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
@@ -430,6 +437,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone brick))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
@@ -481,6 +489,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone hbrick))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
@@ -530,6 +539,7 @@
     (setf (clim3-zone:child-layouts-valid-p zone) nil)))
 
 (defmethod clim3-zone:impose-child-layouts ((zone vbrick))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-gives-valid zone)
   (let* ((width (clim3-zone:width zone))
 	 (height (clim3-zone:height zone))
 	 (children (clim3-zone:children zone)))
