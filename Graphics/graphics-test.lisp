@@ -21,3 +21,17 @@
 	(ignore-errors (clim3-zone:invalidate-gives z))
       (assert (and (null result) (typep condition 'error))))))
     
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Create a backend for testing.
+
+(defclass test-port (clim3-port:port) ())
+
+(defmethod clim3-port:connect (zone (port test-port))
+  (declare (ignore zone)))
+
+(defmethod clim3-zone:notify-child-gives-changed (zone (port test-port))
+  nil)
+
+(defmethod clim3-zone:notify-child-gives-invalid (zone (port test-port))
+  nil)
