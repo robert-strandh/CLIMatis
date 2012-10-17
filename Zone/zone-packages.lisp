@@ -23,6 +23,7 @@
    #:notify-child-gives-changed
    #:notify-children-changed
    #:gives-valid-p
+   #:mark-gives-invalid
    #:invalidate-gives
    #:child-layouts-valid-p
    #:impose-child-layouts
