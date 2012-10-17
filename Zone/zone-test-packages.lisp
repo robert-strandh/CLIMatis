@@ -1,5 +1,7 @@
 (defpackage #:clim3-zone-test
-  (:use #:common-lisp))
+  (:use #:common-lisp)
+  (:export #:test))
+
 
 
   
