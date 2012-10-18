@@ -157,6 +157,7 @@
 
 (defmethod clim3-port:connect ((zone clim3-zone:zone)
 			       (port clx-framebuffer-port))
+  (setf (clim3-zone:parent zone) port)
   (clim3-zone:ensure-gives-valid zone)
   (let ((zone-entry (make-instance 'zone-entry)))
     ;; Ask for a window that has the natural size of the zone.  We may
