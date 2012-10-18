@@ -2,6 +2,31 @@
 
 (defgeneric update (port))
 
+(defgeneric render (zone port hstart vstart hend vend))
+
+(defgeneric call-with-translation (port dv dh function))
+
+;;; The coordinates are in the coordinate system of the parent of the
+;;; zone.   The coordinates are not ouside the parent. 
+(defun clip-to-child (zone hstart vstart hend vend)
+  (let ((hpos (clim3-zone:hpos zone))
+	(vpos (clim3-zone:vpos zone))
+	(width (clim3-zone:width zone))
+	(height (clim3-zone:height zone)))
+    ;;; Translate the coordinates into the coordinate system of the
+    ;;; zone.
+    (let ((hs (- hstart hpos))
+	  (vs (- vstart vpos))
+	  (he (- hend hpos))
+	  (ve (- vend vpos)))
+      (values (max 0 hs)
+	      (max 0 vs)
+	      (min width he)
+	      (min height ve)))))
+
+(defun clip-non-empty-p (hstart vstart hend vend)
+  (and (> hend hstart) (> vend vstart)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Port of type 1
@@ -23,6 +48,48 @@
       (clim3-zone:natural-size (root port))
     ;; This port imposes a size slightly bigger than the natural one.
     (clim3-zone:impose-size (root port) (+ width 2) (+ height 4))))
+
+(defparameter *hpos* 0)
+(defparameter *vpos* 0)
+
+(defun port-render (hstart vstart hend vend)
+  (list (+ hstart *hpos*)
+	(+ vstart *vpos*)
+	(+ hend *hpos*)
+	(+ vend *vpos*)))
+
+(defmacro with-translation ((port dh dv) &body body)
+  `(call-with-translation ,port ,dh ,dv (lambda () ,@body)))
+
+(defmethod call-with-translation ((port test-port-1) dh dv function)
+  (let ((*hpos* (+ *hpos* dh))
+	(*vpos* (+ *vpos* dv)))
+    (funcall function)))
+
+(defmethod render
+    ((zone clim3-zone:compound-zone) (port test-port-1) hstart vstart hend vend)
+  (clim3-zone:map-over-children
+   (lambda (child) (clim3-zone:ensure-gives-valid child))
+   zone)
+  (clim3-zone:ensure-child-layouts-valid zone)
+  (let ((results '()))
+    (clim3-zone:map-over-children-bottom-to-top
+     (lambda (child)
+       (multiple-value-bind (hs vs he ve)
+	   (clip-to-child child hstart vstart hend vend)
+	 (when (clip-non-empty-p hs vs he ve)
+	   (setf results
+		 (append results
+			 (with-translation (port
+					    (clim3-zone:hpos child)
+					    (clim3-zone:vpos child))
+			   (render child port hs vs he ve)))))))
+     zone)
+    results))
+
+(defmethod render
+    ((zone clim3-zone:atomic-zone) (port test-port-1) hstart vstart hend vend)
+  (list (port-render hstart vstart hend vend)))
 
 (defmethod clim3-zone:notify-child-gives-changed (zone (port test-port-1))
   nil)
@@ -99,9 +166,41 @@
   (* 9 (length string)))
 
 (defun test1 ()
-  (let ((port1 (make-instance 'test-port-1))
-	(port2 (make-instance 'test-port-2)))
-    nil))
+  (let* ((port1 (make-instance 'test-port-1))
+	 (port2 (make-instance 'test-port-2))
+	 (z1 (clim3-graphics:masked
+	      (clim3-color:make-color 0.5 0.5 0.5)
+	      (make-array '(10 20) :initial-element 0.4)))
+	 (z2 (clim3-layout:vbox* z1)))
+    (declare (ignore port2))
+    (clim3-port:connect z2 port1)
+    (update port1)
+    (let ((result (render z2 port1 0 0 (clim3-zone:width z2) (clim3-zone:height z2))))
+      (assert (equal result '((0 0 22 14)))))))
+
+(defun test2 ()
+  (let* ((port1 (make-instance 'test-port-1))
+	 (port2 (make-instance 'test-port-2))
+	 (z1 (clim3-graphics:masked
+	      (clim3-color:make-color 0.5 0.5 0.5)
+	      (make-array '(10 20) :initial-element 0.4)))
+	 (z2 (clim3-graphics:masked
+	      (clim3-color:make-color 0.5 0.5 0.5)
+	      (make-array '(30 20) :initial-element 0.4)))
+	 (z3 (clim3-layout:vbox* z1 z2)))
+    (declare (ignore port2))
+    ;; Make sure the second zone is rendered first
+    (setf (clim3-zone:depth z1) 0)
+    (setf (clim3-zone:depth z2) 1)
+    (clim3-port:connect z3 port1)
+    (update port1)
+    (let ((result (render z3 port1 0 0 (clim3-zone:width z3) (clim3-zone:height z3))))
+      (assert (= (length result) 2))
+      (let ((r1 (car result))
+	    (r2 (cadr result)))
+	(assert (= (car r1) 0))
+	(assert (= (car r2) 0)))
+      result)))
 
 (defun test ()
   (test1))
