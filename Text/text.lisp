@@ -10,10 +10,9 @@
   ((%style :initarg :style :reader style)
    (%chars :initarg :chars
 	   :initform (make-array 0 :element-type 'character)
-	   :accessor chars)))
+	   :reader chars)))
 
-(defmethod (setf chars) :after (new-chars (zone text))
-  (declare (ignore new-chars))
+(defmethod (setf clim3-zone:parent) :after ((new-parent null) (zone text))
   (clim3-zone:invalidate-gives zone))
 
 (defmethod clim3-zone:mark-gives-invalid ((zone text))

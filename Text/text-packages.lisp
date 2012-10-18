@@ -3,5 +3,4 @@
   (:export
    #:text
    #:style
-   #:chars
    ))
