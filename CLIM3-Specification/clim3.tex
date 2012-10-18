@@ -156,10 +156,10 @@ children are traversed for things like drawing.
 
 In terms of zone composition operations, zones on the same level
 of the hierarchy are composed using the \emph{compose-over} operation,
-in the order determined by the sequence of zones, and for a compound
+in the order determined by the depth, and for a compound
 zone, the result of the composition of the children is composed with
 the parent, which is considered to be a zone with opacity $0$
-outside the zone and $1$ inside it.
+outside the zone and $1$ inside it.\footnote{Doesn't look right}.
 
 Most zones are not created with exact sizes, because the exact size of
 a zone may depend on the backend.  This is in particular the case for
@@ -170,39 +170,36 @@ that represents the difficulty with which a zone can change its size
 in that dimension.  A (somewhat flawed) metaphor would be to liken the
 zone to a \emph{spring}, that generates a certain \emph{force} as a
 response to an attempt to expand or contract it.  Some zones have
-gives assigned at creation time, but that can be modified later.
-Others, such as many compound layout zones, compute their gives as a
-function of the gives of their children.  Yet others, in particular
-\emph{text} compute their gives by consulting the port that it is
-connected to.  
+gives assigned at creation time.  Others, such as many compound layout
+zones, compute their gives as a function of the gives of their
+children.  Yet others, in particular \emph{text} compute their gives
+by consulting the port that it is connected to.
 
 Applications can manipulate the zone hierarchy in several different
 ways:  
 
 \begin{itemize}
 \item They may explicitly insert or delete zones.  In this case
-\clim{} may try to minimize the areas of the canvas that need to be
-redrawn by re-using pixel colors that are known to be the same as last
-time around the command loop.  A special case occurs when the
-application inserts new zones \emph{at the top of all existing zones}
-each time around the command loop, because then the existing pixels do
-not have to be redrawn.
+  \clim{} may try to minimize the areas of the canvas that need to be
+  redrawn by re-using pixel colors that are known to be the same as
+  last time around the command loop.
 
 \item Simpler application might generate new zone hierarchies every
-time around the command loop.  In this case, \clim{} will have to
-redraw the entire contents of the zone. 
+  time around the command loop.  In this case, \clim{} will have to
+  redraw the entire contents of the zone.
 
 \item An application may produce a new sequence of children for each
   iteration of the command loop such that some or all of the new zones
-  are \emph{the same} as the existing ones.  \clim{} will compare the
+  are \emph{the same} as the existing ones.  \clim{} may compare the
   new sequence to the old one, and again minimize redrawing.
 
 \item An application may \emph{move} a zone.  Since the canvas uses
   integer coordinates, \clim{} might then be able to move the pixels
-  without requiring the application to generate new output.  This is
-  a particularly important optimization when \emph{scrolling} is
-  required. 
-
+  without requiring the application to generate new output.  This is a
+  particularly important optimization when \emph{scrolling} is
+  required.  Moving a zone may have no visible effect, if that zone is
+  the child of a layout zone that imposes the position of its
+  children.
 \end{itemize}
 
 \chapter{Optimal redrawing}
@@ -547,23 +544,9 @@ to an application are:
   the application is again moved by its parent zone, if the parent
   zone is a layout zone that imposes a position of its children.  In
   that case, there will be no visible effect.
-\item An application should be able to resize a zone by setting its
-  width and height.  The result of the operation should be immediately
-  visible after the next iteration of the event loop.  Though of
-  course, it is again possible that the zone being resized by the
-  application is again resized by its parent zone, if the parent zone
-  is a layout zone that imposes the size of its children.  In that
-  case, there will be no visible effect.
-\item an application should be able to modify the depth of a zone.  
-\item An application should be able to modify the horizontal or the
-  vertical gives of a zone.  When the give of the zone is assigned
-  permanently, then the effect of this operation should be immediately
-  visible after the next iteration of the event loop.  Though, again,
-  if the give of the zone is a function of the give of its children,
-  then this modification will be immediately undone, so that there is
-  no visible effect.
-\item an application should be able to change the children of a
-  compound zone. 
+\item An application should be able to modify the depth of a zone.  
+\item An application should be able to change the children of a
+  compound zone.
 \end{itemize}
 
 Notice that the effects of the modifications are synchronized with the
@@ -589,21 +572,6 @@ to be rendered differently next time.
 If the zone if part of a layout zone that imposes positions of the
 child, then moving it will have no effect. 
 
-\subsection{Resizing a zone}
-
-If the zone is a root zone, we either ask the display server to resize
-the corresponding window, or we do nothing, assuming that the window
-manager has already decided the size of the corresponding window. 
-
-If the zone is the child of bboard zone, then we need to render it
-differently next time. 
-
-If the zone is the child of a scroller zone, the scrollbar will have
-to be rendered differently next time. 
-
-If the zone if part of a layout zone that imposes positions of the
-child, then resizing it will have no effect. 
-
 \subsection{Modifying the depth of a zone}
 
 If the zone is a root zone, we might ask the window manager to raise
@@ -611,22 +579,6 @@ or bury the corresponding window, but we might do nothing.
 
 Otherwise, the sibling zones will be rendered in a different order
 next time.
-
-\subsection{Modifying the gives of a zone}
-
-If the zone is the root zone, we might compute the natural size and
-ask the display server to resize the corresponding window, or we might
-do nothing.  
-
-If the zone is the child of a bboard zone or a scroller zone, then a
-new natural size must be determined, and then we do as if we resized
-it.
-
-If the zone is the child of a layout zone that computes its gives from
-the gives of its children, then the parent must have its gives
-invalidated, so that they are recomputed next time it is rendered.
-This invalidation must propagate up the hierarchy until a zone is
-reached that does not take child gives into account. 
 
 \subsection{Changing the children of a zone}
 
