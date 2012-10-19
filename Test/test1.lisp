@@ -39,10 +39,10 @@
       (lambda (zone button modifiers)
 	(declare (ignore zone button modifiers))
 	(setf str (concatenate 'string str "a"))
-	(print str)
 	(let ((new-text (clim3-text:text str nil color)))
 	  (setf (clim3-zone:children hbox)
-		(substitute new-text text (clim3-zone:children hbox))))))
+		(substitute new-text text (clim3-zone:children hbox)))
+	  (setf text new-text))))
      (clim3-layout:hbrick*
       500
       hbox))))
