@@ -241,12 +241,15 @@
 ;;;
 ;;; This a zone that lets its children be positioned wherever they want.
 
-(defclass bboard (clim3-zone:compound-zone
+(defclass bboard (clim3-zone:compound-simple-zone
 		  clim3-zone:independent-gives-mixin
 		  clim3-zone:any-number-of-children-mixin)
   ()
   (:default-initargs :vgive (rigidity:little-rigid)
 		     :hgive (rigidity:little-rigid)))
+
+(defmethod clim3-zone:impose-size ((zone bboard) width height)
+  nil)
 
 (defmethod clim3-zone:combine-child-gives ((zone bboard))
   nil)
