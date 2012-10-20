@@ -9,6 +9,8 @@
   (check-type min-size (integer 0))
   (check-type size (integer 0))
   (check-type max-size (or null (integer 0)))
+  (assert (<= min-size size))
+  (assert (or (null max-size) (<= size max-size)))
   (make-instance 'sprawl :min-size min-size :size size :max-size max-size))
 
 (defun hugep (sprawl)
