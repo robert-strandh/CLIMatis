@@ -360,7 +360,8 @@
 		  hstart vstart hend vend)
   (let ((color (clim3-graphics:color zone))
 	(font (font port))
-	(string (clim3-text:chars zone))
+	;; FIXME: either make chars external or move this method
+	(string (clim3-text::chars zone))
 	(ascent (clim3-port:text-style-ascent port (clim3-text:style zone))))
     (unless (zerop (length string))
       (flet ((paint-glyph (mask pos-x pos-y)
