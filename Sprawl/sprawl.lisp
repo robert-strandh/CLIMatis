@@ -5,6 +5,12 @@
    (%size :initform 0 :initarg :size :reader size)
    (%max-size :initform nil :initarg :max-size :reader max-size)))
 
+(defmethod print-object ((object sprawl) stream)
+  (print-unreadable-object (object stream :type t :identity t)
+    (format stream
+	    "min-size: ~a size: ~a max-size: ~a"
+	    (min-size object) (size object) (max-size object))))
+
 (defun sprawl (min-size size max-size)
   (check-type min-size (integer 0))
   (check-type size (integer 0))
