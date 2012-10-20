@@ -61,7 +61,7 @@
 ;;; minimum sizes.  We then assign as size that is the min-size of
 ;;; each sprawl multiplied by the shrink factor, everything rounded
 ;;; nicely to integers.
-(defun sizes-in-series-less-than-min (size sprawls)
+(defun sizes-in-series-less-than-min (sprawls size)
   (let* ((factor (/ size (reduce #'+ sprawls :key #'min-size)))
 	 ;; Build a list where each entry is a list of three things:
 	 ;; The assigned size, the sprawl, and its position in the
@@ -95,7 +95,7 @@
 ;;; minimum sizes.  We then assign as size to each sprawl that is the
 ;;; min-size plus the shrink factor multipled by the difference
 ;;; between between the preferred and the minimum size. 
-(defun sizes-in-series-less-than-preferred (size sprawls)
+(defun sizes-in-series-less-than-preferred (sprawls size)
   (let* ((factor (/ (- size (reduce #'+ sprawls :key #'min-size))
 		    (- (reduce #'+ sprawls :key #'size)
 		       (reduce #'+ sprawls :key #'min-size))))
@@ -124,7 +124,7 @@
 			  #'> :key #'car)))
     (mapcar #'car (sort tagged #'< :key #'caddr))))
 
-(defun sizes-in-series-preferred-and-stretch (size sprawls)
+(defun sizes-in-series-preferred-and-stretch (sprawls size)
   (let* ((tagged (loop for sprawl in sprawls
 		       collect (list (size sprawl) sprawl)))
 	 (huge (remove-if-not #'hugep tagged :key #'cadr))
@@ -138,7 +138,7 @@
 	    do (incf (car entry))))
     (mapcar #'car tagged)))
 
-(defun sizes-in-series-less-than-max (size sprawls)
+(defun sizes-in-series-less-than-max (sprawls size)
   (let* ((factor (/ (- size (reduce #'+ sprawls :key #'size))
 		    (- (reduce #'+ sprawls :key #'max-size)
 		       (reduce #'+ sprawls :key #'size))))
@@ -167,7 +167,7 @@
 			  #'> :key #'car)))
     (mapcar #'car (sort tagged #'< :key #'caddr))))
 
-(defun sizes-in-series-greater-than-max (size sprawls)
+(defun sizes-in-series-greater-than-max (sprawls size)
   (let* ((factor (/ size (reduce #'+ sprawls :key #'max-size)))
 	 ;; Build a list where each entry is a list of three things:
 	 ;; The assigned size, the sprawl, and its position in the
@@ -191,21 +191,21 @@
 			  #'> :key #'car)))
     (mapcar #'car (sort tagged #'< :key #'caddr))))
 
-(defun sizes-in-series (size sprawls)
+(defun sizes-in-series (sprawls size)
   (let ((combination (combine-in-series sprawls)))
     (cond ((= size (size combination))
 	   (mapcar #'size sprawls))
 	  ((= size (min-size combination))
 	   (mapcar #'min-size sprawls))
 	  ((< size (min-size combination))
-	   (sizes-in-series-less-than-min size sprawls))
+	   (sizes-in-series-less-than-min sprawls size))
 	  ((< size (size combination))
-	   (sizes-in-series-less-than-preferred size sprawls))
+	   (sizes-in-series-less-than-preferred sprawls size))
 	  ((null (max-size combination))
-	   (sizes-in-series-preferred-and-stretch size sprawls))
+	   (sizes-in-series-preferred-and-stretch sprawls size))
 	  ((< size (max-size combination))
-	   (sizes-in-series-less-than-max size sprawls))
+	   (sizes-in-series-less-than-max sprawls size))
 	  ((= size (max-size combination))
 	   (mapcar #'max-size combination))
 	  (t
-	   (sizes-in-series-greater-than-max size sprawls)))))
+	   (sizes-in-series-greater-than-max sprawls size)))))
