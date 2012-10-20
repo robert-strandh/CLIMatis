@@ -139,7 +139,7 @@
 ;;;
 ;;; Applications can influence the dimensions of a zone, provided that
 ;;; it is the child of a zone that does not impose the dimensions such
-;;; as a bboard zone or a scroller zone, by changing the gives of the
+;;; as a bboard zone or a scroller zone, by changing the sprawls of the
 ;;; zone so as to give it different natural dimensions.
 
 (defgeneric (setf width) (new-width zone))
@@ -170,7 +170,7 @@
 ;;;
 ;;; Applications can influence the dimensions of a zone, provided that
 ;;; it is the child of a zone that does not impose the dimensions such
-;;; as a bboard zone or a scroller zone, by changing the gives of the
+;;; as a bboard zone or a scroller zone, by changing the sprawls of the
 ;;; zone so as to give it different natural dimensions.
 
 (defgeneric (setf height) (new-height zone))

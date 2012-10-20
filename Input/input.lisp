@@ -9,10 +9,10 @@
 
 (defclass input (clim3-zone:atomic-zone)
   ((%handler :initarg :handler :reader handler))
-  (:default-initargs :vgive (rigidity:little-rigid)
-		     :hgive (rigidity:little-rigid)))
+  (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
+		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod clim3-zone:gives-valid-p ((zone input))
+(defmethod clim3-zone:sprawls-valid-p ((zone input))
   t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

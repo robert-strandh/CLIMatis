@@ -2,37 +2,37 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function HGIVE.
+;;; Generic function HSPRAWL.
 
-(defgeneric hgive (zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function (SETF HGIVE).
-
-(defgeneric (setf hgive) (new-hgive zone))
+(defgeneric hsprawl (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function SET-HGIVE.
+;;; Generic function (SETF HSPRAWL).
 
-(defgeneric set-hgive (new-hgive zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function VGIVE.
-
-(defgeneric vgive (zone))
+(defgeneric (setf hsprawl) (new-hsprawl zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function (SETF VGIVE).
+;;; Generic function SET-HSPRAWL.
 
-(defgeneric (setf vgive) (new-vgive zone))
+(defgeneric set-hsprawl (new-hsprawl zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function SET-VGIVE.
+;;; Generic function VSPRAWL.
 
-(defgeneric set-vgive (new-vgive zone))
+(defgeneric vsprawl (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function (SETF VSPRAWL).
+
+(defgeneric (setf vsprawl) (new-vsprawl zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function SET-VSPRAWL.
+
+(defgeneric set-vsprawl (new-vsprawl zone))
 

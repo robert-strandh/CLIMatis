@@ -43,7 +43,7 @@
   (setf (clim3-zone:parent zone) nil))
 
 (defmethod update ((port test-port-1))
-  (clim3-zone:ensure-gives-valid (root port))
+  (clim3-zone:ensure-sprawls-valid (root port))
   (multiple-value-bind (width height)
       (clim3-zone:natural-size (root port))
     ;; This port imposes a size slightly bigger than the natural one.
@@ -69,7 +69,7 @@
 (defmethod render
     ((zone clim3-zone:compound-zone) (port test-port-1) hstart vstart hend vend)
   (clim3-zone:map-over-children
-   (lambda (child) (clim3-zone:ensure-gives-valid child))
+   (lambda (child) (clim3-zone:ensure-sprawls-valid child))
    zone)
   (clim3-zone:ensure-child-layouts-valid zone)
   (let ((results '()))
@@ -91,10 +91,10 @@
     ((zone clim3-zone:atomic-zone) (port test-port-1) hstart vstart hend vend)
   (list (port-render hstart vstart hend vend)))
 
-(defmethod clim3-zone:notify-child-gives-changed (zone (port test-port-1))
+(defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-1))
   nil)
 
-(defmethod clim3-zone:notify-child-gives-invalid (zone (port test-port-1))
+(defmethod clim3-zone:notify-child-sprawls-invalid (zone (port test-port-1))
   nil)
 
 (defmethod clim3-port:text-style-ascent ((port test-port-1) text-style)
@@ -133,16 +133,16 @@
   (setf (clim3-zone:parent zone) nil))
 
 (defmethod update ((port test-port-2))
-  (clim3-zone:ensure-gives-valid (root port))
+  (clim3-zone:ensure-sprawls-valid (root port))
   (multiple-value-bind (width height)
       (clim3-zone:natural-size (root port))
     ;; This port imposes a size slightly bigger than the natural one.
     (clim3-zone:impose-size (root port) (+ width 3) (+ height 5))))
 
-(defmethod clim3-zone:notify-child-gives-changed (zone (port test-port-2))
+(defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-2))
   nil)
 
-(defmethod clim3-zone:notify-child-gives-invalid (zone (port test-port-2))
+(defmethod clim3-zone:notify-child-sprawls-invalid (zone (port test-port-2))
   nil)
 
 (defmethod clim3-port:text-style-ascent ((port test-port-2) text-style)

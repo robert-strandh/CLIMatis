@@ -46,8 +46,8 @@
    (%vpos :initform 0 :initarg :vpos :accessor vpos :writer set-vpos)
    (%width :initform 0 :accessor width)
    (%height :initform 0 :accessor height)
-   (%hgive :initform nil :initarg :hgive :accessor hgive :writer set-hgive)
-   (%vgive :initform nil :initarg :vgive :accessor vgive :writer set-vgive)
+   (%hsprawl :initform nil :initarg :hsprawl :accessor hsprawl :writer set-hsprawl)
+   (%vsprawl :initform nil :initarg :vsprawl :accessor vsprawl :writer set-vsprawl)
    ;; The depth is used to determine an order between the children of
    ;; a compound zone.  This order is used to determine in which order
    ;; children are painted, and in which order input zones are
@@ -81,34 +81,34 @@
 	 (setf (client zone) (find-client (parent zone)))
 	 (client zone))))
 
-;;; After the hgive of a zone has been explicitly modified, we notify
+;;; After the hsprawl of a zone has been explicitly modified, we notify
 ;;; the parent zone of the change. 
-(defmethod (setf hgive) :after (new-hgive zone)
-  (notify-child-gives-changed zone (parent zone)))
+(defmethod (setf hsprawl) :after (new-hsprawl zone)
+  (notify-child-sprawls-changed zone (parent zone)))
 
-;;; After the vgive of a zone has been explicitly modified, we notify
+;;; After the vsprawl of a zone has been explicitly modified, we notify
 ;;; the parent zone of the change. 
-(defmethod (setf vgive) :after (new-vgive zone)
-  (notify-child-gives-changed zone (parent zone)))
+(defmethod (setf vsprawl) :after (new-vsprawl zone)
+  (notify-child-sprawls-changed zone (parent zone)))
 
 ;;; Return as two values the natural width and the natural height of
 ;;; the zone.  We use this function to determine the size of a zone
 ;;; where the dimensions do not depend on the parent, such as a bboard
 ;;; zone or a scroller zone. 
 (defun natural-size (zone)
-  (values (round (rigidity:natural-size (hgive zone)))
-	  (round (rigidity:natural-size (vgive zone)))))
+  (values (clim3-sprawl:size (hsprawl zone))
+	  (clim3-sprawl:size (vsprawl zone))))
 
-;;; Default method on NOTIFY-CHILD-GIVES-INVALID for ZONE and NULL.
+;;; Default method on NOTIFY-CHILD-SPRAWLS-INVALID for ZONE and NULL.
 ;;; This method does nothing, thus allowing this generic function to
 ;;; be called with any zone and its parent.
-(defmethod notify-child-gives-invalid ((child zone) (parent null))
+(defmethod notify-child-sprawls-invalid ((child zone) (parent null))
   nil)
 
-;;; Default method on NOTIFY-CHILD-GIVES-CHANGED for ZONE and NULL.
+;;; Default method on NOTIFY-CHILD-SPRAWLS-CHANGED for ZONE and NULL.
 ;;; This method does nothing, thus allowing this generic function to
 ;;; be called with any zone and its parent.
-(defmethod notify-child-gives-changed ((child zone) (parent null))
+(defmethod notify-child-sprawls-changed ((child zone) (parent null))
   nil)
 
 (defmethod impose-size :after ((zone zone) width height)
@@ -139,10 +139,10 @@
   (declare (ignore function))
   nil)
 
-;;; Define a primary method for COMPUTE-GIVES that does nothing.
+;;; Define a primary method for COMPUTE-SPRAWLS that does nothing.
 ;;; Subclasses of ATOMIC-ZONE that need to do some calculation to
-;;; determinre the gives must override this method. 
-(defmethod compute-gives ((zone atomic-zone))
+;;; determinre the sprawls must override this method. 
+(defmethod compute-sprawls ((zone atomic-zone))
   nil)
 
 (defmethod impose-size ((zone atomic-zone) width height)
@@ -162,18 +162,18 @@
 (defmethod initialize-instance :after ((zone compound-zone) &key)
   (map-over-children (lambda (child) (setf (parent child) zone)) zone))
 
-;;; For a compound zone, in order to compute all gives, we call
-;;; ENSURE-GIVES-VALID on each child and then combine the result by
-;;; calling COMBINE-CHILD-GIVES.
+;;; For a compound zone, in order to compute all sprawls, we call
+;;; ENSURE-SPRAWLS-VALID on each child and then combine the result by
+;;; calling COMBINE-CHILD-SPRAWLS.
 ;;;
-;;; Although it is not safe to attemps to combien the gives of the
+;;; Although it is not safe to attemps to combien the sprawls of the
 ;;; children of all compound zones, we know that this function will
-;;; only be called on a zone with invalid gives, and all compound
-;;; zones that can have invalid gives also know how to combine the
-;;; gives of the children.
-(defmethod compute-gives ((zone compound-zone))
-  (map-over-children #'ensure-gives-valid zone)
-  (combine-child-gives zone))
+;;; only be called on a zone with invalid sprawls, and all compound
+;;; zones that can have invalid sprawls also know how to combine the
+;;; sprawls of the children.
+(defmethod compute-sprawls ((zone compound-zone))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (combine-child-sprawls zone))
 
 (defmethod (setf children) :after (new-children (zone compound-zone))
   (declare (ignore new-children))
@@ -288,103 +288,103 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class DEPENDENT-GIVES-MIXIN.
+;;; Class DEPENDENT-SPRAWLS-MIXIN.
 
-(defclass dependent-gives-mixin () ())
+(defclass dependent-sprawls-mixin () ())
 
 
-(defmethod gives-valid-p ((zone dependent-gives-mixin))
-  (and (not (null (hgive zone)))
-       (not (null (vgive zone)))))
+(defmethod sprawls-valid-p ((zone dependent-sprawls-mixin))
+  (and (not (null (hsprawl zone)))
+       (not (null (vsprawl zone)))))
 
-(defmethod mark-gives-invalid ((zone dependent-gives-mixin))
-  (set-hgive nil zone)
-  (set-vgive nil zone))
+(defmethod mark-sprawls-invalid ((zone dependent-sprawls-mixin))
+  (set-hsprawl nil zone)
+  (set-vsprawl nil zone))
 
-(defmethod notify-child-gives-invalid ((child zone)
-				       (parent dependent-gives-mixin))
-  (invalidate-gives parent))
+(defmethod notify-child-sprawls-invalid ((child zone)
+				       (parent dependent-sprawls-mixin))
+  (invalidate-sprawls parent))
 
-(defmethod notify-child-gives-changed ((child zone)
-				       (parent dependent-gives-mixin))
-  (invalidate-gives parent))
+(defmethod notify-child-sprawls-changed ((child zone)
+				       (parent dependent-sprawls-mixin))
+  (invalidate-sprawls parent))
 
-(defmethod notify-children-changed ((zone dependent-gives-mixin))
-  (invalidate-gives zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class HDEPENDENT-GIVES-MIXIN.
-
-(defclass hdependent-gives-mixin () ())
-
-(defmethod gives-valid-p ((zone hdependent-gives-mixin))
-  (not (null (hgive zone))))
-
-(defmethod mark-gives-invalid ((zone hdependent-gives-mixin))
-  (set-hgive nil zone))
-
-(defmethod notify-child-gives-invalid ((child zone)
-				       (parent hdependent-gives-mixin))
-  (invalidate-gives parent))
-
-(defmethod notify-child-gives-changed ((child zone)
-				       (parent hdependent-gives-mixin))
-  (invalidate-gives parent))
-
-(defmethod notify-children-changed ((zone hdependent-gives-mixin))
-  (invalidate-gives zone))
+(defmethod notify-children-changed ((zone dependent-sprawls-mixin))
+  (invalidate-sprawls zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class VDEPENDENT-GIVES-MIXIN.
+;;; Class HDEPENDENT-SPRAWLS-MIXIN.
 
-(defclass vdependent-gives-mixin () ())
+(defclass hdependent-sprawls-mixin () ())
 
-(defmethod gives-valid-p ((zone vdependent-gives-mixin))
-  (not (null (vgive zone))))
+(defmethod sprawls-valid-p ((zone hdependent-sprawls-mixin))
+  (not (null (hsprawl zone))))
 
-(defmethod mark-gives-invalid ((zone vdependent-gives-mixin))
-  (set-vgive nil zone))
+(defmethod mark-sprawls-invalid ((zone hdependent-sprawls-mixin))
+  (set-hsprawl nil zone))
 
-(defmethod notify-child-gives-invalid ((child zone)
-				       (parent vdependent-gives-mixin))
-  (invalidate-gives parent))
+(defmethod notify-child-sprawls-invalid ((child zone)
+				       (parent hdependent-sprawls-mixin))
+  (invalidate-sprawls parent))
 
-(defmethod notify-child-gives-changed ((child zone)
-				       (parent vdependent-gives-mixin))
-  (invalidate-gives parent))
+(defmethod notify-child-sprawls-changed ((child zone)
+				       (parent hdependent-sprawls-mixin))
+  (invalidate-sprawls parent))
 
-(defmethod notify-children-changed ((zone vdependent-gives-mixin))
-  (invalidate-gives zone))
+(defmethod notify-children-changed ((zone hdependent-sprawls-mixin))
+  (invalidate-sprawls zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class INDEPENDENT-GIVES-MIXIN.
+;;; Class VDEPENDENT-SPRAWLS-MIXIN.
 
-(defclass independent-gives-mixin () ())
+(defclass vdependent-sprawls-mixin () ())
 
-(defmethod gives-valid-p ((zone independent-gives-mixin))
+(defmethod sprawls-valid-p ((zone vdependent-sprawls-mixin))
+  (not (null (vsprawl zone))))
+
+(defmethod mark-sprawls-invalid ((zone vdependent-sprawls-mixin))
+  (set-vsprawl nil zone))
+
+(defmethod notify-child-sprawls-invalid ((child zone)
+				       (parent vdependent-sprawls-mixin))
+  (invalidate-sprawls parent))
+
+(defmethod notify-child-sprawls-changed ((child zone)
+				       (parent vdependent-sprawls-mixin))
+  (invalidate-sprawls parent))
+
+(defmethod notify-children-changed ((zone vdependent-sprawls-mixin))
+  (invalidate-sprawls zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class INDEPENDENT-SPRAWLS-MIXIN.
+
+(defclass independent-sprawls-mixin () ())
+
+(defmethod sprawls-valid-p ((zone independent-sprawls-mixin))
   t)
 
-(defmethod mark-gives-invalid ((zone independent-gives-mixin))
-  (error "Attempt to marks as invalid the gives of an independent zone ~s"
+(defmethod mark-sprawls-invalid ((zone independent-sprawls-mixin))
+  (error "Attempt to marks as invalid the sprawls of an independent zone ~s"
 	 zone))
 
-(defmethod notify-child-gives-invalid ((child zone)
-				       (parent independent-gives-mixin))
+(defmethod notify-child-sprawls-invalid ((child zone)
+				       (parent independent-sprawls-mixin))
   nil)
 
-(defmethod notify-child-gives-changed ((child zone)
-				       (parent independent-gives-mixin))
+(defmethod notify-child-sprawls-changed ((child zone)
+				       (parent independent-sprawls-mixin))
   nil)
 
-;;; There should never be an attempt to combine the child gives of a
-;;; zone whose gives are independent of the gives of its children. 
-(defmethod combine-child-gives ((zone independent-gives-mixin))
-  (error "Attempt to combine the child gives of ~s" zone))
+;;; There should never be an attempt to combine the child sprawls of a
+;;; zone whose sprawls are independent of the sprawls of its children. 
+(defmethod combine-child-sprawls ((zone independent-sprawls-mixin))
+  (error "Attempt to combine the child sprawls of ~s" zone))
 
-(defmethod notify-children-changed ((zone independent-gives-mixin))
+(defmethod notify-children-changed ((zone independent-sprawls-mixin))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

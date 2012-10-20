@@ -18,16 +18,16 @@
   (setf (clim3-zone:parent zone) nil))
 
 (defmethod update ((port test-port-1))
-  (clim3-zone:ensure-gives-valid (root port))
+  (clim3-zone:ensure-sprawls-valid (root port))
   (multiple-value-bind (width height)
       (clim3-zone:natural-size (root port))
     ;; This port imposes a size slightly bigger than the natural one.
     (clim3-zone:impose-size (root port) (+ width 2) (+ height 4))))
 
-(defmethod clim3-zone:notify-child-gives-changed (zone (port test-port-1))
+(defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-1))
   nil)
 
-(defmethod clim3-zone:notify-child-gives-invalid (zone (port test-port-1))
+(defmethod clim3-zone:notify-child-sprawls-invalid (zone (port test-port-1))
   nil)
 
 (defmethod clim3-port:text-style-ascent ((port test-port-1) text-style)
@@ -66,16 +66,16 @@
   (setf (clim3-zone:parent zone) nil))
 
 (defmethod update ((port test-port-2))
-  (clim3-zone:ensure-gives-valid (root port))
+  (clim3-zone:ensure-sprawls-valid (root port))
   (multiple-value-bind (width height)
       (clim3-zone:natural-size (root port))
     ;; This port imposes a size slightly bigger than the natural one.
     (clim3-zone:impose-size (root port) (+ width 3) (+ height 5))))
 
-(defmethod clim3-zone:notify-child-gives-changed (zone (port test-port-2))
+(defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-2))
   nil)
 
-(defmethod clim3-zone:notify-child-gives-invalid (zone (port test-port-2))
+(defmethod clim3-zone:notify-child-sprawls-invalid (zone (port test-port-2))
   nil)
 
 (defmethod clim3-port:text-style-ascent ((port test-port-2) text-style)
@@ -103,7 +103,7 @@
 	(port2 (make-instance 'test-port-2))
 	(zone (clim3-text:text "hi" nil (clim3-color:make-color 1.0 0.0 0.0))))
     (clim3-port:connect zone port1)
-    (assert (not (clim3-zone:gives-valid-p zone)))
+    (assert (not (clim3-zone:sprawls-valid-p zone)))
     (assert (eq (clim3-zone:parent zone) port1))
     (assert (eq (clim3-zone:find-client zone) port1))
     (update port1)
@@ -111,11 +111,11 @@
     (assert (= (clim3-zone:height zone) 44))
     (clim3-port:disconnect zone port1)
     (assert (null (clim3-zone:find-client zone)))
-    (assert (not (clim3-zone:gives-valid-p zone)))
+    (assert (not (clim3-zone:sprawls-valid-p zone)))
     (clim3-port:connect zone port2)
     (assert (eq (clim3-zone:find-client zone) port2))
     (update port2)
-    (assert (clim3-zone:gives-valid-p zone))
+    (assert (clim3-zone:sprawls-valid-p zone))
     (assert (= (clim3-zone:width zone) 21))
     (assert (= (clim3-zone:height zone) 37))))
 

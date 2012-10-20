@@ -50,11 +50,11 @@
    (%image :accessor image)
    (%pointer-zones :initform '() :accessor pointer-zones)))
 
-(defmethod clim3-zone:notify-child-gives-changed
+(defmethod clim3-zone:notify-child-sprawls-changed
     (zone (port clx-framebuffer-port))
   nil)
 
-(defmethod clim3-zone:notify-child-gives-invalid
+(defmethod clim3-zone:notify-child-sprawls-invalid
     (zone (port clx-framebuffer-port))
   nil)
 
@@ -158,7 +158,7 @@
 (defmethod clim3-port:connect ((zone clim3-zone:zone)
 			       (port clx-framebuffer-port))
   (setf (clim3-zone:parent zone) port)
-  (clim3-zone:ensure-gives-valid zone)
+  (clim3-zone:ensure-sprawls-valid zone)
   (let ((zone-entry (make-instance 'zone-entry)))
     ;; Ask for a window that has the natural size of the zone.  We may
     ;; not get it, though.
@@ -228,7 +228,7 @@
 (defmethod paint ((zone clim3-zone:compound-zone)
 		  (port clx-framebuffer-port)
 		  hstart vstart hend vend)
-  (clim3-zone:ensure-gives-valid zone)
+  (clim3-zone:ensure-sprawls-valid zone)
   (clim3-zone:ensure-child-layouts-valid zone)
   (clim3-zone:map-over-children-bottom-to-top
    (lambda (child)

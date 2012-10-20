@@ -13,29 +13,29 @@
 	   :reader chars)))
 
 (defmethod (setf clim3-zone:parent) :after ((new-parent null) (zone text))
-  (clim3-zone:invalidate-gives zone))
+  (clim3-zone:invalidate-sprawls zone))
 
-(defmethod clim3-zone:mark-gives-invalid ((zone text))
-  (clim3-zone:set-vgive nil zone)
-  (clim3-zone:set-hgive nil zone))
+(defmethod clim3-zone:mark-sprawls-invalid ((zone text))
+  (clim3-zone:set-vsprawl nil zone)
+  (clim3-zone:set-hsprawl nil zone))
 
-(defmethod clim3-zone:gives-valid-p ((zone text))
-  (and (not (null (clim3-zone:vgive zone)))
-       (not (null (clim3-zone:hgive zone)))))
+(defmethod clim3-zone:sprawls-valid-p ((zone text))
+  (and (not (null (clim3-zone:vsprawl zone)))
+       (not (null (clim3-zone:hsprawl zone)))))
 
-(defmethod clim3-zone:compute-gives ((zone text))
-  (clim3-zone:set-hgive
-   (rigidity:very-rigid
-    (clim3-port:text-width (clim3-zone:find-client zone)
-			   (style zone)
-			   (chars zone)))
+(defmethod clim3-zone:compute-sprawls ((zone text))
+  (clim3-zone:set-hsprawl
+   (let ((width (clim3-port:text-width (clim3-zone:find-client zone)
+				       (style zone)
+				       (chars zone))))
+     (clim3-sprawl:sprawl width width width))
    zone)
-  (clim3-zone:set-vgive
-   (rigidity:very-rigid
-    (+ (clim3-port:text-style-ascent
-	(clim3-zone:find-client zone) (style zone))
-       (clim3-port:text-style-descent
-	(clim3-zone:find-client zone) (style zone))))
+  (clim3-zone:set-vsprawl
+   (let ((height (+ (clim3-port:text-style-ascent
+		     (clim3-zone:find-client zone) (style zone))
+		    (clim3-port:text-style-descent
+		     (clim3-zone:find-client zone) (style zone)))))
+     (clim3-sprawl:sprawl height height height))
    zone))
 
 (defun text (string style color)

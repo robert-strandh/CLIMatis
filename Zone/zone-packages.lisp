@@ -6,7 +6,7 @@
    #:parent
    #:hpos #:vpos #:set-hpos #:set-vpos
    #:width #:height
-   #:hgive #:vgive #:set-hgive #:set-vgive
+   #:hsprawl #:vsprawl #:set-hsprawl #:set-vsprawl
    #:depth #:set-depth
    #:find-client
    #:natural-size
@@ -14,15 +14,15 @@
    #:map-over-children
    #:map-over-children-top-to-bottom
    #:map-over-children-bottom-to-top
-   #:ensure-gives-valid
-   #:compute-gives
-   #:combine-child-gives
-   #:notify-child-gives-invalid
-   #:notify-child-gives-changed
+   #:ensure-sprawls-valid
+   #:compute-sprawls
+   #:combine-child-sprawls
+   #:notify-child-sprawls-invalid
+   #:notify-child-sprawls-changed
    #:notify-children-changed
-   #:gives-valid-p
-   #:mark-gives-invalid
-   #:invalidate-gives
+   #:sprawls-valid-p
+   #:mark-sprawls-invalid
+   #:invalidate-sprawls
    #:child-layouts-valid-p
    #:impose-child-layouts
    #:ensure-child-layouts-valid
@@ -31,10 +31,10 @@
    #:compound-zone
    #:compound-simple-zone
    #:compound-sequence-zone
-   #:dependent-gives-mixin
-   #:hdependent-gives-mixin
-   #:vdependent-gives-mixin
-   #:independent-gives-mixin
+   #:dependent-sprawls-mixin
+   #:hdependent-sprawls-mixin
+   #:vdependent-sprawls-mixin
+   #:independent-sprawls-mixin
    #:at-most-one-child-mixin
    #:any-number-of-children-mixin
    ))
