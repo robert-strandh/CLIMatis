@@ -50,16 +50,18 @@
 (defparameter *za5*
   (let* ((text-color (clim3-color:make-color 0.1 0.4 0.1))
 	 (background-color (clim3-color:make-color 0.9 0.7 0.7)))
-    (clim3-layout:brick*
-     200 200
-     (clim3-layout:bboard*
-      (clim3-layout:pile* 
-       (clim3-layout:vbox
-	(loop for i from 0 below 100
-	      collect (clim3-layout:hbox*
-		       (clim3-text:text (format nil "hello ~a" i) nil text-color)
-		       (clim3-layout:sponge*))))
-       (clim3-graphics:opaque background-color))))))
+    (clim3-layout:vframe*
+     200 200 200
+     (clim3-layout:hframe*
+      200 200 200
+      (clim3-layout:bboard*
+       (clim3-layout:pile* 
+	(clim3-layout:vbox
+	 (loop for i from 0 below 100
+	       collect (clim3-layout:hbox*
+			(clim3-text:text (format nil "hello ~a" i) nil text-color)
+			(clim3-layout:sponge*))))
+	(clim3-graphics:opaque background-color)))))))
 
 (defparameter *za6*
   (let* ((text-color (clim3-color:make-color 0.1 0.4 0.1))

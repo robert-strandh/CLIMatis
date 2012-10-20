@@ -8,4 +8,5 @@
    #:bboard #:bboard*
    #:sponge #:sponge* #:hsponge #:hsponge* #:vsponge  #:vsponge*
    #:brick #:brick* #:hbrick #:hbrick* #:vbrick #:vbrick*
+   #:hframe #:hframe* #:vframe #:vframe*
    ))

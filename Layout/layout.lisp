@@ -563,3 +563,103 @@
    'vbrick
    :vsprawl (clim3-sprawl:sprawl height height height)
    :children (coerce-to-list-of-at-most-one-zone children)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class HFRAME.
+;;;
+;;; A hframe is a zone that can have at most one child.  It ignores
+;;; the horizontal sprawl of its child, and imposes its own.  It
+;;; copies the vertical sprawl of its child, or if it has no child,
+;;; makes it very elastic vertically.
+
+(defclass hframe (clim3-zone:compound-simple-zone
+		  clim3-zone:vdependent-sprawls-mixin
+		  clim3-zone:at-most-one-child-mixin)
+  ())
+
+(defmethod clim3-zone:combine-child-sprawls ((zone hframe))
+  (clim3-zone:set-vsprawl
+   (if (null (clim3-zone:children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (clim3-zone:vsprawl (car (clim3-zone:children zone))))
+   zone))
+
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone hframe) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+
+(defmethod clim3-zone:impose-child-layouts ((zone hframe))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
+    (unless (null children)
+      (let ((child (car children)))
+	(clim3-zone:set-hpos 0 child)
+	(clim3-zone:set-vpos 0 child)
+	(clim3-zone:impose-size child width height)))))
+
+(defun hframe (min-width width max-width children)
+  (make-instance
+   'hframe
+   :hsprawl (clim3-sprawl:sprawl min-width width max-width)
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun hframe* (min-width width max-width &rest children)
+  (make-instance
+   'hframe
+   :hsprawl (clim3-sprawl:sprawl min-width width max-width)
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VFRAME.
+;;;
+;;; A vframe is a zone that can have at most one child.  It ignores
+;;; the vertical sprawl of its child, and imposes its own.  It copies
+;;; the horizontal sprawl of its child, or if it has no child, makes
+;;; it very elastic horizontally.
+
+(defclass vframe (clim3-zone:compound-simple-zone
+		  clim3-zone:hdependent-sprawls-mixin
+		  clim3-zone:at-most-one-child-mixin)
+  ())
+
+(defmethod clim3-zone:combine-child-sprawls ((zone vframe))
+  (clim3-zone:set-hsprawl
+   (if (null (clim3-zone:children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (clim3-zone:hsprawl (car (clim3-zone:children zone))))
+   zone))
+
+;;; We should probably factor this one out to a mixin class
+(defmethod clim3-zone:impose-size ((zone vframe) width height)
+  (unless (and (= width (clim3-zone:width zone))
+	       (= height (clim3-zone:height zone)))
+    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+
+(defmethod clim3-zone:impose-child-layouts ((zone vframe))
+  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
+  (let* ((width (clim3-zone:width zone))
+	 (height (clim3-zone:height zone))
+	 (children (clim3-zone:children zone)))
+    (unless (null children)
+      (let ((child (car children)))
+	(clim3-zone:set-hpos 0 child)
+	(clim3-zone:set-vpos 0 child)
+	(clim3-zone:impose-size child width height)))))
+
+(defun vframe (min-height height max-height children)
+  (make-instance
+   'vframe
+   :vsprawl (clim3-sprawl:sprawl min-height height max-height)
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun vframe* (min-height height max-height &rest children)
+  (make-instance
+   'vframe
+   :vsprawl (clim3-sprawl:sprawl min-height height max-height)
+   :children (coerce-to-list-of-at-most-one-zone children)))
