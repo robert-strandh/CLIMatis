@@ -65,6 +65,33 @@
 		 (assert (= (clim3-sprawl:max-size combined)
 			(reduce #'+ sprawls :key #'clim3-sprawl:max-size)))))))
 
+(defun random-line ()
+  (cdr (loop repeat 20
+	     ;;  A space between words.
+	     collect (cons (clim3-sprawl:sprawl 8 8 nil)
+			   (clim3-sprawl:sprawl 0 0 nil))
+	     
+	     ;; A word.
+	     collect (cons (let ((width (+ 20 (random 40))))
+			     (clim3-sprawl:sprawl width width width))
+			   (ecase (random 3)
+			     (0 (clim3-sprawl:sprawl 15 15 20))
+			     (1 (clim3-sprawl:sprawl 12 12 20))
+			     (2 (clim3-sprawl:sprawl 10 10 20)))))))
+
+(defun random-document (line-count)
+  (loop repeat line-count
+	collect (random-line)))
+
+(defun combine-line (words)
+  (cons (clim3-sprawl:combine-in-series (mapcar #'car words))
+	(clim3-sprawl:combine-in-parallel (mapcar #'cdr words))))
+
+(defun combine-page (lines)
+  (let ((combined-lines (mapcar #'combine-line lines)))
+    (cons (clim3-sprawl:combine-in-parallel (mapcar #'cdr combined-lines))
+	  (clim3-sprawl:combine-in-series (mapcar #'car combined-lines)))))
+
 (defun test()
   (test-combine-in-parallel)
   (test-combine-in-series))
