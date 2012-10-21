@@ -60,26 +60,15 @@
 (defun zone-p (object)
   (typep object 'zone))
 
-(defmethod (setf parent) :after ((new-parent null) (zone zone))
-  (declare (ignore new-parent))
-  (labels ((nullify-clients (zone)
-	     (setf (client zone) nil)
-	     (map-over-children #'nullify-clients zone)))
-    (nullify-clients zone)))
+(defun set-clients (zone client)
+  (labels ((aux (zone)
+	     (unless (eq (client zone) client)
+	       (setf (client zone) client)
+	       (map-over-children #'aux zone))))
+    (aux zone)))
 
-;;; Do lazy client propagation.  Look for the closest non-nil client
-;;; up the hierarchy, and set the client slot of all intermediate
-;;; zones on the way back.
-(defgeneric find-client (zone))
-
-(defmethod find-client ((zone zone))
-  (cond ((not (null (client zone)))
-	 (client zone))
-	((null (parent zone))
-	 nil)
-	(t
-	 (setf (client zone) (find-client (parent zone)))
-	 (client zone))))
+(defmethod (setf parent) :after ((new-parent zone) (zone zone))
+  (set-clients zone (client new-parent)))
 
 ;;; After the hsprawl of a zone has been explicitly modified, we notify
 ;;; the parent zone of the change. 
@@ -463,7 +452,6 @@
 (defmethod (setf children) :around
   (new-children (zone any-number-of-children-mixin))
   (let ((children-before (children zone))
-	(client (client zone))
 	(table-children-before (make-hash-table :test #'eq))
 	(table-children-after (make-hash-table :test #'eq)))
     ;; Fill the table with the current children of the zone.

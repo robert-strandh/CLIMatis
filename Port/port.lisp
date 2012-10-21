@@ -2,6 +2,11 @@
 
 (defclass port () ())
 
+;;; FIXME: add a comment
+
+(defmethod (setf clim3-zone:parent) :after ((new-parent port) (zone clim3-zone:zone))
+  (clim3-zone:set-clients zone new-parent))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function MAKE-PORT.
@@ -108,7 +113,4 @@
 (defun standard-key-processor (handler-fun)
   (lambda (zone keycode modifiers)
     (port-standard-key-processor
-     (clim3-zone:find-client zone) handler-fun keycode modifiers)))
-  
-(defmethod clim3-zone:find-client ((port port))
-  port)
+     (clim3-zone:client zone) handler-fun keycode modifiers)))

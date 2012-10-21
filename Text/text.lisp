@@ -25,16 +25,16 @@
 
 (defmethod clim3-zone:compute-sprawls ((zone text))
   (clim3-zone:set-hsprawl
-   (let ((width (clim3-port:text-width (clim3-zone:find-client zone)
+   (let ((width (clim3-port:text-width (clim3-zone:client zone)
 				       (style zone)
 				       (chars zone))))
      (clim3-sprawl:sprawl width width width))
    zone)
   (clim3-zone:set-vsprawl
    (let ((height (+ (clim3-port:text-style-ascent
-		     (clim3-zone:find-client zone) (style zone))
+		     (clim3-zone:client zone) (style zone))
 		    (clim3-port:text-style-descent
-		     (clim3-zone:find-client zone) (style zone)))))
+		     (clim3-zone:client zone) (style zone)))))
      (clim3-sprawl:sprawl height height height))
    zone))
 

@@ -4,11 +4,12 @@
    #:zone
    #:zone-p
    #:parent
+   #:client
    #:hpos #:vpos #:set-hpos #:set-vpos
    #:width #:height
    #:hsprawl #:vsprawl #:set-hsprawl #:set-vsprawl
    #:depth #:set-depth
-   #:find-client
+   #:set-clients
    #:natural-size
    #:children
    #:map-over-children
