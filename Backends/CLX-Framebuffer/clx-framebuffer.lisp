@@ -13,9 +13,6 @@
    (%black :accessor black)
    (%shift-state :initform nil :accessor shift-state)
    (%zone-entries :initform '() :accessor zone-entries)
-   (%motion-zones :initform '() :accessor motion-zones)
-   (%prev-pointer-hpos :initform 0 :accessor prev-pointer-hpos)
-   (%prev-pointer-vpos :initform 0 :accessor prev-pointer-vpos)
    ;; A vector of interpretations.  Each interpretation is a
    ;; short vector of keysyms
    (%keyboard-mapping :initform nil :accessor keyboard-mapping)
@@ -46,12 +43,16 @@
     port))
 
 (defclass zone-entry ()
-  ((%zone :accessor zone)
+  ((%port :initarg :port :reader port)
+   (%zone :initarg :zone :accessor zone)
    (%gcontext :accessor gcontext)
    (%window :accessor window)
    (%pixel-array :accessor pixel-array)
    (%image :accessor image)
-   (%pointer-zones :initform '() :accessor pointer-zones)))
+   (%pointer-zones :initform '() :accessor pointer-zones)
+   (%motion-zones :initform '() :accessor motion-zones)
+   (%prev-pointer-hpos :initform 0 :accessor prev-pointer-hpos)
+   (%prev-pointer-vpos :initform 0 :accessor prev-pointer-vpos)))
 
 (defmethod clim3-zone:notify-child-sprawls-changed
     (zone (port clx-framebuffer-port))
@@ -66,36 +67,53 @@
 ;;; Handle pointer position
 
 (defmethod (setf clim3-zone:client) :after
-  ((new-parent clx-framebuffer-port) (zone clim3-input:motion))
-  (push zone (motion-zones new-parent)))
+  ((new-client clx-framebuffer-port) (zone clim3-input:motion))
+  ;; Find the root zone of the zone.
+  (let ((root zone))
+    (loop while (clim3-zone:zone-p (clim3-zone:parent root))
+	  do (setf root (clim3-zone:parent root)))
+    ;; Find the zone entry with that root zone.
+    (let ((zone-entry (find root
+			    (zone-entries new-client)
+			    :key #'zone
+			    :test #'eq)))
+      (assert (not (null zone-entry)))
+      ;; Add the motion zone to the list of motion zones. 
+      (push zone (motion-zones zone-entry)))))
 
-(defun handle-motion-zones (port hpos vpos)
-  ;; Only alert if the pointer is at a different position.
-  ;; This optimization is valuable if many consecutive events
-  ;; are non-pointer events such as key-press and key-release. 
-  (unless (and (= hpos (prev-pointer-hpos port))
-	       (= vpos (prev-pointer-vpos port)))
-    (setf (prev-pointer-hpos port) hpos)
-    (setf (prev-pointer-vpos port) vpos)
-    ;; If any of the zones on the list has a client other than
-    ;; this port, then remove it. 
-    (setf (motion-zones port)
-	  (remove port
-		  (motion-zones port)
-		  :key #'clim3-zone:client
-		  :test-not #'eq))
-    ;; For the remaining ones, call the handler.
-    (loop for zone in (motion-zones port)
-	  do (let ((absolute-hpos 0)
-		   (absolute-vpos 0)
-		   (parent zone))
-	       ;; Find the absolute position of the zone.
-	       (loop while (clim3-zone:zone-p parent)
-		     do (incf absolute-hpos (clim3-zone:hpos parent))
-			(incf absolute-vpos (clim3-zone:vpos parent))
-			(setf parent (clim3-zone:parent parent)))
-	       (funcall (clim3-input:handler zone)
-			zone (- hpos absolute-hpos) (- vpos absolute-vpos))))))
+(defun handle-motion-zones (zone-entry)
+  (multiple-value-bind (hpos vpos same-screen-p)
+      (xlib:pointer-position (window zone-entry))
+    ;; FIXME: Figure out what to do with same-screen-p
+    (declare (ignore same-screen-p))
+    ;; Only alert if the pointer is at a different position.
+    ;; This optimization is valuable if many consecutive events
+    ;; are non-pointer events such as key-press and key-release. 
+    (unless (and (= hpos (prev-pointer-hpos zone-entry))
+		 (= vpos (prev-pointer-vpos zone-entry)))
+      (setf (prev-pointer-hpos zone-entry) hpos)
+      (setf (prev-pointer-vpos zone-entry) vpos)
+      ;; If any of the zones on the list has a client other than
+      ;; the port of this zone-entry, then remove it. 
+      (setf (motion-zones zone-entry)
+	    (remove (port zone-entry)
+		    (motion-zones zone-entry)
+		    :key #'clim3-zone:client
+		    :test-not #'eq))
+      ;; For the remaining ones, call the handler.
+      (loop for zone in (motion-zones zone-entry)
+	    do (let ((absolute-hpos 0)
+		     (absolute-vpos 0)
+		     (parent zone))
+		 ;; Find the absolute position of the zone.
+		 (loop while (clim3-zone:zone-p parent)
+		       do (incf absolute-hpos (clim3-zone:hpos parent))
+			  (incf absolute-vpos (clim3-zone:vpos parent))
+			  (setf parent (clim3-zone:parent parent)))
+		 (funcall (clim3-input:handler zone)
+			  zone
+			  (- hpos absolute-hpos)
+			  (- vpos absolute-vpos)))))))
 
 (defun handle-pointer-positions (zone-entry)
   (let ((new-zone-entries '()))
@@ -185,9 +203,12 @@
 
 (defmethod clim3-port:connect ((zone clim3-zone:zone)
 			       (port clx-framebuffer-port))
-  (setf (clim3-zone:parent zone) port)
-  (clim3-zone:ensure-sprawls-valid zone)
-  (let ((zone-entry (make-instance 'zone-entry)))
+  (let ((zone-entry (make-instance 'zone-entry :port port :zone zone)))
+    ;; Register this zone entry.  We need to do this right away, because 
+    ;; it has to exist when we set the parent of the zone. 
+    (push zone-entry (zone-entries port))
+    (setf (clim3-zone:parent zone) port)
+    (clim3-zone:ensure-sprawls-valid zone)
     ;; Ask for a window that has the natural size of the zone.  We may
     ;; not get it, though.
     ;;
@@ -226,10 +247,6 @@
 			     :depth 24
 			     :width 0 :height 0
 			     :format :z-pixmap))
-    (setf (zone zone-entry) zone)
-    (setf (clim3-zone:parent zone) port)
-    ;; Register this zone entry.
-    (push zone-entry (zone-entries port))
     ;; Make sure the window has the right contents.
     (let ((*port* port))
       (update zone-entry))))
@@ -551,10 +568,7 @@
        (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
 	 (unless (null entry)
 	   ;; FIXME: needs code factoring
-	   (multiple-value-bind (hpos vpos same-screen-p)
-	       (xlib:pointer-position (window entry))
-	     (declare (ignore same-screen-p))
-	     (handle-motion-zones port hpos vpos))
+	   (handle-motion-zones entry)
 	   (handle-key-press entry code state x y)))
        nil)
       (:key-release
@@ -562,10 +576,7 @@
        (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
 	 (unless (null entry)
 	   ;; FIXME: needs code factoring
-	   (multiple-value-bind (hpos vpos same-screen-p)
-	       (xlib:pointer-position (window entry))
-	     (declare (ignore same-screen-p))
-	     (handle-motion-zones port hpos vpos))
+	   (handle-motion-zones entry)
 	   (handle-key-release entry code state x y)))
        nil)
       (:button-press
@@ -573,40 +584,26 @@
        (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
 	 (unless (null entry)
 	   ;; FIXME: needs code factoring
-	   (multiple-value-bind (hpos vpos same-screen-p)
-	       (xlib:pointer-position (window entry))
-	     (declare (ignore same-screen-p))
-	     (handle-motion-zones port hpos vpos))
+	   (handle-motion-zones entry)
 	   (handle-button-press entry code state x y)))
        nil)
       (:button-release
        (window code state x y)
        (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
 	 (unless (null entry)
-	   ;; FIXME: needs code factoring
-	   (multiple-value-bind (hpos vpos same-screen-p)
-	       (xlib:pointer-position (window entry))
-	     (declare (ignore same-screen-p))
-	     (handle-motion-zones port hpos vpos))
+	   (handle-motion-zones entry)
 	   (handle-button-release entry code state x y)))
        nil)
       ((:exposure :motion-notify :enter-notify :leave-notify)
        (window)
        (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
 	 (unless (null entry)
-	   ;; FIXME: needs code factoring
-	   (multiple-value-bind (hpos vpos same-screen-p)
-	       (xlib:pointer-position (window entry))
-	     (declare (ignore same-screen-p))
-	     (handle-motion-zones port hpos vpos))
+	   (handle-motion-zones entry)
 	   (handle-other entry))))
       (t
        ()
        (loop for zone-entry in (zone-entries port)
 	     do ;; FIXME: needs code factoring
-		(multiple-value-bind (hpos vpos same-screen-p)
-		    (xlib:pointer-position (window zone-entry))
-		  (declare (ignore same-screen-p))
-		  (handle-motion-zones port hpos vpos))
+		(handle-motion-zones zone-entry)
 		(handle-other zone-entry))
        nil))))
