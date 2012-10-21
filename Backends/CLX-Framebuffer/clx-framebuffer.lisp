@@ -51,6 +51,8 @@
    (%image :accessor image)
    (%pointer-zones :initform '() :accessor pointer-zones)
    (%motion-zones :initform '() :accessor motion-zones)
+   (%button-press-zone :initform nil :accessor button-press-zone)
+   (%zone-containing-pointer :initform nil :accessor zone-containing-pointer)
    (%prev-pointer-hpos :initform 0 :accessor prev-pointer-hpos)
    (%prev-pointer-vpos :initform 0 :accessor prev-pointer-vpos)))
 
@@ -115,8 +117,8 @@
 			  (- hpos absolute-hpos)
 			  (- vpos absolute-vpos)))))))
 
-(defun handle-pointer-positions (zone-entry)
-  (let ((new-zone-entries '()))
+(defun handle-visit (zone-entry)
+  (let ((prev (zone-containing-pointer zone-entry)))
     (multiple-value-bind (hpos vpos same-screen-p)
 	(xlib:pointer-position (window zone-entry))
       ;; FIXME: Figure out what to do with same-screen-p
@@ -126,33 +128,20 @@
 			     (< vpos 0)
 			     (> hpos (clim3-zone:width zone))
 			     (> vpos (clim3-zone:height zone)))
-		   (when (or (typep zone 'clim3-input:enter)
-			     (typep zone 'clim3-input:leave))
-		     (push (list zone hpos vpos)
-			   new-zone-entries))
+		   (when (typep zone 'clim3-input:visit)
+		     (unless (eq zone prev)
+		       (unless (null prev)
+			 (funcall (clim3-input:leave-handler prev) prev))
+		       (funcall (clim3-input:enter-handler zone) zone)
+		       (setf (zone-containing-pointer zone-entry) zone))
+		     (return-from handle-visit nil))
 		   (clim3-zone:map-over-children-top-to-bottom
 		    (lambda (child)
 		      (traverse child
 				(- hpos (clim3-zone:hpos child))
 				(- vpos (clim3-zone:vpos child))))
 		    zone))))
-	(traverse (zone zone-entry) hpos vpos)))
-    (setf new-zone-entries (nreverse new-zone-entries))
-    ;; Handle leave zones.
-    (loop for zone in (pointer-zones zone-entry)
-	  do (when (and (typep zone 'clim3-input:leave)
-			(not (member zone new-zone-entries
-				     :test #'eq :key #'car)))
-	       (funcall (clim3-input:handler zone) zone)))
-    ;; Handle enter zones.
-    (loop for entry in new-zone-entries
-	  for zone = (car entry)
-	  do (when (and (typep zone 'clim3-input:enter)
-			(not (member zone (pointer-zones zone-entry) :test #'eq)))
-	       (funcall (clim3-input:handler zone) zone)))
-    ;; Save new zones
-    (setf (pointer-zones zone-entry)
-	  (mapcar #'car new-zone-entries))))
+	(traverse (zone zone-entry) hpos vpos)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -488,7 +477,7 @@
 ;;; Handling events.
 
 (defun handle-other (zone-entry)
-  (handle-pointer-positions zone-entry)
+  (handle-visit zone-entry)
   (update zone-entry))
 
 ;;; Some code factoring is needed here. 
@@ -532,8 +521,10 @@
 			 (< vpos 0)
 			 (> hpos (clim3-zone:width zone))
 			 (> vpos (clim3-zone:height zone)))
-	       (when (typep zone 'clim3-input:button-press)
-		 (funcall (clim3-input:handler zone) zone code state))
+	       (when (typep zone 'clim3-input:button)
+		 (funcall (clim3-input:press-handler zone) zone code state)
+		 (setf (button-press-zone zone-entry) zone)
+		 (return-from handle-button-press nil))
 	       (clim3-zone:map-over-children-top-to-bottom
 		(lambda (child)
 		  (traverse child
@@ -543,21 +534,10 @@
 	(traverse (zone zone-entry) hpos vpos))
   (update zone-entry))
   
-(defun handle-button-release (zone-entry code state hpos vpos)
-  (labels ((traverse (zone hpos vpos)
-	     (unless (or (< hpos 0)
-			 (< vpos 0)
-			 (> hpos (clim3-zone:width zone))
-			 (> vpos (clim3-zone:height zone)))
-	       (when (typep zone 'clim3-input:button-release)
-		 (funcall (clim3-input:handler zone) zone code state))
-	       (clim3-zone:map-over-children-top-to-bottom
-		(lambda (child)
-		  (traverse child
-			    (- hpos (clim3-zone:hpos child))
-			    (- vpos (clim3-zone:vpos child))))
-		zone))))
-	(traverse (zone zone-entry) hpos vpos))
+(defun handle-button-release (zone-entry code state)
+  (let ((zone (button-press-zone zone-entry)))
+    (unless (null zone)
+      (funcall (clim3-input:release-handler zone) zone code state)))
   (update zone-entry))
 
 (defun event-loop (port)
@@ -588,11 +568,11 @@
 	   (handle-button-press entry code state x y)))
        nil)
       (:button-release
-       (window code state x y)
+       (window code state)
        (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
 	 (unless (null entry)
 	   (handle-motion-zones entry)
-	   (handle-button-release entry code state x y)))
+	   (handle-button-release entry code state)))
        nil)
       ((:exposure :motion-notify :enter-notify :leave-notify)
        (window)

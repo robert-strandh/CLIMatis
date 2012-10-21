@@ -4,9 +4,11 @@
    #:handler
    #:key-press
    #:key-release
-   #:button-press
-   #:button-release
-   #:enter
-   #:leave
+   #:button
+   #:press-handler
+   #:release-handler
+   #:visit
+   #:enter-handler
+   #:leave-handler
    #:motion
    ))

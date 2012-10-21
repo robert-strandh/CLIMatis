@@ -8,7 +8,7 @@
 ;;; zone in a compound zone on top of some more rigid zones. 
 
 (defclass input (clim3-zone:atomic-zone)
-  ((%handler :initarg :handler :reader handler))
+  ()
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
@@ -25,7 +25,8 @@
 ;;;   key-code   
 ;;;   modifiers
 
-(defclass key-press (input) ())
+(defclass key-press (input)
+  ((%handler :initarg :handler :reader handler)))
 
 (defun key-press (handler)
   (make-instance 'key-press :handler handler))
@@ -40,65 +41,47 @@
 ;;;   key-code   
 ;;;   modifiers
 
-(defclass key-release (input) ())
+(defclass key-release (input)
+  ((%handler :initarg :handler :reader handler)))
 
 (defun key-release (handler)
   (make-instance 'key-release :handler handler))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class BUTTON-PRESS.
+;;; Class BUTTON
 ;;;
-;;; The handler is called with the following arguments:
+;;; The handlers are called with the following arguments:
 ;;;
 ;;;   the zone
 ;;;   button-code   
 ;;;   modifiers
 
-(defclass button-press (input) ())
+(defclass button (input)
+  ((%press-handler :initarg :press-handler :reader press-handler)
+   (%release-handler :initarg :release-handler :reader release-handler)))
 
-(defun button-press (handler)
-  (make-instance 'button-press :handler handler))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class BUTTON-RELEASE.
-;;;
-;;; The handler is called with the following arguments:
-;;;
-;;;   button-code   
-;;;   modifiers
-
-(defclass button-release (input) ())
-
-(defun button-release (handler)
-  (make-instance 'button-release :handler handler))
+(defun button (press-handler release-handler)
+  (make-instance 'button
+		 :press-handler press-handler
+		 :release-handler release-handler))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class ENTER.
+;;; Class VISIT
 ;;;
-;;; The handler is called with the following arguments:
+;;; The handlers are called with the following arguments:
 ;;;
 ;;;   the zone
 
-(defclass enter (input) ())
+(defclass visit (input)
+  ((%enter-handler :initarg :enter-handler :reader enter-handler)
+   (%leave-handler :initarg :leave-handler :reader leave-handler)))
 
-(defun enter (handler)
-  (make-instance 'enter :handler handler))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class LEAVE.
-;;;
-;;; The handler is called with the following arguments:
-;;;
-;;;   the zone
-
-(defclass leave (input) ())
-
-(defun leave (handler)
-  (make-instance 'leave :handler handler))
+(defun visit (enter-handler leave-handler)
+  (make-instance 'visit
+		 :enter-handler enter-handler
+		 :leave-handler leave-handler))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -110,7 +93,8 @@
 ;;;   hpos
 ;;;   vpos
 
-(defclass motion (input) ())
+(defclass motion (input)
+  ((%handler :initarg :handler :reader handler)))
 
 (defun motion (handler)
   (make-instance 'motion :handler handler))

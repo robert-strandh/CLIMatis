@@ -14,8 +14,8 @@
        (clim3-layout:brick*
 	100 100
 	(clim3-layout:pile*
-	 (clim3-input:leave (lambda (zone) (setf (clim3-graphics:color red-zone) blue)))
-	 (clim3-input:enter (lambda (zone) (setf (clim3-graphics:color red-zone) red)))
+	 (clim3-input:visit (lambda (zone) (setf (clim3-graphics:color red-zone) red))
+			    (lambda (zone) (setf (clim3-graphics:color red-zone) blue)))
 	 (clim3-input:motion (lambda (zone hpos vpos)
 			       (setf (clim3-graphics:color z1)
 				     (make-gray (max 0.0 (min 1.0 (/ hpos 100.0)))))

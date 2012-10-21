@@ -43,14 +43,17 @@
 		  (clim3-graphics:opaque (clim3-color:make-color 0.0 0.0 1.0))))
 		(clim3-layout:hframe* 0 0 nil))))
     (clim3-layout:pile*
-     (clim3-input:button-press
+     (clim3-input:button
       (lambda (zone button modifiers)
 	(declare (ignore zone button modifiers))
 	(setf str (concatenate 'string str "a"))
 	(let ((new-text (clim3-text:text str nil color)))
 	  (setf (clim3-zone:children hbox)
 		(substitute new-text text (clim3-zone:children hbox)))
-	  (setf text new-text))))
+	  (setf text new-text)))
+      (lambda (zone button modifiers)
+	(declare (ignore zone button modifiers))
+	nil))
      (clim3-layout:hframe*
       500 500 500
       hbox))))
