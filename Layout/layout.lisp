@@ -20,7 +20,7 @@
 		 (error "A proper sequence of length at most 1 required ~s"
 			thing)))))
     (unless (null result)
-      (unless (clim3-zone:zone-p (car result))
+      (unless (zone-p (car result))
 	(error "A zone was expected ~s" (car result))))
     result))
 
@@ -44,7 +44,7 @@
 		(t
 		 (error "A proper sequence required ~s" thing)))))
     (loop for element in result
-	  do (unless (clim3-zone:zone-p element)
+	  do (unless (zone-p element)
 	       (error "a zone was expected ~s" element)))
     result))
 
@@ -52,40 +52,44 @@
 ;;;
 ;;; Class VBOX. 
 
-(defclass vbox (clim3-zone:compound-sequence-zone
-		clim3-zone:dependent-sprawls-mixin
-		clim3-zone:any-number-of-children-mixin)
+(defclass vbox (compound-sequence-zone
+		dependent-sprawls-mixin
+		any-number-of-children-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone vbox))
-  (clim3-zone:set-hsprawl
-   (clim3-sprawl:combine-in-parallel
-    (mapcar #'clim3-zone:hsprawl (clim3-zone:children zone)))
+(defmethod combine-child-sprawls ((zone vbox))
+  (set-hsprawl
+   (if (null (children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (clim3-sprawl:combine-in-parallel
+	(mapcar #'hsprawl (children zone))))
    zone)
-  (clim3-zone:set-vsprawl
-   (clim3-sprawl:combine-in-series
-    (mapcar #'clim3-zone:vsprawl (clim3-zone:children zone)))
+  (set-vsprawl
+   (if (null (children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (clim3-sprawl:combine-in-series
+	(mapcar #'vsprawl (children zone))))
    zone))
   
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone vbox) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone vbox) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone vbox))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone))
-	 (vertical-sprawls (mapcar #'clim3-zone:vsprawl children))
+(defmethod impose-child-layouts ((zone vbox))
+  (map-over-children #'clim3-zone:ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone))
+	 (vertical-sprawls (mapcar #'vsprawl children))
 	 (heights (clim3-sprawl:sizes-in-series vertical-sprawls height)))
     (loop for vpos = 0 then (+ vpos height)
 	  for height in heights
 	  for child in children
-	  do (clim3-zone:set-hpos 0 child)
-	     (clim3-zone:set-vpos vpos child)
-	     (clim3-zone:impose-size child width height))))
+	  do (set-hpos 0 child)
+	     (set-vpos vpos child)
+	     (impose-size child width height))))
   
 (defun vbox (children)
   (make-instance 'vbox :children (coerce-to-list-of-zones children)))
@@ -97,40 +101,44 @@
 ;;;
 ;;; Class HBOX.
 
-(defclass hbox (clim3-zone:compound-sequence-zone
-		clim3-zone:dependent-sprawls-mixin
-		clim3-zone:any-number-of-children-mixin)
+(defclass hbox (compound-sequence-zone
+		dependent-sprawls-mixin
+		any-number-of-children-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone hbox))
-  (clim3-zone:set-hsprawl
-   (clim3-sprawl:combine-in-series
-    (mapcar #'clim3-zone:hsprawl (clim3-zone:children zone)))
+(defmethod combine-child-sprawls ((zone hbox))
+  (set-hsprawl
+   (if (null (children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (clim3-sprawl:combine-in-series
+	(mapcar #'hsprawl (children zone))))
    zone)
-  (clim3-zone:set-vsprawl
-   (clim3-sprawl:combine-in-parallel
-    (mapcar #'clim3-zone:vsprawl (clim3-zone:children zone)))
+  (set-vsprawl
+   (if (null (children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (clim3-sprawl:combine-in-parallel
+	(mapcar #'vsprawl (children zone))))
    zone))
   
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone hbox) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone hbox) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone hbox))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone))
-	 (horizontal-sprawls (mapcar #'clim3-zone:hsprawl children))
+(defmethod impose-child-layouts ((zone hbox))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone))
+	 (horizontal-sprawls (mapcar #'hsprawl children))
 	 (widths (clim3-sprawl:sizes-in-series horizontal-sprawls width)))
     (loop for hpos = 0 then (+ hpos width)
 	  for width in widths
 	  for child in children
-	  do (clim3-zone:set-hpos hpos child)
-	     (clim3-zone:set-vpos 0 child)
-	     (clim3-zone:impose-size child width height))))
+	  do (set-hpos hpos child)
+	     (set-vpos 0 child)
+	     (impose-size child width height))))
 
 (defun hbox (children)
   (make-instance 'hbox :children (coerce-to-list-of-zones children)))
@@ -142,36 +150,40 @@
 ;;;
 ;;; Class PILE.
 
-(defclass pile (clim3-zone:compound-sequence-zone
-		clim3-zone:dependent-sprawls-mixin
-		clim3-zone:any-number-of-children-mixin)
+(defclass pile (compound-sequence-zone
+		dependent-sprawls-mixin
+		any-number-of-children-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone pile))
-  (clim3-zone:set-hsprawl
-   (clim3-sprawl:combine-in-parallel
-    (mapcar #'clim3-zone:hsprawl (clim3-zone:children zone)))
+(defmethod combine-child-sprawls ((zone pile))
+  (set-hsprawl
+   (if (null (children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (clim3-sprawl:combine-in-parallel
+	(mapcar #'hsprawl (children zone))))
    zone)
-  (clim3-zone:set-vsprawl
-   (clim3-sprawl:combine-in-parallel
-    (mapcar #'clim3-zone:vsprawl (clim3-zone:children zone)))
+  (set-vsprawl
+   (if (null (children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (clim3-sprawl:combine-in-parallel
+	(mapcar #'vsprawl (children zone))))
    zone))
   
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone pile) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone pile) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone pile))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone pile))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (loop for child in children
-	  do (clim3-zone:set-hpos 0 child)
-	     (clim3-zone:set-vpos 0 child)
-	     (clim3-zone:impose-size child width height))))
+	  do (set-hpos 0 child)
+	     (set-vpos 0 child)
+	     (impose-size child width height))))
 
 (defun pile (children)
   (make-instance 'pile :children (coerce-to-list-of-zones children)))
@@ -183,38 +195,38 @@
 ;;;
 ;;; Class GRID.
 
-(defclass grid (clim3-zone:compound-zone
-		clim3-zone:dependent-sprawls-mixin
-		clim3-zone:any-number-of-children-mixin)
+(defclass grid (compound-zone
+		dependent-sprawls-mixin
+		any-number-of-children-mixin)
   ((%combined-rows :initform nil :accessor combined-rows)
    (%combined-cols :initform nil :accessor combined-cols)))
 
-(defmethod clim3-zone:combine-child-sprawls ((zone grid))
-  (let* ((children (clim3-zone:children zone))
+(defmethod combine-child-sprawls ((zone grid))
+  (let* ((children (children zone))
 	 (rows (array-dimension children 0))
 	 (cols (array-dimension children 1)))
     (cond ((= rows 1)
 	   (setf (combined-cols zone)
 		 (loop for col from 0 below cols
-		       collect (clim3-zone:hsprawl (aref children 0 col))))
-	   (clim3-zone:set-hsprawl
+		       collect (hsprawl (aref children 0 col))))
+	   (set-hsprawl
 	    (clim3-sprawl:combine-in-series (combined-cols zone))
 	    zone)
-	   (clim3-zone:set-vsprawl
+	   (set-vsprawl
 	    (clim3-sprawl:combine-in-parallel
 	     (loop for col from 0 below cols
-		   collect (clim3-zone:vsprawl (aref children 0 col))))
+		   collect (vsprawl (aref children 0 col))))
 	    zone))
 	  ((= cols 1)
 	   (setf (combined-rows zone)
 		 (loop for row from 0 below rows
-		       collect (clim3-zone:vsprawl (aref children 0 row))))
-	   (clim3-zone:set-hsprawl
+		       collect (vsprawl (aref children 0 row))))
+	   (set-hsprawl
 	    (clim3-sprawl:combine-in-parallel
 	     (loop for row from 0 below rows
-		   collect (clim3-zone:hsprawl (aref children 0 row))))
+		   collect (hsprawl (aref children 0 row))))
 	    zone)
-	   (clim3-zone:set-vsprawl
+	   (set-vsprawl
 	    (clim3-sprawl:combine-in-series (combined-rows zone))
 	    zone))
 	  (t
@@ -222,16 +234,16 @@
 		 (loop for row from 0 below rows
 		       collect (clim3-sprawl:combine-in-parallel
 				(loop for col from 0 below cols
-				      collect (clim3-zone:vsprawl (aref children row col))))))
+				      collect (vsprawl (aref children row col))))))
 	   (setf (combined-cols zone)
 		 (loop for col from 0 below cols
 		       collect (clim3-sprawl:combine-in-parallel
 				(loop for row from 0 below rows
-				      collect (clim3-zone:hsprawl (aref children row col))))))
-	   (clim3-zone:set-hsprawl
+				      collect (hsprawl (aref children row col))))))
+	   (set-hsprawl
 	    (clim3-sprawl:combine-in-series (combined-cols children))
 	    zone)
-	   (clim3-zone:set-vsprawl
+	   (set-vsprawl
 	    (clim3-sprawl:combine-in-series (combined-rows children))
 	    zone)))))
 
@@ -241,26 +253,26 @@
 ;;;
 ;;; This a zone that lets its children be positioned wherever they want.
 
-(defclass bboard (clim3-zone:compound-simple-zone
-		  clim3-zone:independent-sprawls-mixin
-		  clim3-zone:any-number-of-children-mixin)
+(defclass bboard (compound-simple-zone
+		  independent-sprawls-mixin
+		  any-number-of-children-mixin)
   ()
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod clim3-zone:impose-size ((zone bboard) width height)
+(defmethod impose-size ((zone bboard) width height)
   nil)
 
-(defmethod clim3-zone:combine-child-sprawls ((zone bboard))
+(defmethod combine-child-sprawls ((zone bboard))
   nil)
 
-(defmethod clim3-zone:impose-child-layouts ((zone bboard))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (loop for child in (clim3-zone:children zone)
-	do (clim3-zone:ensure-sprawls-valid child)
+(defmethod impose-child-layouts ((zone bboard))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (loop for child in (children zone)
+	do (ensure-sprawls-valid child)
 	   (multiple-value-bind (width height)
-	       (clim3-zone:natural-size child)
-	     (clim3-zone:impose-size child width height))))
+	       (natural-size child)
+	     (impose-size child width height))))
 
 (defun bboard (children)
   (make-instance 'bboard :children (coerce-to-list-of-zones children)))
@@ -276,33 +288,33 @@
 ;;; the sprawls of its child, and imposes its own, which makes it very
 ;;; elastic, both horizontally and vertically.
 
-(defclass sponge (clim3-zone:compound-simple-zone
-		  clim3-zone:independent-sprawls-mixin
-		  clim3-zone:at-most-one-child-mixin)
+(defclass sponge (compound-simple-zone
+		  independent-sprawls-mixin
+		  at-most-one-child-mixin)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
 ;;; No method on combine-child-sprawls is required, because such a
-;;; method already exists for clim3-zone:independent-sprawls-mixin, and
+;;; method already exists for independent-sprawls-mixin, and
 ;;; it does nothing. 
 
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone sponge) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone sponge) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone sponge))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone sponge))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (unless (null children)
       (let ((child (car children)))
-	(clim3-zone:set-hpos 0 child)
-	(clim3-zone:set-vpos 0 child)
-	(clim3-zone:impose-size child width height)))))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
 
 (defun sponge (children)
   (make-instance
@@ -323,37 +335,37 @@
 ;;; it very elastic horizontally.  It copies the vertical sprawl of its
 ;;; child, or if it has no child, makes it very elastic vertically.
 
-(defclass hsponge (clim3-zone:compound-simple-zone
-		   clim3-zone:vdependent-sprawls-mixin
-		   clim3-zone:at-most-one-child-mixin)
+(defclass hsponge (compound-simple-zone
+		   vdependent-sprawls-mixin
+		   at-most-one-child-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone hsponge))
-  (clim3-zone:set-hsprawl
+(defmethod combine-child-sprawls ((zone hsponge))
+  (set-hsprawl
    (clim3-sprawl:sprawl 0 0 nil)
    zone)
-  (clim3-zone:set-vsprawl
-   (if (null (clim3-zone:children zone))
+  (set-vsprawl
+   (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-zone:vsprawl (car (clim3-zone:children zone))))
+       (vsprawl (car (children zone))))
    zone))
 
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone hsponge) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone hsponge) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone hsponge))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone hsponge))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (unless (null children)
       (let ((child (car children)))
-	(clim3-zone:set-hpos 0 child)
-	(clim3-zone:set-vpos 0 child)
-	(clim3-zone:impose-size child width height)))))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
 
 (defun hsponge (children)
   (make-instance
@@ -374,37 +386,37 @@
 ;;; it very elastic vertically.  It copies the horizontal sprawl of its
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
-(defclass vsponge (clim3-zone:compound-simple-zone
-		   clim3-zone:hdependent-sprawls-mixin
-		   clim3-zone:at-most-one-child-mixin)
+(defclass vsponge (compound-simple-zone
+		   hdependent-sprawls-mixin
+		   at-most-one-child-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone vsponge))
-  (clim3-zone:set-hsprawl
-   (if (null (clim3-zone:children zone))
+(defmethod combine-child-sprawls ((zone vsponge))
+  (set-hsprawl
+   (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-zone:hsprawl (car (clim3-zone:children zone))))
+       (hsprawl (car (children zone))))
    zone)
-  (clim3-zone:set-vsprawl
+  (set-vsprawl
    (clim3-sprawl:sprawl 0 0 nil)
    zone))
 
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone vsponge) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone vsponge) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone vsponge))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone vsponge))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (unless (null children)
       (let ((child (car children)))
-	(clim3-zone:set-hpos 0 child)
-	(clim3-zone:set-vpos 0 child)
-	(clim3-zone:impose-size child width height)))))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
 
 (defun vsponge (children)
   (make-instance
@@ -424,31 +436,31 @@
 ;;; the sprawls of its child, and imposes its own, which makes it very
 ;;; rigid, both horizontally and vertically.
 
-(defclass brick (clim3-zone:compound-simple-zone
-		 clim3-zone:independent-sprawls-mixin
-		 clim3-zone:at-most-one-child-mixin)
+(defclass brick (compound-simple-zone
+		 independent-sprawls-mixin
+		 at-most-one-child-mixin)
   ())
 
 ;;; No method on combine-child-sprawls is required, because such a
-;;; method already exists for clim3-zone:independent-sprawls-mixin, and
+;;; method already exists for independent-sprawls-mixin, and
 ;;; it does nothing. 
 
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone brick) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone brick) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone brick))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone brick))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (unless (null children)
       (let ((child (car children)))
-	(clim3-zone:set-hpos 0 child)
-	(clim3-zone:set-vpos 0 child)
-	(clim3-zone:impose-size child width height)))))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
 
 (defun brick (width height children)
   (make-instance
@@ -473,34 +485,34 @@
 ;;; it very rigid horizontally.  It copies the vertical sprawl of its
 ;;; child, or if it has no child, makes it very elastic vertically.
 
-(defclass hbrick (clim3-zone:compound-simple-zone
-		  clim3-zone:vdependent-sprawls-mixin
-		  clim3-zone:at-most-one-child-mixin)
+(defclass hbrick (compound-simple-zone
+		  vdependent-sprawls-mixin
+		  at-most-one-child-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone hbrick))
-  (clim3-zone:set-vsprawl
-   (if (null (clim3-zone:children zone))
+(defmethod combine-child-sprawls ((zone hbrick))
+  (set-vsprawl
+   (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-zone:vsprawl (car (clim3-zone:children zone))))
+       (vsprawl (car (children zone))))
    zone))
 
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone hbrick) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone hbrick) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone hbrick))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone hbrick))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (unless (null children)
       (let ((child (car children)))
-	(clim3-zone:set-hpos 0 child)
-	(clim3-zone:set-vpos 0 child)
-	(clim3-zone:impose-size child width height)))))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
 
 (defun hbrick (width children)
   (make-instance
@@ -523,34 +535,34 @@
 ;;; it very elastic vertically.  It copies the horizontal sprawl of its
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
-(defclass vbrick (clim3-zone:compound-simple-zone
-		  clim3-zone:hdependent-sprawls-mixin
-		  clim3-zone:at-most-one-child-mixin)
+(defclass vbrick (compound-simple-zone
+		  hdependent-sprawls-mixin
+		  at-most-one-child-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone vbrick))
-  (clim3-zone:set-hsprawl
-   (if (null (clim3-zone:children zone))
+(defmethod combine-child-sprawls ((zone vbrick))
+  (set-hsprawl
+   (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-zone:hsprawl (car (clim3-zone:children zone))))
+       (hsprawl (car (children zone))))
    zone))
 
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone vbrick) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone vbrick) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone vbrick))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone vbrick))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (unless (null children)
       (let ((child (car children)))
-	(clim3-zone:set-hpos 0 child)
-	(clim3-zone:set-vpos 0 child)
-	(clim3-zone:impose-size child width height)))))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
 
 (defun vbrick (height children)
   (make-instance
@@ -573,34 +585,34 @@
 ;;; copies the vertical sprawl of its child, or if it has no child,
 ;;; makes it very elastic vertically.
 
-(defclass hframe (clim3-zone:compound-simple-zone
-		  clim3-zone:vdependent-sprawls-mixin
-		  clim3-zone:at-most-one-child-mixin)
+(defclass hframe (compound-simple-zone
+		  vdependent-sprawls-mixin
+		  at-most-one-child-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone hframe))
-  (clim3-zone:set-vsprawl
-   (if (null (clim3-zone:children zone))
+(defmethod combine-child-sprawls ((zone hframe))
+  (set-vsprawl
+   (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-zone:vsprawl (car (clim3-zone:children zone))))
+       (vsprawl (car (children zone))))
    zone))
 
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone hframe) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone hframe) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone hframe))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone hframe))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (unless (null children)
       (let ((child (car children)))
-	(clim3-zone:set-hpos 0 child)
-	(clim3-zone:set-vpos 0 child)
-	(clim3-zone:impose-size child width height)))))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
 
 (defun hframe (min-width width max-width children)
   (make-instance
@@ -623,34 +635,34 @@
 ;;; the horizontal sprawl of its child, or if it has no child, makes
 ;;; it very elastic horizontally.
 
-(defclass vframe (clim3-zone:compound-simple-zone
-		  clim3-zone:hdependent-sprawls-mixin
-		  clim3-zone:at-most-one-child-mixin)
+(defclass vframe (compound-simple-zone
+		  hdependent-sprawls-mixin
+		  at-most-one-child-mixin)
   ())
 
-(defmethod clim3-zone:combine-child-sprawls ((zone vframe))
-  (clim3-zone:set-hsprawl
-   (if (null (clim3-zone:children zone))
+(defmethod combine-child-sprawls ((zone vframe))
+  (set-hsprawl
+   (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-zone:hsprawl (car (clim3-zone:children zone))))
+       (hsprawl (car (children zone))))
    zone))
 
 ;;; We should probably factor this one out to a mixin class
-(defmethod clim3-zone:impose-size ((zone vframe) width height)
-  (unless (and (= width (clim3-zone:width zone))
-	       (= height (clim3-zone:height zone)))
-    (setf (clim3-zone:child-layouts-valid-p zone) nil)))
+(defmethod impose-size ((zone vframe) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
 
-(defmethod clim3-zone:impose-child-layouts ((zone vframe))
-  (clim3-zone:map-over-children #'clim3-zone:ensure-sprawls-valid zone)
-  (let* ((width (clim3-zone:width zone))
-	 (height (clim3-zone:height zone))
-	 (children (clim3-zone:children zone)))
+(defmethod impose-child-layouts ((zone vframe))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
     (unless (null children)
       (let ((child (car children)))
-	(clim3-zone:set-hpos 0 child)
-	(clim3-zone:set-vpos 0 child)
-	(clim3-zone:impose-size child width height)))))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
 
 (defun vframe (min-height height max-height children)
   (make-instance
@@ -663,3 +675,86 @@
    'vframe
    :vsprawl (clim3-sprawl:sprawl min-height height max-height)
    :children (coerce-to-list-of-at-most-one-zone children)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class WRAP
+;;; 
+;;; A wrap zone is a zone that has at most one child.  If it has a
+;;; child, then it acquires the same sprawls as the child.  If not, it
+;;; becomes very elastic.
+;;;
+;;; This class can be subclassed for convenience
+
+(defclass wrap (compound-simple-zone
+		hdependent-sprawls-mixin
+		at-most-one-child-mixin)
+  ()
+  (:default-initargs :children '()))
+
+(defmethod combine-child-sprawls ((zone wrap))
+  (set-hsprawl
+   (if (null (children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (hsprawl (car (children zone))))
+   zone)
+  (set-vsprawl
+   (if (null (children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (vsprawl (car (children zone))))
+   zone))
+
+;;; We should probably factor this one out to a mixin class
+(defmethod impose-size ((zone wrap) width height)
+  (unless (and (= width (width zone))
+	       (= height (height zone)))
+    (setf (child-layouts-valid-p zone) nil)))
+
+(defmethod impose-child-layouts ((zone wrap))
+  (map-over-children #'ensure-sprawls-valid zone)
+  (let* ((width (width zone))
+	 (height (height zone))
+	 (children (children zone)))
+    (unless (null children)
+      (let ((child (car children)))
+	(set-hpos 0 child)
+	(set-vpos 0 child)
+	(impose-size child width height)))))
+
+;;; These constructors would typically not be used.  Instead, client
+;;; code would use MAKE-INSTANCE on the subclass of the wrap.
+
+(defun wrap (children)
+  (make-instance
+   'wrap
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun wrap* (&rest children)
+  (make-instance
+   'wrap
+   :children (coerce-to-list-of-at-most-one-zone children)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VBRICK
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class HBRICK
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class BRICK
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VSPONGE
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class HSPONGE
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class SPONGE
+

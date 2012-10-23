@@ -1,5 +1,5 @@
 (defpackage #:clim3-layout
-  (:use #:common-lisp)
+  (:use #:common-lisp #:clim3-zone)
   (:export
    #:vbox #:vbox*
    #:hbox #:hbox*
