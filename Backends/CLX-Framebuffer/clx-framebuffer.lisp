@@ -487,8 +487,8 @@
 			 (< vpos 0)
 			 (> hpos (clim3-zone:width zone))
 			 (> vpos (clim3-zone:height zone)))
-	       (when (typep zone 'clim3-input:key-press)
-		 (funcall (clim3-input:handler zone) zone code state))
+	       (when (typep zone 'clim3-input:key)
+		 (funcall (clim3-input:press-handler zone) zone code state))
 	       (clim3-zone:map-over-children-top-to-bottom
 		(lambda (child)
 		  (traverse child
@@ -504,8 +504,8 @@
 			 (< vpos 0)
 			 (> hpos (clim3-zone:width zone))
 			 (> vpos (clim3-zone:height zone)))
-	       (when (typep zone 'clim3-input:key-release)
-		 (funcall (clim3-input:handler zone) zone code state))
+	       (when (typep zone 'clim3-input:key)
+		 (funcall (clim3-input:release-handler zone) zone code state))
 	       (clim3-zone:map-over-children-top-to-bottom
 		(lambda (child)
 		  (traverse child
