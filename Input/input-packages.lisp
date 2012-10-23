@@ -1,9 +1,7 @@
 (defpackage #:clim3-input
   (:use :common-lisp)
   (:export
-   #:handler
-   #:key-press
-   #:key-release
+   #:key
    #:button
    #:press-handler
    #:release-handler
@@ -11,4 +9,5 @@
    #:enter-handler
    #:leave-handler
    #:motion
+   #:handler
    ))

@@ -17,35 +17,22 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class KEY-PRESS.
+;;; Class KEY
 ;;;
-;;; The handler is called with the following arguments:
-;;;
-;;;   the zone
-;;;   key-code   
-;;;   modifiers
-
-(defclass key-press (input)
-  ((%handler :initarg :handler :reader handler)))
-
-(defun key-press (handler)
-  (make-instance 'key-press :handler handler))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class KEY-RELEASE.
-;;;
-;;; The handler is called with the following arguments:
+;;; The handlers are called with the following arguments:
 ;;;
 ;;;   the zone
 ;;;   key-code   
 ;;;   modifiers
 
-(defclass key-release (input)
-  ((%handler :initarg :handler :reader handler)))
+(defclass key (input)
+  ((%press-handler :initarg :press-handler :reader press-handler)
+   (%release-handler :initarg :release-handler :reader release-handler)))
 
-(defun key-release (handler)
-  (make-instance 'key-release :handler handler))
+(defun key (press-handler release-handler)
+  (make-instance 'key
+		 :press-handler press-handler
+		 :release-handler release-handler))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
