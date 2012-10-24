@@ -1,13 +1,182 @@
-(defparameter *sven-duva*
-  (format nil "Sven Duvas fader var sergeant, avdankad, arm och gra,~@
-               Var med ar 88 ren, och var ren gammal da;~@
-               Nu bodde pa sin torva han, och fick sitt brod av den.~@
-               Och hade kring sig nio barn, och yngst av dem sin Sven."))
+(defpackage #:test-editor
+  (:use #:common-lisp))
+
+(in-package #:test-editor)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; View
+
+(defclass editor-view ()
+  ((%cursor :initform (cons 0 0) :accessor cursor)
+   (%buffer :initform (vector (vector)) :accessor buffer)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Commands
+
+(defun editor-error (format-string &rest arguments)
+  (apply #'format *error-output* format-string arguments))
+
+(defun beginning-of-line-p (view)
+  (zerop (cdr (cursor view))))
+
+(defun end-of-line-p (view)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (= (length (aref buffer (car cursor))) (cdr cursor))))
+
+(defun first-line-p (view)
+  (zerop (car (cursor view))))
+
+(defun last-line-p (view)
+  (= (car (cursor view)) (1- (length (buffer view)))))
+
+(defun beginning-of-buffer-p (view)
+  (and (first-line-p view) (beginning-of-line-p view)))
+
+(defun end-of-buffer-p (view)
+  (and (last-line-p view) (end-of-line-p view)))
+
+(defun move-to-beginning-of-line (view)
+  (setf (cdr (cursor view)) 0))
+
+(defun move-to-end-of-line (view)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (setf (cdr cursor) (length (aref buffer (car cursor))))))
+
+(defun cursor-forward (view)
+  (with-accessors ((cursor cursor)) view
+    (if (end-of-line-p view)
+	(if (last-line-p view)
+	    (editor-error "At the end of the buffer.")
+	    (progn (incf (car cursor))
+		   (move-to-beginning-of-line view)))
+	(incf (cdr cursor)))))
+
+(defun cursor-backward (view)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (if (beginning-of-line-p view)
+	(if (first-line-p view)
+	    (editor-error "At the beginning of the buffer.")
+	    (progn (decf (car cursor))
+		   (move-to-end-of-line view)))
+	(decf (cdr cursor)))))
+
+(defun insert-object (view object)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (setf (aref buffer (car cursor))
+	  (concatenate 'vector
+		       (subseq (aref buffer (car cursor)) 0 (cdr cursor))
+		       (list object)
+		       (subseq (aref buffer (car cursor)) (cdr cursor))))
+    (incf (cdr cursor))))
+
+(defun delete-object-or-merge-line (view)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (if (end-of-line-p view)
+	(if (last-line-p view)
+	    (editor-error "At the end of the buffer.")
+	    (concatenate 'vector
+			 (subseq buffer 0 (car cursor))
+			 (concatenate 'vector
+				      (aref buffer (car cursor))
+				      (aref buffer (1+ (car cursor))))
+			 (subseq buffer (+ (car cursor) 2))))
+	(setf (aref buffer (car cursor))
+	      (concatenate 'vector
+			   (subseq (aref buffer (car cursor)) 0 (cdr cursor))
+			   (subseq (aref buffer (car cursor)) (1+ (cdr cursor))))))))
+
+(defun split-line (view)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (let ((line (aref buffer (car cursor))))
+      (setf buffer
+	    (concatenate 'vector
+			 (subseq buffer 0 (car cursor))
+			 (list (subseq line 0 (cdr cursor))
+			       (subseq line (cdr cursor)))
+			 (subseq buffer (car cursor)))))))
+
+(defun merge-line (view)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (if (last-line-p view)
+	(editor-error "On last line.")
+	(setf buffer
+	      (concatenate 'vector
+			   (subseq buffer 0 (car cursor))
+			   (concatenate 'vector
+					(aref buffer (car cursor))
+					(aref buffer (1+ (car cursor))))
+			   (subseq buffer (+ (car cursor) 2)))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Keystroke processor
+
+(defgeneric process-keystroke (keystroke-processor keystroke))
+
+(defclass keystroke-processor () ())
+
+(defclass emacs-like-keystroke-processor ()
+  ((%view :initarg :view :reader view)
+   (%command-table :initarg :command-table :reader command-table)
+   (%numeric-args :initform nil :accessor numeric-args)
+   (%keystrokes-so-far :initform '() :accessor keystrokes-so-far))) 
+
+(defun reset-keystroke-processor (keystroke-processor)
+  (setf (numeric-args keystroke-processor) nil)
+  (setf (keystrokes-so-far keystroke-processor) '()))
+  
+
+(defun abort-and-reset (keystroke-processor)
+  (editor-error "Quit.")
+  (reset-keystroke-processor keystroke-processor))
+
+(defparameter *fundametal-table*
+  `((((#\f :control)) . ,#'cursor-forward)
+    (((#\b :control)) . ,#'cursor-backward)
+    (((#\Return)) . ,#'split-line)
+    (((#\g :control) ,#'abort-and-reset))))
+
+(defun prefix-p (partial-sentence sentence)
+  (and (<= (length partial-sentence) (length sentence))
+       (every #'equal partial-sentence sentence)))
+
+(defmethod process-keystroke
+    ((keystroke-processor emacs-like-keystroke-processor) keystroke)
+  (if (equal keystroke '(#\g :control))
+      (abort-and-reset keystroke-processor)
+      (with-accessors ((view view)
+		       (command-table command-table)
+		       (keystrokes-so-far keystrokes-so-far))
+	  keystroke-processor
+	(setf keystrokes-so-far (append keystrokes-so-far (list keystroke)))
+	(let ((entries (remove-if-not (lambda (entry)
+					(prefix-p keystrokes-so-far (car entry)))
+				      command-table)))
+	  (cond  ((null entries)
+		  (if (and (null (cdr keystrokes-so-far))
+			   (null (cdr keystroke)))
+		      ;; We have a single character.  
+		      (progn (reset-keystroke-processor keystroke-processor)
+			     (insert-object view (car keystroke)))
+		      (progn (editor-error "No command for keystokes.")
+			     (reset-keystroke-processor keystroke-processor))))
+		 ((equal keystrokes-so-far (caar entries))
+		  ;; We found a perfect match.
+		  (reset-keystroke-processor keystroke-processor)
+		  (funcall (cdar entries) view))
+		 (t
+		  nil))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; GUI		       
 
 (defun string-to-words-and-spaces (string start)
   (if (= start (length string))
       '()
-      (if (eql (char string start) #\Space)
+      (if (eql (aref string start) #\Space)
 	  (let ((first-non-blank (position #\Space string :test-not #'eql :start start)))
 	    (when (null first-non-blank)
 	      (setf first-non-blank (length string)))
@@ -25,7 +194,9 @@
     (mapcar (lambda (item)
 	      (if (numberp item)
 		  (clim3-layout:hframe* 7 7 7)
-		  (clim3-text:text item nil (clim3-color:make-color 0.0 0.0 0.0))))
+		  (clim3-text:text (coerce item 'string)
+				   nil
+				   (clim3-color:make-color 0.0 0.0 0.0))))
 	    (string-to-words-and-spaces string 0)))
    (clim3-layout:hframe* 0 0 nil)))
 
@@ -57,26 +228,42 @@
     (clim3-graphics:opaque (clim3-color:make-color 0.95 0.95 0.95)))))
 
 
-(defun stuff-buffer-text (text vbox)
+(defun stuff-buffer-text (buffer vbox)
   (setf (clim3-zone:children vbox)
-	(loop for string in (split-sequence:split-sequence #\Newline text)
+	(loop for line across buffer
 	      ;; Put the words and spaces of a line into a hbox.
-	      collect (line-from-string string)
+	      collect (line-from-string line)
 	      ;; Put something very elastic after each line of text.
 	      collect (clim3-layout:hframe* 0 0 nil))))
 
-(defun editor (width height)
-  (let ((lines (clim3-layout:vbox*)))
-    (stuff-buffer-text *sven-duva* lines)
+(defparameter *fun* nil)
+
+(defun editor-zones (width height)
+  (let* ((lines (clim3-layout:vbox*))
+	 (view (make-instance 'editor-view))
+	 (keystroke-processor
+	   (make-instance 'emacs-like-keystroke-processor
+			  :view view
+			  :command-table *fundametal-table*)))
     (clim3-layout:hframe*
      width width width
      (clim3-layout:vframe*
       height height height
       (clim3-layout:pile* 
-       (clim3-input:key (clim3-port:standard-key-processor #'print)
-			(lambda (&rest rest) (declare (ignore rest)) nil))
+       (clim3-input:key
+	(clim3-port:standard-key-processor
+	 (setf *fun*
+	       (lambda (key)
+		 (process-keystroke keystroke-processor key)
+		 (stuff-buffer-text (buffer view) lines))))
+	(lambda (&rest rest) (declare (ignore rest)) nil))
        (clim3-layout:vbox*
 	(edit-zone (- height 60) lines)
 	(info-zone 30)
 	(minibuffer-zone 30)))))))
-			       
+
+(defun editor (width height)
+  (let ((port (clim3-port:make-port :clx-framebuffer)))
+    (clim3-port:connect (editor-zones width height) port)
+    (clim3-clx-framebuffer::event-loop port)))
+
