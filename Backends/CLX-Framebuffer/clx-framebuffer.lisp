@@ -462,8 +462,12 @@
 			     (xlib:keycode->keysym (display port) keycode 3))))
 	(funcall handler-fun
 		 (cond ((= (aref keysyms 0) (aref keysyms 1))
-			(cons (code-char (aref keysyms 0))
-			      (modifier-names modifiers)))
+			;; FIXME: do this better
+			(if (= (aref keysyms 0) 65293)
+			    (cons #\Return
+				  (modifier-names modifiers))
+			    (cons (code-char (aref keysyms 0))
+				  (modifier-names modifiers))))
 		       ((plusp (logand +shift-mask+ modifiers))
 			(cons (code-char (aref keysyms 1))
 			      (modifier-names
