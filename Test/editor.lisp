@@ -1,15 +1,8 @@
-(defparameter *test-buffer-contents*
-  '("Sven Duvas fader var sergeant,"
-    "avdankad, arm och gra."
-    "Var med ar 88 ren,"
-    "och var ren gammal da."
-    "Nu bodde pa sin torva han,"
-    "och fick sitt brod av den."
-    "Han hade kring sig tio barn,"
-    "och yngst av dem sin Sven."))
-
-(defparameter *test-buffer-contents2*
-  '("Sven Duvas fader var sergeant"))
+(defparameter *sven-duva*
+  (format nil "Sven Duvas fader var sergeant, avdankad, arm och gra,~@
+               Var med ar 88 ren, och var ren gammal da;~@
+               Nu bodde pa sin torva han, och fick sitt brod av den.~@
+               Och hade kring sig nio barn, och yngst av dem sin Sven."))
 
 (defun string-to-words-and-spaces (string start)
   (if (= start (length string))
@@ -36,23 +29,12 @@
 	    (string-to-words-and-spaces string 0)))
    (clim3-layout:hframe* 0 0 nil)))
 
-(defun edit-zone (height)
-  (let ((parent-of-lines
-	  (clim3-layout:bboard* 
-	   (clim3-layout:vbox
-	    (loop for string in *test-buffer-contents*
-		  ;; Put the words and spaces of a line into a hbox.
-		  collect (line-from-string string)
-		  ;; Put something very elastic after each line of text.
-		  collect (clim3-layout:hframe* 0 0 nil))))))
-    ;; Return both the root of the hierarchy, and the parent of the
-    ;; lines, so that we can replace its children as we edit.
-    (values (clim3-layout:vframe*
-	     height height height
-	     (clim3-layout:pile*
-	      parent-of-lines
-	      (clim3-graphics:opaque (clim3-color:make-color 0.95 0.95 0.95))))
-	    parent-of-lines)))
+(defun edit-zone (height lines)
+  (clim3-layout:vframe*
+   height height height
+   (clim3-layout:pile*
+    (clim3-layout:bboard* lines)
+    (clim3-graphics:opaque (clim3-color:make-color 0.95 0.95 0.95)))))
 
 (defun info-zone (height)
   (clim3-layout:vframe*
@@ -75,8 +57,17 @@
     (clim3-graphics:opaque (clim3-color:make-color 0.95 0.95 0.95)))))
 
 
+(defun stuff-buffer-text (text vbox)
+  (setf (clim3-zone:children vbox)
+	(loop for string in (split-sequence:split-sequence #\Newline text)
+	      ;; Put the words and spaces of a line into a hbox.
+	      collect (line-from-string string)
+	      ;; Put something very elastic after each line of text.
+	      collect (clim3-layout:hframe* 0 0 nil))))
+
 (defun editor (width height)
-  (let ((parent-of-lines nil))
+  (let ((lines (clim3-layout:vbox*)))
+    (stuff-buffer-text *sven-duva* lines)
     (clim3-layout:hframe*
      width width width
      (clim3-layout:vframe*
@@ -85,9 +76,7 @@
        (clim3-input:key (clim3-port:standard-key-processor #'print)
 			(lambda (&rest rest) (declare (ignore rest)) nil))
        (clim3-layout:vbox*
-	(multiple-value-bind (root p-of-l)
-	    (edit-zone (- height 60))
-	  (setf parent-of-lines p-of-l)
-	  root)
+	(edit-zone (- height 60) lines)
 	(info-zone 30)
 	(minibuffer-zone 30)))))))
+			       
