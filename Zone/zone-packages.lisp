@@ -3,6 +3,7 @@
   (:export
    #:zone
    #:zone-p
+   #:print-components
    #:parent
    #:client
    #:hpos #:vpos #:set-hpos #:set-vpos
@@ -18,6 +19,8 @@
    #:ensure-sprawls-valid
    #:compute-sprawls
    #:combine-child-sprawls
+   #:notify-child-position-changed
+   #:notify-child-depth-changed
    #:notify-child-sprawls-invalid
    #:notify-child-sprawls-changed
    #:notify-children-changed
@@ -38,4 +41,9 @@
    #:independent-sprawls-mixin
    #:at-most-one-child-mixin
    #:any-number-of-children-mixin
+   #:child-position-change-not-allowed-mixin
+   #:child-position-change-remember-mixin
+   #:child-depth-change-not-allowed-mixin
+   #:child-depth-change-indifferent-mixin
+   #:child-depth-change-remember-mixin
    ))
