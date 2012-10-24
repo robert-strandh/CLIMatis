@@ -8,6 +8,9 @@
     "Han hade kring sig tio barn,"
     "och yngst av dem sin Sven."))
 
+(defparameter *test-buffer-contents2*
+  '("Sven Duvas fader var sergeant"))
+
 (defun string-to-words-and-spaces (string start)
   (if (= start (length string))
       '()
@@ -24,11 +27,14 @@
 		  (string-to-words-and-spaces string first-blank))))))
 
 (defun line-from-string (string)
-  (mapcar (lambda (item)
-	    (if (numberp item)
-		(clim3-layout:hframe* 7 7 7)
-		(clim3-text:text item nil (clim3-color:make-color 0.0 0.0 0.0))))
-	  (string-to-words-and-spaces string 0)))
+  (clim3-layout:hbox*
+   (clim3-layout:hbox
+    (mapcar (lambda (item)
+	      (if (numberp item)
+		  (clim3-layout:hframe* 7 7 7)
+		  (clim3-text:text item nil (clim3-color:make-color 0.0 0.0 0.0))))
+	    (string-to-words-and-spaces string 0)))
+   (clim3-layout:hframe* 0 0 nil)))
 
 (defun edit-zone (height)
   (let ((parent-of-lines
@@ -36,7 +42,7 @@
 	   (clim3-layout:vbox
 	    (loop for string in *test-buffer-contents*
 		  ;; Put the words and spaces of a line into a hbox.
-		  collect (clim3-layout:hbox (line-from-string string))
+		  collect (line-from-string string)
 		  ;; Put something very elastic after each line of text.
 		  collect (clim3-layout:hframe* 0 0 nil))))))
     ;; Return both the root of the hierarchy, and the parent of the
