@@ -60,6 +60,13 @@
 (defun zone-p (object)
   (typep object 'zone))
 
+(defgeneric print-components (zone stream)
+  (:method-combination progn :most-specific-last))
+
+(defmethod print-object ((object zone) stream)
+  (print-unreadable-object (object stream :type t :identity t)
+    (print-components object stream)))
+
 (defun set-clients (zone client)
   (labels ((aux (zone)
 	     (unless (eq (client zone) client)
@@ -70,20 +77,36 @@
 (defmethod (setf parent) :after ((new-parent zone) (zone zone))
   (set-clients zone (client new-parent)))
 
-;;; After the hsprawl of a zone has been explicitly modified, we notify
-;;; the parent zone of the change. 
-(defmethod (setf hsprawl) :after (new-hsprawl zone)
+(defmethod notify-child-position-changed ((child zone) (parent null))
+  nil)
+
+(defmethod notify-child-depth-changed ((child zone) (parent null))
+  nil)
+
+;;; After the horizontal position of a zone has been explicity
+;;; modified, we notify the parent.
+(defmethod (setf hpos) :after (new-hpos (zone zone))
+  (notify-child-position-changed zone (parent zone)))
+
+;;; After the vertical position of a zone has been explicity
+;;; modified, we notify the parent.
+(defmethod (setf vpos) :after (new-vpos (zone zone))
+  (notify-child-position-changed zone (parent zone)))
+
+;;; After the hsprawl of a zone has been explicitly modified, we
+;;; notify the parent.
+(defmethod (setf hsprawl) :after (new-hsprawl (zone zone))
   (notify-child-sprawls-changed zone (parent zone)))
 
-;;; After the vsprawl of a zone has been explicitly modified, we notify
-;;; the parent zone of the change. 
-(defmethod (setf vsprawl) :after (new-vsprawl zone)
+;;; After the vsprawl of a zone has been explicitly modified, we
+;;; notify the parent.
+(defmethod (setf vsprawl) :after (new-vsprawl (zone zone))
   (notify-child-sprawls-changed zone (parent zone)))
 
 ;;; Return as two values the natural width and the natural height of
 ;;; the zone.  We use this function to determine the size of a zone
 ;;; where the dimensions do not depend on the parent, such as a bboard
-;;; zone or a scroller zone. 
+;;; zone or a scroller zone.
 (defun natural-size (zone)
   (values (clim3-sprawl:size (hsprawl zone))
 	  (clim3-sprawl:size (vsprawl zone))))
@@ -115,6 +138,11 @@
 ;;; MAP-OVER-CHILDREN-BOTTOM-TO-TOP that do nothing. 
 
 (defclass atomic-zone (zone) ())
+
+(defmethod print-components progn ((zone zone) stream)
+  (format stream
+	  "hp: ~a vp: ~a w: ~a h: ~a d: ~a "
+	  (hpos zone) (vpos zone) (width zone) (height zone) (depth zone)))
 
 (defmethod map-over-children (function (zone atomic-zone))
   (declare (ignore function))
@@ -150,6 +178,12 @@
 
 (defmethod initialize-instance :after ((zone compound-zone) &key)
   (map-over-children (lambda (child) (setf (parent child) zone)) zone))
+
+(defmethod print-components progn ((zone compound-zone) stream)
+  (map-over-children
+   (lambda (child)
+     (format stream "~s " child))
+   zone))
 
 ;;; For a compound zone, in order to compute all sprawls, we call
 ;;; ENSURE-SPRAWLS-VALID on each child and then combine the result by
@@ -280,7 +314,6 @@
 ;;; Class DEPENDENT-SPRAWLS-MIXIN.
 
 (defclass dependent-sprawls-mixin () ())
-
 
 (defmethod sprawls-valid-p ((zone dependent-sprawls-mixin))
   (and (not (null (hsprawl zone)))
@@ -509,3 +542,55 @@
   (let ((depth-ordered-children (depth-ordered-children zone)))
     (loop for i downfrom (1- (length depth-ordered-children)) to 0
 	  do (funcall function (aref depth-ordered-children i)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class CHILD-POSITION-CHANGE-NOT-ALLOWED-MIXIN
+
+(defclass child-position-change-not-allowed-mixin () ())
+
+(defmethod notify-child-position-changed
+    ((child zone) (parent child-position-change-not-allowed-mixin))
+  (error "attempt to change the position of a child"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class CHILD-POSITION-CHANGE-REMEMBER-MIXIN
+
+(defclass child-position-change-remember-mixin () ())
+
+(defmethod notify-child-position-changed
+    ((child zone) (parent child-position-change-remember-mixin))
+  (setf (child-layouts-valid-p parent) nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class CHILD-DEPTH-CHANGE-NOT-ALLOWED-MIXIN
+
+(defclass child-depth-change-not-allowed-mixin () ())
+
+(defmethod notify-child-depth-changed
+    ((child zone) (parent child-depth-change-not-allowed-mixin))
+  (error "attempt to change the depth of a child"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class CHILD-DEPTH-CHANGE-INDIFFERENT-MIXIN
+
+(defclass child-depth-change-indifferent-mixin () ())
+
+(defmethod notify-child-depth-changed
+    ((child zone) (parent child-depth-change-indifferent-mixin))
+  nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class CHILD-DEPTH-CHANGE-REMEMBER-MIXIN
+
+(defclass child-depth-change-remember-mixin () ())
+
+(defmethod notify-child-depth-changed
+    ((child zone) (parent child-depth-change-remember-mixin))
+  (setf (child-layouts-valid-p parent) nil))
+
+
