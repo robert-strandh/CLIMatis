@@ -1,0 +1,25 @@
+* Make a logo that has CLIM in sans serif with a shorter I and with a
+  3 in place of the dot, possibly circled.  Can it be made with Xfig
+  and used as a logo in LaTeX text?  Or do I have to write a Metafont
+  font for it?  Perhaps I can figure it out from a mixture of TeX
+  graphics and Text.
+
+* Write "raise" and "sink" zones that take the existing color of its
+  own border and changes the saturation and v???.
+
+* Write a "dropshadow" zone that adds a dropshadow to its child by
+  increasing its natural size by a fixed amount.  We could even make
+  it such that the shadow is not totally black, but just darkens
+  whatever it is on top of.
+
+* Write a lens zone that magnifies what is under it.
+
+* Maybe use lens for the button of the slider so that one can see the
+  numbers underneath more clearly. 
+
+* No reason to make the slider symmetric.  Put the slit on one side
+  and numbers on the other side. Or use no slit and make it magically
+  floating above the numbers. 
+
+* Write a tab layout zone.
+
