@@ -12,6 +12,9 @@
 	   :initform (make-array 0 :element-type 'character)
 	   :reader chars)))
 
+(defmethod clim3-zone:print-components progn ((zone text) stream)
+  (format stream "~s " (chars zone)))
+
 (defmethod (setf clim3-zone:parent) :after ((new-parent null) (zone text))
   (clim3-zone:invalidate-sprawls zone))
 
