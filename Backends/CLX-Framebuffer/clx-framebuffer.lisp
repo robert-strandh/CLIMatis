@@ -64,6 +64,16 @@
     (zone (port clx-framebuffer-port))
   nil)
 
+;;; Later, we might try to do something more fancy here, such as
+;;; attempting to move the window on the screen.
+(defmethod clim3-zone:notify-child-position-changed
+    (zone (port clx-framebuffer-port))
+  nil)
+
+(defmethod clim3-zone:notify-child-depth-changed
+    (zone (port clx-framebuffer-port))
+  nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Handle pointer position
