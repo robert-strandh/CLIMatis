@@ -26,11 +26,9 @@
 ;;; position of its children, such as a bboard zone or a scroller
 ;;; zone.
 ;;;
-;;; Setting the position of a zone may not have the effect that an
-;;; application expects.  If the zone is the child of a layout zone
-;;; that imposes the position of its children, then the change will be
-;;; undone before the next time around the event loop, so that no
-;;; visible effect can be detected.  
+;;; Calling this function when the zone is the child of a layout zone
+;;; that determines the position of its children itself, will signal
+;;; an error.
 ;;;
 ;;; If the zone is the root zone and it is connected to some display
 ;;; server, then depending on the display server, this value may or
@@ -83,11 +81,9 @@
 ;;; position of its children, such as a bboard zone or a scroller
 ;;; zone.
 ;;;
-;;; Setting the position of a zone may not have the effect that an
-;;; application expects.  If the zone is the child of a layout zone
-;;; that imposes the position of its children, then the change will be
-;;; undone before the next time around the event loop, so that no
-;;; visible effect can be detected.  
+;;; Calling this function when the zone is the child of a layout zone
+;;; that determines the position of its children itself, will signal
+;;; an error.
 ;;;
 ;;; If the zone is the root zone and it is connected to some display
 ;;; server, then depending on the display server, this value may or
@@ -138,9 +134,9 @@
 ;;; corresponding window.
 ;;;
 ;;; Applications can influence the dimensions of a zone, provided that
-;;; it is the child of a zone that does not impose the dimensions such
-;;; as a bboard zone or a scroller zone, by changing the sprawls of the
-;;; zone so as to give it different natural dimensions.
+;;; it is the child of a zone that does not impose the dimensions,
+;;; such as a bboard zone or a scroller zone, by changing the sprawls
+;;; of the zone so as to give it different natural dimensions.
 
 (defgeneric (setf width) (new-width zone))
 
@@ -169,9 +165,9 @@
 ;;; corresponding window.
 ;;;
 ;;; Applications can influence the dimensions of a zone, provided that
-;;; it is the child of a zone that does not impose the dimensions such
-;;; as a bboard zone or a scroller zone, by changing the sprawls of the
-;;; zone so as to give it different natural dimensions.
+;;; it is the child of a zone that does not impose the dimensions,
+;;; such as a bboard zone or a scroller zone, by changing the sprawls
+;;; of the zone so as to give it different natural dimensions.
 
 (defgeneric (setf height) (new-height zone))
 
