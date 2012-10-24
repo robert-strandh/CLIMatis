@@ -54,7 +54,9 @@
 
 (defclass vbox (compound-sequence-zone
 		dependent-sprawls-mixin
-		any-number-of-children-mixin)
+		any-number-of-children-mixin
+		child-position-change-not-allowed-mixin
+		child-depth-change-indifferent-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone vbox))
@@ -103,7 +105,9 @@
 
 (defclass hbox (compound-sequence-zone
 		dependent-sprawls-mixin
-		any-number-of-children-mixin)
+		any-number-of-children-mixin
+		child-position-change-not-allowed-mixin
+		child-depth-change-indifferent-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone hbox))
@@ -152,7 +156,9 @@
 
 (defclass pile (compound-sequence-zone
 		dependent-sprawls-mixin
-		any-number-of-children-mixin)
+		any-number-of-children-mixin
+		child-position-change-not-allowed-mixin
+		child-depth-change-remember-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone pile))
@@ -197,7 +203,9 @@
 
 (defclass grid (compound-zone
 		dependent-sprawls-mixin
-		any-number-of-children-mixin)
+		any-number-of-children-mixin
+		child-position-change-not-allowed-mixin
+		child-depth-change-indifferent-mixin)
   ((%combined-rows :initform nil :accessor combined-rows)
    (%combined-cols :initform nil :accessor combined-cols)))
 
@@ -255,7 +263,9 @@
 
 (defclass bboard (compound-simple-zone
 		  independent-sprawls-mixin
-		  any-number-of-children-mixin)
+		  any-number-of-children-mixin
+		  child-position-change-remember-mixin
+		  child-depth-change-remember-mixin)
   ()
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
@@ -290,7 +300,9 @@
 
 (defclass sponge (compound-simple-zone
 		  independent-sprawls-mixin
-		  at-most-one-child-mixin)
+		  at-most-one-child-mixin
+		  child-position-change-not-allowed-mixin
+		  child-depth-change-indifferent-mixin)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
@@ -337,7 +349,9 @@
 
 (defclass hsponge (compound-simple-zone
 		   vdependent-sprawls-mixin
-		   at-most-one-child-mixin)
+		   at-most-one-child-mixin
+		   child-position-change-not-allowed-mixin
+		   child-depth-change-indifferent-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone hsponge))
@@ -388,7 +402,9 @@
 
 (defclass vsponge (compound-simple-zone
 		   hdependent-sprawls-mixin
-		   at-most-one-child-mixin)
+		   at-most-one-child-mixin
+		   child-position-change-not-allowed-mixin
+		   child-depth-change-indifferent-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone vsponge))
@@ -438,7 +454,9 @@
 
 (defclass brick (compound-simple-zone
 		 independent-sprawls-mixin
-		 at-most-one-child-mixin)
+		 at-most-one-child-mixin
+		 child-position-change-not-allowed-mixin
+		 child-depth-change-indifferent-mixin)
   ())
 
 ;;; No method on combine-child-sprawls is required, because such a
@@ -487,7 +505,9 @@
 
 (defclass hbrick (compound-simple-zone
 		  vdependent-sprawls-mixin
-		  at-most-one-child-mixin)
+		  at-most-one-child-mixin
+		  child-position-change-not-allowed-mixin
+		  child-depth-change-indifferent-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone hbrick))
@@ -537,7 +557,9 @@
 
 (defclass vbrick (compound-simple-zone
 		  hdependent-sprawls-mixin
-		  at-most-one-child-mixin)
+		  at-most-one-child-mixin
+		  child-position-change-not-allowed-mixin
+		  child-depth-change-indifferent-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone vbrick))
@@ -587,7 +609,9 @@
 
 (defclass hframe (compound-simple-zone
 		  vdependent-sprawls-mixin
-		  at-most-one-child-mixin)
+		  at-most-one-child-mixin
+		  child-position-change-not-allowed-mixin
+		  child-depth-change-indifferent-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone hframe))
@@ -637,7 +661,9 @@
 
 (defclass vframe (compound-simple-zone
 		  hdependent-sprawls-mixin
-		  at-most-one-child-mixin)
+		  at-most-one-child-mixin
+		  child-position-change-not-allowed-mixin
+		  child-depth-change-indifferent-mixin)
   ())
 
 (defmethod combine-child-sprawls ((zone vframe))
@@ -688,7 +714,9 @@
 
 (defclass wrap (compound-simple-zone
 		hdependent-sprawls-mixin
-		at-most-one-child-mixin)
+		at-most-one-child-mixin
+		child-position-change-not-allowed-mixin
+		child-depth-change-indifferent-mixin)
   ()
   (:default-initargs :children '()))
 
@@ -733,28 +761,4 @@
   (make-instance
    'wrap
    :children (coerce-to-list-of-at-most-one-zone children)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class VBRICK
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class HBRICK
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class BRICK
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class VSPONGE
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class HSPONGE
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class SPONGE
 
