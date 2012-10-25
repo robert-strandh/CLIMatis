@@ -12,13 +12,17 @@
   (setf (clim3-zone:parent zone) port))
 
 (defun update (port)
-  (clim3-zone:ensure-sprawls-valid (root port))
+  (clim3-zone:ensure-hsprawl-valid (root port))
+  (clim3-zone:ensure-vsprawl-valid (root port))
   (multiple-value-bind (width height)
       (clim3-zone:natural-size (root port))
     ;; This port imposes a size slightly bigger than the natural one.
     (clim3-zone:impose-size (root port) (+ width 2) (+ height 4))))
 
-(defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port))
+(defmethod clim3-zone:notify-child-hsprawl-changed (zone (port test-port))
+  nil)
+
+(defmethod clim3-zone:notify-child-vsprawl-changed (zone (port test-port))
   nil)
 
 (defun test1 ()

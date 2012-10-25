@@ -19,13 +19,15 @@
   (setf (clim3-zone:hsprawl zone) nil)
   (setf (clim3-zone:vsprawl zone) nil))
 
-(defmethod clim3-zone:compute-sprawls ((zone text))
+(defmethod clim3-zone:compute-hsprawls ((zone text))
   (clim3-zone:set-hsprawl
    (let ((width (clim3-port:text-width (clim3-zone:client zone)
 				       (style zone)
 				       (chars zone))))
      (clim3-sprawl:sprawl width width width))
-   zone)
+   zone))
+
+(defmethod clim3-zone:compute-vsprawls ((zone text))
   (clim3-zone:set-vsprawl
    (let ((height (+ (clim3-port:text-style-ascent
 		     (clim3-zone:client zone) (style zone))

@@ -2,47 +2,53 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function COMPUTE-SPRAWLS.
+;;; Generic function COMPUTE-HSPRAWLS.
 ;;;
-;;; This function is repsonsible for computing and setting the sprawls
-;;; of a zone.  It is only called on a zone with invalid sprawls.  
-;;;
-;;; There will be a method specialized for each atomic zone whose
-;;; sprawls depend on the current client.  
-;;;
-;;; We also supply a default method specialized for COMPOUND-ZONE.
-;;; That method calls ENSURE-SPRAWLS-VALID on each child, and then calls
-;;; COMBINE-CHILD-SPRAWLS to combine the result. 
-;;;
-;;; After a call to this function, the sprawls of the zone are valid.
+;;; This function is repsonsible for computing and setting the
+;;; horizontal sprawls of a zone.  It is only called on a zone with
+;;; invalid horizontal sprawls.
+;;; 
+;;; After a call to this function, the horizontal sprawls of the zone
+;;; are valid.
 
-(defgeneric compute-sprawls (zone))
+(defgeneric compute-hsprawls (zone))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function COMBINE-CHILD-SPRAWLS.
+;;; Generic function COMPUTE-VSPRAWLS.
 ;;;
-;;; This generic function is charged with combining the sprawl of each
-;;; child of a compound zone, and calling the functions SET-HSPRAWL
-;;; and SET-VSPRAWL to set the result for the zone.
+;;; This function is repsonsible for computing and setting the
+;;; vertical sprawls of a zone.  It is only called on a zone with
+;;; invalid vertical sprawls.
 ;;;
-;;; This function will be called only on compound zones with sprawls
-;;; that depend on the sprawls of the children.
-;;;
-;;; After a call to this function, the sprawls of the zone are valid.
+;;; After a call to this function, the vertical sprawls of the zone
+;;; are valid.
 
-(defgeneric combine-child-sprawls (compound-zone))
+(defgeneric compute-vsprawls (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Function ENSURE-SPRAWLS-VALID.
+;;; Function ENSURE-HSPRAWL-VALID.
 ;;;
-;;; This function checks whether the sprawls of the zone are valid, and
-;;; if so does nothing.  Otherwise, it calles COMPUTE-SPRAWLS.
+;;; This function checks whether the horizontal sprawl of the zone is
+;;; valid, and if so does nothing.  Otherwise, it calls
+;;; COMPUTE-HSPRAWLS.
 
-(defun ensure-sprawls-valid (zone)
-  (when  (or (null (hsprawl zone)) (null (vsprawl zone)))
-    (compute-sprawls zone)))
+(defun ensure-hsprawl-valid (zone)
+  (when (null (hsprawl zone))
+    (compute-hsprawls zone)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Function ENSURE-VSPRAWL-VALID.
+;;;
+;;; This function checks whether the vertical sprawl of the zone is
+;;; valid, and if so does nothing.  Otherwise, it calls
+;;; COMPUTE-VSPRAWLS.
+
+(defun ensure-vprawl-valid (zone)
+  (when (null (vsprawl zone))
+    (compute-vsprawls zone)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

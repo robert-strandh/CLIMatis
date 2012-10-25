@@ -61,7 +61,8 @@
 		changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-hsprawls ((zone vbox))
+(defmethod compute-hsprawls ((zone vbox))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -69,7 +70,8 @@
 	(mapcar #'hsprawl (children zone))))
    zone))
   
-(defmethod combine-child-vsprawls ((zone vbox))
+(defmethod compute-vsprawls ((zone vbox))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -84,7 +86,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone vbox))
-  (map-over-children #'clim3-zone:ensure-sprawls-valid zone)
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone))
@@ -116,7 +119,8 @@
 		changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-hsprawls ((zone hbox))
+(defmethod compute-hsprawls ((zone hbox))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -124,7 +128,8 @@
 	(mapcar #'hsprawl (children zone))))
    zone))
   
-(defmethod combine-child-vsprawls ((zone hbox))
+(defmethod compute-vsprawls ((zone hbox))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -139,7 +144,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone hbox))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone))
@@ -171,7 +177,8 @@
 		changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-hsprawls ((zone pile))
+(defmethod compute-hsprawls ((zone pile))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -179,7 +186,8 @@
 	(mapcar #'hsprawl (children zone))))
    zone))
   
-(defmethod combine-child-vsprawls ((zone pile))
+(defmethod compute-vsprawls ((zone pile))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -194,7 +202,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone pile))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -223,7 +232,8 @@
   ((%combined-rows :initform nil :accessor combined-rows)
    (%combined-cols :initform nil :accessor combined-cols)))
 
-(defmethod combine-child-hsprawls ((zone grid))
+(defmethod compute-hsprawls ((zone grid))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (let* ((children (children zone))
 	 (rows (array-dimension children 0))
 	 (cols (array-dimension children 1)))
@@ -250,7 +260,8 @@
 	    (clim3-sprawl:combine-in-series (combined-cols children))
 	    zone)))))
 
-(defmethod combine-child-vsprawls ((zone grid))
+(defmethod compute-vsprawls ((zone grid))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (let* ((children (children zone))
 	 (rows (array-dimension children 0))
 	 (cols (array-dimension children 1)))
@@ -290,17 +301,18 @@
 		    changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-hsprawls ((zone scroller))
+(defmethod compute-hsprawls ((zone scroller))
   (error "attempt to combine hsprawls of children of a scroller zone"))
 
-(defmethod combine-child-vsprawls ((zone scroller))
+(defmethod compute-vsprawls ((zone scroller))
   (error "attempt to combine vsprawls of children of a scroller zone"))
 
 (defmethod impose-child-layouts ((zone scroller))
   ;; There is either no child or one child, but this is convenient.
   (map-over-children
    (lambda (child)
-     (ensure-sprawls-valid child)
+     (ensure-hsprawl-valid child)
+     (ensure-vsprawl-valid child)
      (multiple-value-bind (width height)
 	 (natural-size child)
        (impose-size child width height)))
@@ -324,7 +336,8 @@
 (defmethod impose-size ((zone bboard) width height)
   nil)
 
-(defmethod combine-child-hsprawls ((zone bboard))
+(defmethod compute-hsprawls ((zone bboard))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (impose-child-layouts zone)
   (let ((max-hpos 0))
     (map-over-children
@@ -333,7 +346,8 @@
      zone)
     (set-hsprawl (clim3-sprawl:sprawl max-hpos max-hpos nil))))
 
-(defmethod combine-child-vsprawls ((zone bboard))
+(defmethod compute-vsprawls ((zone bboard))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (impose-child-layouts zone)
   (let ((max-vpos 0))
     (map-over-children
@@ -344,7 +358,8 @@
 
 (defmethod impose-child-layouts ((zone bboard))
   (loop for child in (children zone)
-	do (ensure-sprawls-valid child)
+	do (ensure-hsprawl-valid child)
+	   (ensure-vsprawl-valid child)
 	   (multiple-value-bind (width height)
 	       (natural-size child)
 	     (impose-size child width height))))
@@ -374,10 +389,6 @@
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-;;; No method on combine-child-sprawls is required, because such a
-;;; method already exists for independent-sprawls-mixin, and
-;;; it does nothing. 
-
 ;;; We should probably factor this one out to a mixin class
 (defmethod impose-size ((zone sponge) width height)
   (unless (and (= width (width zone))
@@ -385,7 +396,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone sponge))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -423,7 +435,8 @@
 		   changing-child-depth-changes-nothing-mixin)
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod combine-child-vsprawls ((zone hsponge))
+(defmethod compute-vsprawls ((zone hsponge))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -437,7 +450,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone hsponge))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -475,7 +489,8 @@
 		   changing-child-depth-changes-nothing-mixin)
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod combine-child-hsprawls ((zone vsponge))
+(defmethod compute-hsprawls ((zone vsponge))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -489,7 +504,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone vsponge))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -533,7 +549,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone brick))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -575,7 +592,8 @@
 		  changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-vsprawls ((zone hbrick))
+(defmethod compute-vsprawls ((zone hbrick))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -589,7 +607,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone hbrick))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -629,7 +648,8 @@
 		  changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-hsprawls ((zone vbrick))
+(defmethod compute-hsprawls ((zone vbrick))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -643,7 +663,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone vbrick))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -683,7 +704,8 @@
 		  changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-vsprawls ((zone hframe))
+(defmethod compute-vsprawls ((zone hframe))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -697,7 +719,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone hframe))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -737,7 +760,8 @@
 		  changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-hsprawls ((zone vframe))
+(defmethod compute-hsprawls ((zone vframe))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -751,7 +775,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone vframe))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))
@@ -793,14 +818,16 @@
   ()
   (:default-initargs :children '()))
 
-(defmethod combine-child-hsprawls ((zone wrap))
+(defmethod compute-hsprawls ((zone wrap))
+  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (hsprawl (car (children zone))))
    zone))
 
-(defmethod combine-child-vsprawls ((zone wrap))
+(defmethod compute-vsprawls ((zone wrap))
+  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -814,7 +841,8 @@
     (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone wrap))
-  (map-over-children #'ensure-sprawls-valid zone)
+  (map-over-children #'ensure-hsprawl-valid zone)
+  (map-over-children #'ensure-vsprawl-valid zone)
   (let* ((width (width zone))
 	 (height (height zone))
 	 (children (children zone)))

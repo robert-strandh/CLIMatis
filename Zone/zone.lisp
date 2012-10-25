@@ -96,12 +96,12 @@
 ;;; After the hsprawl of a zone has been explicitly modified, we
 ;;; notify the parent.
 (defmethod (setf hsprawl) :after (new-hsprawl (zone zone))
-  (notify-child-sprawls-changed zone (parent zone)))
+  (notify-child-hsprawl-changed zone (parent zone)))
 
 ;;; After the vsprawl of a zone has been explicitly modified, we
 ;;; notify the parent.
 (defmethod (setf vsprawl) :after (new-vsprawl (zone zone))
-  (notify-child-sprawls-changed zone (parent zone)))
+  (notify-child-vsprawl-changed zone (parent zone)))
 
 ;;; Return as two values the natural width and the natural height of
 ;;; the zone.  We use this function to determine the size of a zone
@@ -111,10 +111,16 @@
   (values (clim3-sprawl:size (hsprawl zone))
 	  (clim3-sprawl:size (vsprawl zone))))
 
-;;; Default method on NOTIFY-CHILD-SPRAWLS-CHANGED for ZONE and NULL.
+;;; Default method on NOTIFY-CHILD-HSPRAWL-CHANGED for ZONE and NULL.
 ;;; This method does nothing, thus allowing this generic function to
 ;;; be called with any zone and its parent.
-(defmethod notify-child-sprawls-changed ((child zone) (parent null))
+(defmethod notify-child-hsprawl-changed ((child zone) (parent null))
+  nil)
+
+;;; Default method on NOTIFY-CHILD-VSPRAWL-CHANGED for ZONE and NULL.
+;;; This method does nothing, thus allowing this generic function to
+;;; be called with any zone and its parent.
+(defmethod notify-child-vsprawl-changed ((child zone) (parent null))
   nil)
 
 (defmethod impose-size :after ((zone zone) width height)
@@ -150,12 +156,6 @@
   (declare (ignore function))
   nil)
 
-;;; Define a primary method for COMPUTE-SPRAWLS that does nothing.
-;;; Subclasses of ATOMIC-ZONE that need to do some calculation to
-;;; determinre the sprawls must override this method. 
-(defmethod compute-sprawls ((zone atomic-zone))
-  nil)
-
 (defmethod impose-size ((zone atomic-zone) width height)
   (declare (ignore width height))
   nil)
@@ -178,19 +178,6 @@
    (lambda (child)
      (format stream "~s " child))
    zone))
-
-;;; For a compound zone, in order to compute all sprawls, we call
-;;; ENSURE-SPRAWLS-VALID on each child and then combine the result by
-;;; calling COMBINE-CHILD-SPRAWLS.
-;;;
-;;; Although it is not safe to attemps to combien the sprawls of the
-;;; children of all compound zones, we know that this function will
-;;; only be called on a zone with invalid sprawls, and all compound
-;;; zones that can have invalid sprawls also know how to combine the
-;;; sprawls of the children.
-(defmethod compute-sprawls ((zone compound-zone))
-  (map-over-children #'ensure-sprawls-valid zone)
-  (combine-child-sprawls zone))
 
 (defmethod (setf children) :after (new-children (zone compound-zone))
   (declare (ignore new-children))

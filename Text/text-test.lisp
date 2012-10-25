@@ -18,13 +18,17 @@
   (setf (clim3-zone:parent zone) nil))
 
 (defmethod update ((port test-port-1))
-  (clim3-zone:ensure-sprawls-valid (root port))
+  (clim3-zone:ensure-hsprawl-valid (root port))
+  (clim3-zone:ensure-vsprawl-valid (root port))
   (multiple-value-bind (width height)
       (clim3-zone:natural-size (root port))
     ;; This port imposes a size slightly bigger than the natural one.
     (clim3-zone:impose-size (root port) (+ width 2) (+ height 4))))
 
-(defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-1))
+(defmethod clim3-zone:notify-child-hsprawl-changed (zone (port test-port-1))
+  nil)
+
+(defmethod clim3-zone:notify-child-vsprawl-changed (zone (port test-port-1))
   nil)
 
 (defmethod clim3-port:text-style-ascent ((port test-port-1) text-style)
@@ -63,13 +67,17 @@
   (setf (clim3-zone:parent zone) nil))
 
 (defmethod update ((port test-port-2))
-  (clim3-zone:ensure-sprawls-valid (root port))
+  (clim3-zone:ensure-hsprawl-valid (root port))
+  (clim3-zone:ensure-vsprawl-valid (root port))
   (multiple-value-bind (width height)
       (clim3-zone:natural-size (root port))
     ;; This port imposes a size slightly bigger than the natural one.
     (clim3-zone:impose-size (root port) (+ width 3) (+ height 5))))
 
-(defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-2))
+(defmethod clim3-zone:notify-child-hsprawl-changed (zone (port test-port-2))
+  nil)
+
+(defmethod clim3-zone:notify-child-vsprawl-changed (zone (port test-port-2))
   nil)
 
 (defmethod clim3-port:text-style-ascent ((port test-port-2) text-style)

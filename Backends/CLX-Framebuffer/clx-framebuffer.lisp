@@ -56,7 +56,11 @@
    (%prev-pointer-hpos :initform 0 :accessor prev-pointer-hpos)
    (%prev-pointer-vpos :initform 0 :accessor prev-pointer-vpos)))
 
-(defmethod clim3-zone:notify-child-sprawls-changed
+(defmethod clim3-zone:notify-child-hsprawl-changed
+    (zone (port clx-framebuffer-port))
+  nil)
+
+(defmethod clim3-zone:notify-child-vsprawl-changed
     (zone (port clx-framebuffer-port))
   nil)
 
@@ -203,7 +207,8 @@
     ;; it has to exist when we set the parent of the zone. 
     (push zone-entry (zone-entries port))
     (setf (clim3-zone:parent zone) port)
-    (clim3-zone:ensure-sprawls-valid zone)
+    (clim3-zone:ensure-hsprawl-valid zone)
+    (clim3-zone:ensure-vsprawl-valid zone)
     ;; Ask for a window that has the natural size of the zone.  We may
     ;; not get it, though.
     ;;
@@ -268,7 +273,8 @@
 (defmethod paint ((zone clim3-zone:compound-zone)
 		  (port clx-framebuffer-port)
 		  hstart vstart hend vend)
-  (clim3-zone:ensure-sprawls-valid zone)
+  (clim3-zone:ensure-hsprawl-valid zone)
+  (clim3-zone:ensure-vsprawl-valid zone)
   (clim3-zone:ensure-child-layouts-valid zone)
   (clim3-zone:map-over-children-bottom-to-top
    (lambda (child)

@@ -16,13 +16,14 @@
    #:map-over-children
    #:map-over-children-top-to-bottom
    #:map-over-children-bottom-to-top
-   #:ensure-sprawls-valid
-   #:compute-sprawls
-   #:combine-child-hsprawls
-   #:combine-child-vsprawls
+   #:ensure-hsprawl-valid
+   #:ensure-vsprawl-valid
+   #:compute-hsprawls
+   #:compute-vsprawls
    #:notify-child-position-changed
    #:notify-child-depth-changed
-   #:notify-child-sprawls-changed
+   #:notify-child-hsprawl-changed
+   #:notify-child-vsprawl-changed
    #:notify-children-changed
    #:child-layouts-valid-p
    #:impose-child-layouts
