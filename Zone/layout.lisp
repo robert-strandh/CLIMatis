@@ -46,7 +46,7 @@
 ;;; valid, and if so does nothing.  Otherwise, it calls
 ;;; COMPUTE-VSPRAWL.
 
-(defun ensure-vprawl-valid (zone)
+(defun ensure-vsprawl-valid (zone)
   (when (null (vsprawl zone))
     (compute-vsprawl zone)))
 
