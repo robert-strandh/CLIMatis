@@ -53,19 +53,23 @@
 ;;; Class VBOX. 
 
 (defclass vbox (compound-sequence-zone
-		dependent-sprawls-mixin
 		any-number-of-children-mixin
-		child-position-change-not-allowed-mixin
-		child-depth-change-indifferent-mixin)
+		changing-child-hsprawl-changes-hsprawl-mixin
+		changing-child-vsprawl-changes-vsprawl-mixin
+		changing-children-changes-both-sprawls-mixin
+		changing-child-position-not-allowed-mixin
+		changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-sprawls ((zone vbox))
+(defmethod combine-child-hsprawls ((zone vbox))
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-parallel
 	(mapcar #'hsprawl (children zone))))
-   zone)
+   zone))
+  
+(defmethod combine-child-vsprawls ((zone vbox))
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -104,19 +108,23 @@
 ;;; Class HBOX.
 
 (defclass hbox (compound-sequence-zone
-		dependent-sprawls-mixin
 		any-number-of-children-mixin
-		child-position-change-not-allowed-mixin
-		child-depth-change-indifferent-mixin)
+		changing-child-hsprawl-changes-hsprawl-mixin
+		changing-child-vsprawl-changes-vsprawl-mixin
+		changing-children-changes-both-sprawls-mixin
+		changing-child-position-not-allowed-mixin
+		changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-sprawls ((zone hbox))
+(defmethod combine-child-hsprawls ((zone hbox))
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-series
 	(mapcar #'hsprawl (children zone))))
-   zone)
+   zone))
+  
+(defmethod combine-child-vsprawls ((zone hbox))
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -155,19 +163,23 @@
 ;;; Class PILE.
 
 (defclass pile (compound-sequence-zone
-		dependent-sprawls-mixin
 		any-number-of-children-mixin
-		child-position-change-not-allowed-mixin
-		child-depth-change-remember-mixin)
+		changing-child-hsprawl-changes-hsprawl-mixin
+		changing-child-vsprawl-changes-vsprawl-mixin
+		changing-children-changes-both-sprawls-mixin
+		changing-child-position-not-allowed-mixin
+		changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-sprawls ((zone pile))
+(defmethod combine-child-hsprawls ((zone pile))
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-parallel
 	(mapcar #'hsprawl (children zone))))
-   zone)
+   zone))
+  
+(defmethod combine-child-vsprawls ((zone pile))
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -202,14 +214,16 @@
 ;;; Class GRID.
 
 (defclass grid (compound-zone
-		dependent-sprawls-mixin
 		any-number-of-children-mixin
-		child-position-change-not-allowed-mixin
-		child-depth-change-indifferent-mixin)
+		changing-child-hsprawl-changes-hsprawl-mixin
+		changing-child-vsprawl-changes-vsprawl-mixin
+		changing-children-changes-both-sprawls-mixin
+		changing-child-position-not-allowed-mixin
+		changing-child-depth-changes-nothing-mixin)
   ((%combined-rows :initform nil :accessor combined-rows)
    (%combined-cols :initform nil :accessor combined-cols)))
 
-(defmethod combine-child-sprawls ((zone grid))
+(defmethod combine-child-hsprawls ((zone grid))
   (let* ((children (children zone))
 	 (rows (array-dimension children 0))
 	 (cols (array-dimension children 1)))
@@ -219,7 +233,28 @@
 		       collect (hsprawl (aref children 0 col))))
 	   (set-hsprawl
 	    (clim3-sprawl:combine-in-series (combined-cols zone))
-	    zone)
+	    zone))
+	  ((= cols 1)
+	   (set-hsprawl
+	    (clim3-sprawl:combine-in-parallel
+	     (loop for row from 0 below rows
+		   collect (hsprawl (aref children 0 row))))
+	    zone))
+	  (t
+	   (setf (combined-cols zone)
+		 (loop for col from 0 below cols
+		       collect (clim3-sprawl:combine-in-parallel
+				(loop for row from 0 below rows
+				      collect (hsprawl (aref children row col))))))
+	   (set-hsprawl
+	    (clim3-sprawl:combine-in-series (combined-cols children))
+	    zone)))))
+
+(defmethod combine-child-vsprawls ((zone grid))
+  (let* ((children (children zone))
+	 (rows (array-dimension children 0))
+	 (cols (array-dimension children 1)))
+    (cond ((= rows 1)
 	   (set-vsprawl
 	    (clim3-sprawl:combine-in-parallel
 	     (loop for col from 0 below cols
@@ -229,11 +264,6 @@
 	   (setf (combined-rows zone)
 		 (loop for row from 0 below rows
 		       collect (vsprawl (aref children 0 row))))
-	   (set-hsprawl
-	    (clim3-sprawl:combine-in-parallel
-	     (loop for row from 0 below rows
-		   collect (hsprawl (aref children 0 row))))
-	    zone)
 	   (set-vsprawl
 	    (clim3-sprawl:combine-in-series (combined-rows zone))
 	    zone))
@@ -243,29 +273,50 @@
 		       collect (clim3-sprawl:combine-in-parallel
 				(loop for col from 0 below cols
 				      collect (vsprawl (aref children row col))))))
-	   (setf (combined-cols zone)
-		 (loop for col from 0 below cols
-		       collect (clim3-sprawl:combine-in-parallel
-				(loop for row from 0 below rows
-				      collect (hsprawl (aref children row col))))))
-	   (set-hsprawl
-	    (clim3-sprawl:combine-in-series (combined-cols children))
-	    zone)
 	   (set-vsprawl
 	    (clim3-sprawl:combine-in-series (combined-rows children))
 	    zone)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class BBOARD.
+;;; Class SCROLLER.
+
+(defclass scroller (compound-simple-zone
+		    at-most-one-child-mixin
+		    changing-child-hsprawl-changes-child-layouts-mixin
+		    changing-child-vsprawl-changes-child-layouts-mixin
+		    changing-children-changes-child-layouts-mixin
+		    changing-child-position-not-allowed-mixin
+		    changing-child-depth-changes-nothing-mixin)
+  ())
+
+(defmethod combine-child-hsprawls ((zone scroller))
+  (error "attempt to combine hsprawls of children of a scroller zone"))
+
+(defmethod combine-child-vsprawls ((zone scroller))
+  (error "attempt to combine vsprawls of children of a scroller zone"))
+
+(defmethod impose-child-layouts ((zone scroller))
+  ;; There is either no child or one child, but this is convenient.
+  (map-over-children
+   (lambda (child)
+     (ensure-sprawls-valid child)
+     (multiple-value-bind (width height)
+	 (natural-size child)
+       (impose-size child width height)))
+   zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; This a zone that lets its children be positioned wherever they want.
+;;; Class BBOARD.
 
 (defclass bboard (compound-simple-zone
-		  independent-sprawls-mixin
 		  any-number-of-children-mixin
-		  child-position-change-remember-mixin
-		  child-depth-change-remember-mixin)
+		  changing-child-hsprawl-changes-hsprawl-mixin
+		  changing-child-vsprawl-changes-vsprawl-mixin
+		  changing-children-changes-both-sprawls-mixin
+		  changing-child-position-changes-both-sprawls-mixin
+		  changing-child-depth-changes-nothing-mixin)
   ()
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
@@ -273,11 +324,25 @@
 (defmethod impose-size ((zone bboard) width height)
   nil)
 
-(defmethod combine-child-sprawls ((zone bboard))
-  nil)
+(defmethod combine-child-hsprawls ((zone bboard))
+  (impose-child-layouts zone)
+  (let ((max-hpos 0))
+    (map-over-children
+     (lambda (child)
+       (setf max-hpos (max max-hpos (+ (hpos child) (width child)))))
+     zone)
+    (set-hsprawl (clim3-sprawl:sprawl max-hpos max-hpos nil))))
+
+(defmethod combine-child-vsprawls ((zone bboard))
+  (impose-child-layouts zone)
+  (let ((max-vpos 0))
+    (map-over-children
+     (lambda (child)
+       (setf max-vpos (max max-vpos (+ (vpos child) (height child)))))
+     zone)
+    (set-vsprawl (clim3-sprawl:sprawl max-vpos max-vpos nil))))
 
 (defmethod impose-child-layouts ((zone bboard))
-  (map-over-children #'ensure-sprawls-valid zone)
   (loop for child in (children zone)
 	do (ensure-sprawls-valid child)
 	   (multiple-value-bind (width height)
@@ -299,10 +364,12 @@
 ;;; elastic, both horizontally and vertically.
 
 (defclass sponge (compound-simple-zone
-		  independent-sprawls-mixin
 		  at-most-one-child-mixin
-		  child-position-change-not-allowed-mixin
-		  child-depth-change-indifferent-mixin)
+		  changing-child-hsprawl-changes-nothing
+		  changing-child-vsprawl-changes-nothing
+		  changing-children-changes-child-layouts-mixin
+		  changing-child-position-not-allowed-mixin
+		  changing-child-depth-changes-child-layouts-mixin)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
@@ -348,16 +415,15 @@
 ;;; child, or if it has no child, makes it very elastic vertically.
 
 (defclass hsponge (compound-simple-zone
-		   vdependent-sprawls-mixin
 		   at-most-one-child-mixin
-		   child-position-change-not-allowed-mixin
-		   child-depth-change-indifferent-mixin)
-  ())
+		   changing-child-hsprawl-changes-nothing-mixin
+		   changing-child-vsprawl-changes-vsprawl-mixin
+		   changing-children-changes-vsprawl-mixin
+		   changing-child-position-not-allowed-mixin
+		   changing-child-depth-changes-nothing-mixin)
+  (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod combine-child-sprawls ((zone hsponge))
-  (set-hsprawl
-   (clim3-sprawl:sprawl 0 0 nil)
-   zone)
+(defmethod combine-child-vsprawls ((zone hsponge))
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -401,20 +467,19 @@
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
 (defclass vsponge (compound-simple-zone
-		   hdependent-sprawls-mixin
 		   at-most-one-child-mixin
-		   child-position-change-not-allowed-mixin
-		   child-depth-change-indifferent-mixin)
-  ())
+		   changing-child-hsprawl-changes-hsprawl-mixin
+		   changing-child-vsprawl-changes-nothing-mixin
+		   changing-children-changes-hsprawl-mixin
+		   changing-child-position-not-allowed-mixin
+		   changing-child-depth-changes-nothing-mixin)
+  (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod combine-child-sprawls ((zone vsponge))
+(defmethod combine-child-hsprawls ((zone vsponge))
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (hsprawl (car (children zone))))
-   zone)
-  (set-vsprawl
-   (clim3-sprawl:sprawl 0 0 nil)
    zone))
 
 ;;; We should probably factor this one out to a mixin class
@@ -453,15 +518,13 @@
 ;;; rigid, both horizontally and vertically.
 
 (defclass brick (compound-simple-zone
-		 independent-sprawls-mixin
 		 at-most-one-child-mixin
-		 child-position-change-not-allowed-mixin
-		 child-depth-change-indifferent-mixin)
+		 changing-child-hsprawl-changes-nothing-mixin
+		 changing-child-vsprawl-changes-nothing-mixin
+		 changing-children-changes-nothing-mixin
+		 changing-child-position-not-allowed-mixin
+		 changing-child-depth-changes-nothing-mixin)
   ())
-
-;;; No method on combine-child-sprawls is required, because such a
-;;; method already exists for independent-sprawls-mixin, and
-;;; it does nothing. 
 
 ;;; We should probably factor this one out to a mixin class
 (defmethod impose-size ((zone brick) width height)
@@ -504,13 +567,15 @@
 ;;; child, or if it has no child, makes it very elastic vertically.
 
 (defclass hbrick (compound-simple-zone
-		  vdependent-sprawls-mixin
 		  at-most-one-child-mixin
-		  child-position-change-not-allowed-mixin
-		  child-depth-change-indifferent-mixin)
+		  changing-child-hsprawl-changes-nothing-mixin
+		  changing-child-vsprawl-changes-vsprawl-mixin
+		  changing-children-changes-vsprawl-mixin
+		  changing-child-position-not-allowed-mixin
+		  changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-sprawls ((zone hbrick))
+(defmethod combine-child-vsprawls ((zone hbrick))
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -556,13 +621,15 @@
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
 (defclass vbrick (compound-simple-zone
-		  hdependent-sprawls-mixin
 		  at-most-one-child-mixin
-		  child-position-change-not-allowed-mixin
-		  child-depth-change-indifferent-mixin)
+		  changing-child-hsprawl-changes-hsprawl-mixin
+		  changing-child-vsprawl-changes-nothing-mixin
+		  changing-children-changes-hsprawl-mixin
+		  changing-child-position-not-allowed-mixin
+		  changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-sprawls ((zone vbrick))
+(defmethod combine-child-hsprawls ((zone vbrick))
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -608,13 +675,15 @@
 ;;; makes it very elastic vertically.
 
 (defclass hframe (compound-simple-zone
-		  vdependent-sprawls-mixin
 		  at-most-one-child-mixin
-		  child-position-change-not-allowed-mixin
-		  child-depth-change-indifferent-mixin)
+		  changing-child-hsprawl-changes-nothing-mixin
+		  changing-child-vsprawl-changes-vsprawl-mixin
+		  changing-children-changes-vsprawl-mixin
+		  changing-child-position-not-allowed-mixin
+		  changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-sprawls ((zone hframe))
+(defmethod combine-child-vsprawls ((zone hframe))
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -660,13 +729,15 @@
 ;;; it very elastic horizontally.
 
 (defclass vframe (compound-simple-zone
-		  hdependent-sprawls-mixin
 		  at-most-one-child-mixin
-		  child-position-change-not-allowed-mixin
-		  child-depth-change-indifferent-mixin)
+		  changing-child-hsprawl-changes-hsprawl-mixin
+		  changing-child-vsprawl-changes-nothing-mixin
+		  changing-children-changes-hsprawl-mixin
+		  changing-child-position-not-allowed-mixin
+		  changing-child-depth-changes-nothing-mixin)
   ())
 
-(defmethod combine-child-sprawls ((zone vframe))
+(defmethod combine-child-hsprawls ((zone vframe))
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
@@ -713,19 +784,23 @@
 ;;; This class can be subclassed for convenience
 
 (defclass wrap (compound-simple-zone
-		hdependent-sprawls-mixin
 		at-most-one-child-mixin
-		child-position-change-not-allowed-mixin
-		child-depth-change-indifferent-mixin)
+		changing-child-hsprawl-changes-hsprawl-mixin
+		changing-child-vsprawl-changes-vsprawl-mixin
+		changing-children-changes-both-sprawls-mixin
+		changing-child-position-not-allowed-mixin
+		changing-child-depth-changes-nothing-mixin)
   ()
   (:default-initargs :children '()))
 
-(defmethod combine-child-sprawls ((zone wrap))
+(defmethod combine-child-hsprawls ((zone wrap))
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (hsprawl (car (children zone))))
-   zone)
+   zone))
+
+(defmethod combine-child-vsprawls ((zone wrap))
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)

@@ -18,7 +18,8 @@
    #:map-over-children-bottom-to-top
    #:ensure-sprawls-valid
    #:compute-sprawls
-   #:combine-child-sprawls
+   #:combine-child-hsprawls
+   #:combine-child-vsprawls
    #:notify-child-position-changed
    #:notify-child-depth-changed
    #:notify-child-sprawls-changed
@@ -31,15 +32,26 @@
    #:compound-zone
    #:compound-simple-zone
    #:compound-sequence-zone
-   #:dependent-sprawls-mixin
-   #:hdependent-sprawls-mixin
-   #:vdependent-sprawls-mixin
-   #:independent-sprawls-mixin
+   ;; Layout mixin classes.
    #:at-most-one-child-mixin
    #:any-number-of-children-mixin
-   #:child-position-change-not-allowed-mixin
-   #:child-position-change-remember-mixin
-   #:child-depth-change-not-allowed-mixin
-   #:child-depth-change-indifferent-mixin
-   #:child-depth-change-remember-mixin
+   #:changing-child-hsprawl-changes-hsprawl-mixin
+   #:changing-child-hsprawl-changes-child-layouts-mixin
+   #:changing-child-hsprawl-changes-nothing-mixin
+   #:changing-child-vsprawl-changes-vsprawl-mixin
+   #:changing-child-vsprawl-changes-child-layouts-mixin
+   #:changing-child-vsprawl-changes-nothing-mixin
+   #:changing-children-changes-hsprawl-mixin
+   #:changing-children-changes-vsprawl-mixin
+   #:changing-children-changes-both-sprawls-mixin
+   #:changing-children-changes-child-layouts-mixin
+   #:changing-children-changes-nothing-mixin
+   #:changing-child-position-not-allowed-mixin
+   #:changing-child-position-changes-hsprawl-mixin
+   #:changing-child-position-changes-vsprawl-mixin
+   #:changing-child-position-changes-both-sprawls-mixin
+   #:changing-child-position-changes-child-layouts-mixin
+   #:changing-child-depth-not-allowed-mixin
+   #:changing-child-depth-changes-nothing-mixin
+   #:changing-child-depth-changes-child-layouts-mixin
    ))
