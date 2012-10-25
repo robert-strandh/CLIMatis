@@ -95,7 +95,9 @@
 			 (subseq buffer 0 (car cursor))
 			 (list (subseq line 0 (cdr cursor))
 			       (subseq line (cdr cursor)))
-			 (subseq buffer (car cursor)))))))
+			 (subseq buffer (1+ (car cursor))))))
+    (incf (car cursor))
+    (move-to-beginning-of-line view)))
 
 (defun merge-line (view)
   (with-accessors ((buffer buffer) (cursor cursor)) view
@@ -133,10 +135,10 @@
   (reset-keystroke-processor keystroke-processor))
 
 (defparameter *fundametal-table*
-  `((((#\f :control)) . ,#'cursor-forward)
-    (((#\b :control)) . ,#'cursor-backward)
-    (((#\Return)) . ,#'split-line)
-    (((#\g :control) ,#'abort-and-reset))))
+  '((((#\f :control)) . cursor-forward)
+    (((#\b :control)) . cursor-backward)
+    (((#\Return))     . split-line)
+    (((#\g :control)) . abort-and-reset)))
 
 (defun prefix-p (partial-sentence sentence)
   (and (<= (length partial-sentence) (length sentence))
