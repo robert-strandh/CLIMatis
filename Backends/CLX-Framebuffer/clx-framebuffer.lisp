@@ -39,7 +39,7 @@
 		       (setf (aref result row) interpretations)))
 	    result))
     ;; Implement text-style to font mappings instead
-    (setf (font port) (camfer:make-font 10 100))
+    (setf (font port) (camfer:make-font 12 100))
     port))
 
 (defclass zone-entry ()
@@ -425,7 +425,8 @@
 	;; paint the first character
 	(paint-glyph (camfer:mask (camfer:find-glyph font (char string 0)))
 		     0
-		     (+ ascent (camfer:y-offset (camfer:find-glyph font (char string 0)))))
+		     ;; I don't know why the -1 is necessary
+		     (+ -1 ascent (camfer:y-offset (camfer:find-glyph font (char string 0)))))
 	(loop with pos-x = 0
 	      for i from 1 below (length string)
 	      for glyph = (camfer:find-glyph font (char string i))
@@ -436,7 +437,8 @@
 			    (glyph-space font (char string (1- i)) (char string i))))
 		   (paint-glyph (camfer:mask glyph)
 				pos-x
-				(+ ascent (camfer:y-offset glyph)))))))))
+				;; I don't know why the -1 is necessary
+				(+ -1 ascent (camfer:y-offset glyph)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
