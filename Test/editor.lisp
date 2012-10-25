@@ -76,12 +76,13 @@
     (if (end-of-line-p view)
 	(if (last-line-p view)
 	    (editor-error "At the end of the buffer.")
-	    (concatenate 'vector
-			 (subseq buffer 0 (car cursor))
-			 (concatenate 'vector
-				      (aref buffer (car cursor))
-				      (aref buffer (1+ (car cursor))))
-			 (subseq buffer (+ (car cursor) 2))))
+	    (setf buffer
+		  (concatenate 'vector
+			       (subseq buffer 0 (car cursor))
+			       (list (concatenate 'vector
+						  (aref buffer (car cursor))
+						  (aref buffer (1+ (car cursor)))))
+			       (subseq buffer (+ (car cursor) 2)))))
 	(setf (aref buffer (car cursor))
 	      (concatenate 'vector
 			   (subseq (aref buffer (car cursor)) 0 (cdr cursor))
@@ -111,6 +112,10 @@
 					(aref buffer (1+ (car cursor))))
 			   (subseq buffer (+ (car cursor) 2)))))))
 
+(defun exit (view)
+  (declare (ignore view))
+  (throw 'end nil))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Keystroke processor
@@ -135,10 +140,11 @@
   (reset-keystroke-processor keystroke-processor))
 
 (defparameter *fundametal-table*
-  '((((#\f :control)) . cursor-forward)
-    (((#\b :control)) . cursor-backward)
-    (((#\Return))     . split-line)
-    (((#\g :control)) . abort-and-reset)))
+  '((((#\x :control) (#\c :control)) . exit)
+    (((#\f :control))                . cursor-forward)
+    (((#\b :control))                . cursor-backward)
+    (((#\d :control))                . delete-object-or-merge-line)
+    (((#\Return))                    . split-line)))
 
 (defun prefix-p (partial-sentence sentence)
   (and (<= (length partial-sentence) (length sentence))
@@ -265,7 +271,10 @@
 	(minibuffer-zone 30)))))))
 
 (defun editor (width height)
-  (let ((port (clim3-port:make-port :clx-framebuffer)))
-    (clim3-port:connect (editor-zones width height) port)
-    (clim3-clx-framebuffer::event-loop port)))
+  (let ((port (clim3-port:make-port :clx-framebuffer))
+	(root (editor-zones width height)))
+    (clim3-port:connect root port)
+    (catch 'end 
+      (clim3-clx-framebuffer::event-loop port))
+    (clim3-port:disconnect root port)))
 
