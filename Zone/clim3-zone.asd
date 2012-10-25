@@ -18,4 +18,5 @@
 			      "genealogy"
 			      "geometry"
 			      "gives"
-			      "layout"))))
+			      "layout"))
+   (:file "layout-mixins" :depends-on ("zone"))))
