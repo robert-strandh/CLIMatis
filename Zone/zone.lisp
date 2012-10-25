@@ -296,18 +296,3 @@
       (map-over-children (lambda (child) (push child children)) zone)
       (setf (depth-ordered-children zone)
 	    (sort (coerce children 'vector) #'< :key #'depth)))))
-
-(defmethod map-over-children-top-to-bottom
-    (function (zone any-number-of-children-mixin))
-  (ensure-depth-ordered-children zone)
-  (let ((depth-ordered-children (depth-ordered-children zone)))
-    (loop for i from 0 below (length depth-ordered-children)
-	  do (funcall function (aref depth-ordered-children i)))))
-
-(defmethod map-over-children-bottom-to-top
-    (function (zone any-number-of-children-mixin))
-  (ensure-depth-ordered-children zone)
-  (let ((depth-ordered-children (depth-ordered-children zone)))
-    (loop for i downfrom (1- (length depth-ordered-children)) to 0
-	  do (funcall function (aref depth-ordered-children i)))))
-

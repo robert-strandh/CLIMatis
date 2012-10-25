@@ -2,7 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function COMPUTE-HSPRAWLS.
+;;; Generic function COMPUTE-HSPRAWL.
 ;;;
 ;;; This function is repsonsible for computing and setting the
 ;;; horizontal sprawls of a zone.  It is only called on a zone with
@@ -11,11 +11,11 @@
 ;;; After a call to this function, the horizontal sprawls of the zone
 ;;; are valid.
 
-(defgeneric compute-hsprawls (zone))
+(defgeneric compute-hsprawl (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function COMPUTE-VSPRAWLS.
+;;; Generic function COMPUTE-VSPRAWL.
 ;;;
 ;;; This function is repsonsible for computing and setting the
 ;;; vertical sprawls of a zone.  It is only called on a zone with
@@ -24,7 +24,7 @@
 ;;; After a call to this function, the vertical sprawls of the zone
 ;;; are valid.
 
-(defgeneric compute-vsprawls (zone))
+(defgeneric compute-vsprawl (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -32,11 +32,11 @@
 ;;;
 ;;; This function checks whether the horizontal sprawl of the zone is
 ;;; valid, and if so does nothing.  Otherwise, it calls
-;;; COMPUTE-HSPRAWLS.
+;;; COMPUTE-HSPRAWL.
 
 (defun ensure-hsprawl-valid (zone)
   (when (null (hsprawl zone))
-    (compute-hsprawls zone)))
+    (compute-hsprawl zone)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -44,11 +44,11 @@
 ;;;
 ;;; This function checks whether the vertical sprawl of the zone is
 ;;; valid, and if so does nothing.  Otherwise, it calls
-;;; COMPUTE-VSPRAWLS.
+;;; COMPUTE-VSPRAWL.
 
 (defun ensure-vprawl-valid (zone)
   (when (null (vsprawl zone))
-    (compute-vsprawls zone)))
+    (compute-vsprawl zone)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

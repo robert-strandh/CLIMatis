@@ -18,8 +18,8 @@
    #:map-over-children-bottom-to-top
    #:ensure-hsprawl-valid
    #:ensure-vsprawl-valid
-   #:compute-hsprawls
-   #:compute-vsprawls
+   #:compute-hsprawl
+   #:compute-vsprawl
    #:notify-child-position-changed
    #:notify-child-depth-changed
    #:notify-child-hsprawl-changed
