@@ -16,7 +16,8 @@
 ;;; Commands
 
 (defun editor-error (format-string &rest arguments)
-  (apply #'format *error-output* format-string arguments))
+  (apply #'format *error-output* format-string arguments)
+  (error "get me out of here"))
 
 (defun beginning-of-line-p (view)
   (zerop (cdr (cursor view))))
@@ -88,6 +89,10 @@
 			   (subseq (aref buffer (car cursor)) 0 (cdr cursor))
 			   (subseq (aref buffer (car cursor)) (1+ (cdr cursor))))))))
 
+(defun erase-object-or-merge-line (view)
+  (cursor-backward view)
+  (delete-object-or-merge-line view))
+
 (defun split-line (view)
   (with-accessors ((buffer buffer) (cursor cursor)) view
     (let ((line (aref buffer (car cursor))))
@@ -107,10 +112,19 @@
 	(setf buffer
 	      (concatenate 'vector
 			   (subseq buffer 0 (car cursor))
-			   (concatenate 'vector
-					(aref buffer (car cursor))
-					(aref buffer (1+ (car cursor))))
+			   (list (concatenate 'vector
+					      (aref buffer (car cursor))
+					      (aref buffer (1+ (car cursor)))))
 			   (subseq buffer (+ (car cursor) 2)))))))
+
+(defun kill-to-end-of-line (view)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (if (end-of-line-p view)
+	(if (last-line-p view)
+	    (editor-error "At the end of the buffer.")
+	    (merge-line view))
+	(setf (aref buffer (car cursor))
+	      (subseq (aref buffer (car cursor)) 0 (cdr cursor))))))
 
 (defun exit (view)
   (declare (ignore view))
@@ -144,6 +158,10 @@
     (((#\f :control))                . cursor-forward)
     (((#\b :control))                . cursor-backward)
     (((#\d :control))                . delete-object-or-merge-line)
+    (((#\h :control))                . erase-object-or-merge-line)
+    (((#\a :control))                . move-to-beginning-of-line)
+    (((#\e :control))                . move-to-end-of-line)
+    (((#\k :control))                . kill-to-end-of-line)
     (((#\Return))                    . split-line)))
 
 (defun prefix-p (partial-sentence sentence)
@@ -173,7 +191,8 @@
 		 ((equal keystrokes-so-far (caar entries))
 		  ;; We found a perfect match.
 		  (reset-keystroke-processor keystroke-processor)
-		  (funcall (cdar entries) view))
+		  (handler-case (funcall (cdar entries) view)
+		    (error () nil)))
 		 (t
 		  nil))))))
 
