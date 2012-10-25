@@ -32,9 +32,6 @@
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod clim3-zone:sprawls-valid-p ((zone opaque))
-  t)
-
 (defun opaque (color)
   (make-instance 'opaque :color color))
 
@@ -55,9 +52,6 @@
 	  (clim3-sprawl:sprawl (cadr dim) (cadr dim) (cadr dim)))
     (setf (clim3-zone:vsprawl zone)
 	  (clim3-sprawl:sprawl (car dim) (car dim) (car dim)))))
-
-(defmethod clim3-zone:sprawls-valid-p ((zone masked))
-  t)
 
 (defun masked (color opacities)
   (make-instance 'masked

@@ -14,8 +14,7 @@
 ;;; That method calls ENSURE-SPRAWLS-VALID on each child, and then calls
 ;;; COMBINE-CHILD-SPRAWLS to combine the result. 
 ;;;
-;;; After a call to this function, the sprawls of the zone are valid as
-;;; reported by SPRAWLS-VALID-P. 
+;;; After a call to this function, the sprawls of the zone are valid.
 
 (defgeneric compute-sprawls (zone))
 
@@ -30,8 +29,7 @@
 ;;; This function will be called only on compound zones with sprawls
 ;;; that depend on the sprawls of the children.
 ;;;
-;;; After a call to this function, the sprawls of the zone are valid as
-;;; reported by SPRAWLS-VALID-P.
+;;; After a call to this function, the sprawls of the zone are valid.
 
 (defgeneric combine-child-sprawls (compound-zone))
 
@@ -43,7 +41,7 @@
 ;;; if so does nothing.  Otherwise, it calles COMPUTE-SPRAWLS.
 
 (defun ensure-sprawls-valid (zone)
-  (unless (sprawls-valid-p zone)
+  (when  (or (null (hsprawl zone)) (null (vsprawl zone)))
     (compute-sprawls zone)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

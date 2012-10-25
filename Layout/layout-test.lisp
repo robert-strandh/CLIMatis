@@ -94,9 +94,6 @@
 (defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-1))
   nil)
 
-(defmethod clim3-zone:notify-child-sprawls-invalid (zone (port test-port-1))
-  nil)
-
 (defmethod clim3-port:text-style-ascent ((port test-port-1) text-style)
   (declare (ignore text-style))
   25)
@@ -140,9 +137,6 @@
     (clim3-zone:impose-size (root port) (+ width 3) (+ height 5))))
 
 (defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-2))
-  nil)
-
-(defmethod clim3-zone:notify-child-sprawls-invalid (zone (port test-port-2))
   nil)
 
 (defmethod clim3-port:text-style-ascent ((port test-port-2) text-style)

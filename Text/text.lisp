@@ -16,15 +16,8 @@
   (format stream "~s " (chars zone)))
 
 (defmethod (setf clim3-zone:parent) :after ((new-parent null) (zone text))
-  (clim3-zone:invalidate-sprawls zone))
-
-(defmethod clim3-zone:mark-sprawls-invalid ((zone text))
-  (clim3-zone:set-vsprawl nil zone)
-  (clim3-zone:set-hsprawl nil zone))
-
-(defmethod clim3-zone:sprawls-valid-p ((zone text))
-  (and (not (null (clim3-zone:vsprawl zone)))
-       (not (null (clim3-zone:hsprawl zone)))))
+  (setf (clim3-zone:hsprawl zone) nil)
+  (setf (clim3-zone:vsprawl zone) nil))
 
 (defmethod clim3-zone:compute-sprawls ((zone text))
   (clim3-zone:set-hsprawl

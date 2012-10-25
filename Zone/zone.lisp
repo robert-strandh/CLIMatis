@@ -111,12 +111,6 @@
   (values (clim3-sprawl:size (hsprawl zone))
 	  (clim3-sprawl:size (vsprawl zone))))
 
-;;; Default method on NOTIFY-CHILD-SPRAWLS-INVALID for ZONE and NULL.
-;;; This method does nothing, thus allowing this generic function to
-;;; be called with any zone and its parent.
-(defmethod notify-child-sprawls-invalid ((child zone) (parent null))
-  nil)
-
 ;;; Default method on NOTIFY-CHILD-SPRAWLS-CHANGED for ZONE and NULL.
 ;;; This method does nothing, thus allowing this generic function to
 ;;; be called with any zone and its parent.
@@ -315,24 +309,14 @@
 
 (defclass dependent-sprawls-mixin () ())
 
-(defmethod sprawls-valid-p ((zone dependent-sprawls-mixin))
-  (and (not (null (hsprawl zone)))
-       (not (null (vsprawl zone)))))
-
-(defmethod mark-sprawls-invalid ((zone dependent-sprawls-mixin))
-  (set-hsprawl nil zone)
-  (set-vsprawl nil zone))
-
-(defmethod notify-child-sprawls-invalid ((child zone)
-				       (parent dependent-sprawls-mixin))
-  (invalidate-sprawls parent))
-
 (defmethod notify-child-sprawls-changed ((child zone)
-				       (parent dependent-sprawls-mixin))
-  (invalidate-sprawls parent))
+					 (parent dependent-sprawls-mixin))
+  (setf (hsprawl parent) nil)
+  (setf (vsprawl parent) nil))
 
 (defmethod notify-children-changed ((zone dependent-sprawls-mixin))
-  (invalidate-sprawls zone))
+  (setf (hsprawl parent) nil)
+  (setf (vsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -340,22 +324,14 @@
 
 (defclass hdependent-sprawls-mixin () ())
 
-(defmethod sprawls-valid-p ((zone hdependent-sprawls-mixin))
-  (not (null (hsprawl zone))))
-
-(defmethod mark-sprawls-invalid ((zone hdependent-sprawls-mixin))
-  (set-hsprawl nil zone))
-
-(defmethod notify-child-sprawls-invalid ((child zone)
-				       (parent hdependent-sprawls-mixin))
-  (invalidate-sprawls parent))
-
 (defmethod notify-child-sprawls-changed ((child zone)
 				       (parent hdependent-sprawls-mixin))
-  (invalidate-sprawls parent))
+  (setf (hsprawl parent) nil)
+  (setf (vsprawl parent) nil))
 
 (defmethod notify-children-changed ((zone hdependent-sprawls-mixin))
-  (invalidate-sprawls zone))
+  (setf (hsprawl parent) nil)
+  (setf (vsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -363,39 +339,20 @@
 
 (defclass vdependent-sprawls-mixin () ())
 
-(defmethod sprawls-valid-p ((zone vdependent-sprawls-mixin))
-  (not (null (vsprawl zone))))
-
-(defmethod mark-sprawls-invalid ((zone vdependent-sprawls-mixin))
-  (set-vsprawl nil zone))
-
-(defmethod notify-child-sprawls-invalid ((child zone)
-				       (parent vdependent-sprawls-mixin))
-  (invalidate-sprawls parent))
-
 (defmethod notify-child-sprawls-changed ((child zone)
 				       (parent vdependent-sprawls-mixin))
-  (invalidate-sprawls parent))
+  (setf (hsprawl parent) nil)
+  (setf (vsprawl parent) nil))
 
 (defmethod notify-children-changed ((zone vdependent-sprawls-mixin))
-  (invalidate-sprawls zone))
+  (setf (hsprawl parent) nil)
+  (setf (vsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class INDEPENDENT-SPRAWLS-MIXIN.
 
 (defclass independent-sprawls-mixin () ())
-
-(defmethod sprawls-valid-p ((zone independent-sprawls-mixin))
-  t)
-
-(defmethod mark-sprawls-invalid ((zone independent-sprawls-mixin))
-  (error "Attempt to marks as invalid the sprawls of an independent zone ~s"
-	 zone))
-
-(defmethod notify-child-sprawls-invalid ((child zone)
-				       (parent independent-sprawls-mixin))
-  nil)
 
 (defmethod notify-child-sprawls-changed ((child zone)
 				       (parent independent-sprawls-mixin))

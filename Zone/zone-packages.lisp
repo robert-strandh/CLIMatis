@@ -21,12 +21,8 @@
    #:combine-child-sprawls
    #:notify-child-position-changed
    #:notify-child-depth-changed
-   #:notify-child-sprawls-invalid
    #:notify-child-sprawls-changed
    #:notify-children-changed
-   #:sprawls-valid-p
-   #:mark-sprawls-invalid
-   #:invalidate-sprawls
    #:child-layouts-valid-p
    #:impose-child-layouts
    #:ensure-child-layouts-valid

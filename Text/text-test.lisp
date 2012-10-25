@@ -27,9 +27,6 @@
 (defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-1))
   nil)
 
-(defmethod clim3-zone:notify-child-sprawls-invalid (zone (port test-port-1))
-  nil)
-
 (defmethod clim3-port:text-style-ascent ((port test-port-1) text-style)
   (declare (ignore text-style))
   25)
@@ -75,9 +72,6 @@
 (defmethod clim3-zone:notify-child-sprawls-changed (zone (port test-port-2))
   nil)
 
-(defmethod clim3-zone:notify-child-sprawls-invalid (zone (port test-port-2))
-  nil)
-
 (defmethod clim3-port:text-style-ascent ((port test-port-2) text-style)
   (declare (ignore text-style))
   21)
@@ -103,7 +97,8 @@
 	(port2 (make-instance 'test-port-2))
 	(zone (clim3-text:text "hi" nil (clim3-color:make-color 1.0 0.0 0.0))))
     (clim3-port:connect zone port1)
-    (assert (not (clim3-zone:sprawls-valid-p zone)))
+    (assert (null (clim3-zone:hsprawl zone)))
+    (assert (null (clim3-zone:vsprawl zone)))
     (assert (eq (clim3-zone:parent zone) port1))
     (assert (eq (clim3-zone:client zone) port1))
     (update port1)
@@ -111,11 +106,13 @@
     (assert (= (clim3-zone:height zone) 44))
     (clim3-port:disconnect zone port1)
     (assert (null (clim3-zone:client zone)))
-    (assert (not (clim3-zone:sprawls-valid-p zone)))
+    (assert (null (clim3-zone:hsprawl zone)))
+    (assert (null (clim3-zone:vsprawl zone)))
     (clim3-port:connect zone port2)
     (assert (eq (clim3-zone:client zone) port2))
     (update port2)
-    (assert (clim3-zone:sprawls-valid-p zone))
+    (assert (not (null (clim3-zone:hsprawl zone))))
+    (assert (not (null (clim3-zone:vsprawl zone))))
     (assert (= (clim3-zone:width zone) 21))
     (assert (= (clim3-zone:height zone) 37))))
 

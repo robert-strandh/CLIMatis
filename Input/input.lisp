@@ -12,9 +12,6 @@
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod clim3-zone:sprawls-valid-p ((zone input))
-  t)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class KEY
