@@ -241,10 +241,25 @@
 	(loop for line across buffer
 	      ;; Put the words and spaces of a line into a hbox.
 	      collect (line-from-string line)
-	      ;; Put something very elastic after each line of text.
-	      collect (clim3-layout:hframe* 0 0 nil))))
+	      ;; Make some space between lines
+	      collect (clim3-layout:vframe* 5 5 nil))))
 
 (defparameter *fun* nil)
+
+(defun find-cursor (view)
+  (with-accessors ((buffer buffer) (cursor cursor)) view
+    (let* ((prefix (subseq (aref buffer (car cursor)) 0 (cdr cursor)))
+	   (words-and-spaces (string-to-words-and-spaces prefix 0)))
+      (cond ((= (cdr cursor) (length (aref buffer (car cursor))))
+	     (values (* 2 (car cursor)) nil nil))
+	    ((vectorp (car (last words-and-spaces)))
+	     (values (* 2 (car cursor))
+		     (1- (length words-and-spaces))
+		     (coerce (car (last words-and-spaces)) 'string)))
+	    (t
+	     (values (* 2 (car cursor))
+		     (length words-and-spaces)
+		     nil))))))
 
 (defun editor-zones (width height)
   (let* ((lines (clim3-layout:vbox*))
