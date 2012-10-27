@@ -44,6 +44,31 @@
 
 (defgeneric contents (line &key start end))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function MAP-OVER-CURSORS.
+;;;
+
+(defgeneric map-over-cursors (function line))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function SPLIT.
+;;;
+
+(defgeneric split (line location))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Generic function JOIN
+;;;
+
+(defgeneric join (line1 line2))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class LINE.
+
 (defclass line ()
   ((%buffer-hook :initarg :buffer-hook :initform nil :accessor buffer-hook)))
 
