@@ -39,7 +39,10 @@
   (:use #:common-lisp)
   (:export
    #:buffer
+   #:newline-size
    #:line-count
+   #:object-count
+   #:preceding-object-count
    #:insert-line
    #:delete-line
    #:hook-location))

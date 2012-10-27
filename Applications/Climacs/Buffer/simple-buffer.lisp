@@ -18,6 +18,20 @@
 (defmethod line-count ((buffer simple-buffer))
   (length (hooks buffer)))
 
+(defmethod object-count ((buffer simple-buffer))
+  (+ (loop for hook in (hooks buffer)
+	   sum (climacs-buffer-line:object-count (line hook)))
+     (* (1- (length (hooks buffer)))
+	(newline-size buffer))))
+
+(defmethod preceding-object-count ((buffer simple-buffer) line)
+  (let ((hook-of-line (climacs-buffer-line:buffer-hook line)))
+    (+ (loop for hook in (hooks buffer)
+	     until (eq hook hook-of-line)
+	     sum (climacs-buffer-line:object-count (line hook)))
+       (* (position hook-of-line (hooks buffer))
+	  (newline-size buffer)))))
+
 (defmethod hook-location ((buffer simple-buffer) (hook hook))
   (position hook (hooks buffer)))
 
@@ -35,3 +49,4 @@
 	  (concatenate 'vector
 		       (subseq hooks 0 location)
 		       (subseq hooks (1+ location))))))
+
