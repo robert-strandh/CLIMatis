@@ -539,15 +539,18 @@ to an application are:
 
 \begin{itemize}
 \item An application should be able to move a zone by setting its
-  horizontal and vertical positions.  The result of the operation
-  should be immediately visible after the next iteration of the event
-  loop.  Though of course, it is possible that the zone being moved by
-  the application is again moved by its parent zone, if the parent
-  zone is a layout zone that imposes a position of its children.  In
-  that case, there will be no visible effect.
-\item An application should be able to modify the depth of a zone.  
+  horizontal and vertical positions, provided it is not the child of a
+  layout zone that specifically disallows this operation.  The result
+  of the operation should be immediately visible after the next
+  iteration of the event loop.
+\item An application should be able to modify the depth of a zone,
+  provided it is not the child of a layout zone that specifically
+  disallows this operation.  Again, the result of the operation should
+  be immediately visible after the next iteration of the command
+  loop. 
 \item An application should be able to change the children of a
-  compound zone.
+  compound zone.  This is the main operation used to manipulate the
+  zone hierarchy.  
 \end{itemize}
 
 Notice that the effects of the modifications are synchronized with the
@@ -571,7 +574,7 @@ If the zone is the child of a scroller zone, the scrollbar will have
 to be rendered differently next time. 
 
 If the zone if part of a layout zone that imposes positions of the
-child, then moving it will have no effect. 
+child, then an error will be signaled. 
 
 \subsection{Modifying the depth of a zone}
 
@@ -583,19 +586,77 @@ next time.
 
 \subsection{Changing the children of a zone}
 
-If the zone is a bboard zone, new children must have valid gives so
+If the zone is a bboard zone, new children must have valid sprawls so
 that we can compute their natural sizes before rendering
 
 If the zone is a scroller zone, we must make sure the child has a
-valid give so that we can compute its natural size before rendering.
+valid sprawl so that we can compute its natural size before rendering.
 
-If the zone is the child of a layout zone that computes its gives from
-the gives of its children, then the parent must have its gives
+If the zone is the child of a layout zone that computes its sprawls from
+the sprawls of its children, then the parent must have its sprawls
 invalidated, so that they are recomputed next time it is rendered.
 This invalidation must propagate up the hierarchy until a zone is
-reached that does not take child gives into account. 
+reached that does not take child sprawls into account. 
 
 \section{Zone geometry protocol}
+
+\subsection{Sprawl}
+
+The desired dimensions of a zone are expressed in the form of objects
+of type \emph{sprawl}.  A sprawl is an object with three components:
+the \emph{minimum size}, the \emph{preferred size} and the \emph{maximum
+  size}.  Each zone has one horizontal sprawl and one vertical sprawl.
+
+The three components of a sprawl are interpreted as \emph{desired}, so
+that the minimum size is really the \emph{desired minimum size}, the
+preferred size is really the \emph{desired preferred size}, and the
+maximum size is really the \emph{desired maximum size}.  Every zone
+must be prepared to take on any size that is imposed on it by the
+parent zone or by the display server.  \clim{} will try as much as
+possible to honor the desired sizes, but sometimes it is not possible,
+so some other size will be chosen.
+
+The minimum and preferred sizes of a sprawl are non-negative
+integers.  The maximum size is either a non-negative integer, or
+\texttt{NIL}, indicating that the zone has no desired maximum size. 
+The preferred size is greater than or equal to the minimum size and
+the maximum size is either \texttt{NIL} or it is greater than or equal
+to the preferred size. 
+
+\subsubsection{Combining sprawls}
+
+Sprawls can be combined either in \emph{series} (like the vertical
+sprawls of the zones inside a vbox), or in \emph{parallel} (like the
+horizontal sprawls of a the zones inside a vbox).  
+
+When combined in series, the different components are then summed up
+individually so that the minimum size is the sum of each individual
+minimum size, the preferred size is the sum of each individual
+preferred size, and the maximum size is the sum of each individual
+maximum size, or \texttt{NIL} if any individual maximum size is
+\texttt{NIL}.
+
+Combining sprawls in parallel is a more difficult operation.  The
+basic idea is that the minimum size is computed as the maximum of each
+individual minimum size, the preferred size is computed as the average
+of the preferred sizes, and the maximum size is computed as the
+minimum of each individual maximum size, or \texttt{NIL} if all of the
+individual maximum sizes are \texttt{NIL}.  However, there are many
+situations where this method is not possible, perhaps because the
+minimum size of one individual sprawl is greater than the maximum size
+of another.  In that case, some compromise is made, the details of
+which is not terribly important.  Applications should avoid situations
+like that though. 
+
+\subsubsection{Distributing space among combined sprawls}
+
+When some parent zone imposes the size of a zone where sprawls have
+been combined in series, the imposed size must be distributed among
+the individual sprawls.  In some situations, this is easy, such as
+when the imposed size is greater than the sum of the preferred sizes,
+and some maximum size is \texttt{NIL}.  
+
+FIXME: say more....
 
 \subsection{Generic functions}
 
@@ -874,83 +935,86 @@ first argument on each child of the zone given as a second argument.
 \subsubsection{Class \texttt{any-number-of-children-mixin}}
 
 
-\section{Gives change protocol}
+\section{Sprawls change protocol}
 
-The gives change protocol is divided into four functions for maximum
+FIXME: this section no longer reflects recent changes, so it needs
+updating.
+
+The sprawls change protocol is divided into four functions for maximum
 flexibility to client code, three of them generic, and one is an
 ordinary function.
 
 \subsection{Generic functions and methods}
 
-\subsubsection{Generic function \texttt{gives-valid-p}}
-\label{generic-function-gives-valid-p}
+\subsubsection{Generic function \texttt{sprawls-valid-p}}
+\label{generic-function-sprawls-valid-p}
 
-This function returns true if and only if the gives of the zone are
+This function returns true if and only if the sprawls of the zone are
 valid.  
 
-For zones with gives that can not be invalidated, such as bboard
-zones, scroller zones, and atomic zones with gives that do not depend
+For zones with sprawls that can not be invalidated, such as bboard
+zones, scroller zones, and atomic zones with sprawls that do not depend
 on a client, this function always returns \emph{true}.
 
 The methods of this function are paired up with methods for
-\texttt{mark-gives-invalid} so that they both use the same mechanism. 
+\texttt{mark-sprawls-invalid} so that they both use the same mechanism. 
 
 This function should return \emph{false} after a call has been made to
-\texttt{mark-gives-invalid}, and should return \emph{true} after a
-call has been made to \texttt{compute-gives}.  
+\texttt{mark-sprawls-invalid}, and should return \emph{true} after a
+call has been made to \texttt{compute-sprawls}.  
 
-A method specialized for \texttt{dependent-gives-mixin} is supplied
-that returns \emph{true} of and only if both the \texttt{vgive} and
-the \texttt{hgive} of the zone are \texttt{nil}
+A method specialized for \texttt{dependent-sprawls-mixin} is supplied
+that returns \emph{true} of and only if both the \texttt{vsprawl} and
+the \texttt{hsprawl} of the zone are \texttt{nil}
 
-A method specialized for \texttt{hdependent-gives-mixin} is supplied
-that returns \emph{true} if and only if the \texttt{hgive} of the zone
+A method specialized for \texttt{hdependent-sprawls-mixin} is supplied
+that returns \emph{true} if and only if the \texttt{hsprawl} of the zone
 is \texttt{nil}.
 
-A method specialized for \texttt{vdependent-gives-mixin} is supplied
-that returns \emph{true} if and only if the \texttt{vgive} of the zone
+A method specialized for \texttt{vdependent-sprawls-mixin} is supplied
+that returns \emph{true} if and only if the \texttt{vsprawl} of the zone
 is \texttt{nil}.
 
-A method specialized for \texttt{independent-gives-mixin} is supplied
+A method specialized for \texttt{independent-sprawls-mixin} is supplied
 that always returns \emph{true}. 
 
-\subsubsection{Generic function \texttt{mark-gives-invalid}}
-\label{generic-function-mark-gives-invalid}
+\subsubsection{Generic function \texttt{mark-sprawls-invalid}}
+\label{generic-function-mark-sprawls-invalid}
 
-This function marks the zone as having invalid gives.  
+This function marks the zone as having invalid sprawls.  
 
-For zones with gives that can not be invalidated, such as bboard
-zones, scroller zones, and atomic zones with gives that do not depend
+For zones with sprawls that can not be invalidated, such as bboard
+zones, scroller zones, and atomic zones with sprawls that do not depend
 on a client, this function signals an error.
 
 Different subclasses of \texttt{zone} do this differently.  Some set
-both the hgive and the vgive to \texttt{nil}.  Some others set one but
+both the hsprawl and the vsprawl to \texttt{nil}.  Some others set one but
 not the other.  Some may use a completely different mechanism.
 
 The methods of this function are paired up with methods for
-\texttt{gives-invalid-p} so that they both use the same mechanism.
+\texttt{sprawls-invalid-p} so that they both use the same mechanism.
 
-A method specialized for \texttt{dependent-gives-mixin} is supplied
-that sets both the \texttt{vgive} and the \texttt{hgive} of the zone
+A method specialized for \texttt{dependent-sprawls-mixin} is supplied
+that sets both the \texttt{vsprawl} and the \texttt{hsprawl} of the zone
 to \texttt{nil}
 
-A method specialized for \texttt{hdependent-gives-mixin} is supplied
-that sets the \texttt{hgive} of the zone to \texttt{nil}.
+A method specialized for \texttt{hdependent-sprawls-mixin} is supplied
+that sets the \texttt{hsprawl} of the zone to \texttt{nil}.
 
-A method specialized for \texttt{vdependent-gives-mixin} is supplied
-that sets the \texttt{vgive} of the zone to \texttt{nil}.
+A method specialized for \texttt{vdependent-sprawls-mixin} is supplied
+that sets the \texttt{vsprawl} of the zone to \texttt{nil}.
 
-A method specialized for \texttt{independent-gives-mixin} is supplied
+A method specialized for \texttt{independent-sprawls-mixin} is supplied
 that signals an error.
 
-\subsubsection{Generic function \texttt{notify-child-gives-invalid}}
-\label{generic-function-notify-child-gives-invalid}
+\subsubsection{Generic function \texttt{notify-child-sprawls-invalid}}
+\label{generic-function-notify-child-sprawls-invalid}
 
-This function is called on a child and a parent when the gives of the
+This function is called on a child and a parent when the sprawls of the
 child are invalidated for some reason (see the function
-\texttt{invalidate-gives}).  Methods on this generic function
-specialized to parent zones (the second argument) whose gives depend
-on the gives of its children must call \texttt{invalidate-gives} with
+\texttt{invalidate-sprawls}).  Methods on this generic function
+specialized to parent zones (the second argument) whose sprawls depend
+on the sprawls of its children must call \texttt{invalidate-sprawls} with
 the parent as an argument.
 
 Two default methods are supplied.  The first default method is
@@ -962,25 +1026,25 @@ By doing it this way, we compel zones to make an explicit choice
 concerning the action of this function.
 
 Other methods are supplied for certain mixin classes.  For the mixin
-classes \texttt{dependent-gives-mixin},
-\texttt{hdependent-gives-mixin}, and \texttt{vdependent-gives-mixin},
-a method is supplied that calls \texttt{invalidate-gives} with the
+classes \texttt{dependent-sprawls-mixin},
+\texttt{hdependent-sprawls-mixin}, and \texttt{vdependent-sprawls-mixin},
+a method is supplied that calls \texttt{invalidate-sprawls} with the
 parent as an argument, as stipulated above.  For the class
-\texttt{independent-gives-mixin}, a method is supplied that does
+\texttt{independent-sprawls-mixin}, a method is supplied that does
 nothing.
 
-\subsubsection{Function \texttt{invalidate-gives}}
+\subsubsection{Function \texttt{invalidate-sprawls}}
 
-This function is used to indicate that the gives of some zone are no
-longer valid.  The reason for that could be that the gives depend on
-the contents and the contents changed, or that the gives of the zone
+This function is used to indicate that the sprawls of some zone are no
+longer valid.  The reason for that could be that the sprawls depend on
+the contents and the contents changed, or that the sprawls of the zone
 depend on it being connected to some client, and it got disconnected.
 
-If the gives of the zone are already invalid, i.e.,
-\texttt{gives-valid-p} returns \emph{false}, then this function does
+If the sprawls of the zone are already invalid, i.e.,
+\texttt{sprawls-valid-p} returns \emph{false}, then this function does
 nothing.  Otherwise, it marks them invalid by calling
-\texttt{mark-gives-invalid} and calls the function
-\texttt{notify-child-gives-invalid} with the zone and its parent.
+\texttt{mark-sprawls-invalid} and calls the function
+\texttt{notify-child-sprawls-invalid} with the zone and its parent.
 
 \section{Zone layout protocol}
 
@@ -988,23 +1052,23 @@ The zone layout protocol is designed so that if the zone hierarchy is
 appropriately designed, then layout can be done incrementally for good
 performance. 
 
-In any hierarchy of zones, some zones may have valid gives and some
-zones may have invalid gives.  Atomic zones whose gives do not depend
-on any client are always valid.  Atomic zones whose gives depend on
+In any hierarchy of zones, some zones may have valid sprawls and some
+zones may have invalid sprawls.  Atomic zones whose sprawls do not depend
+on any client are always valid.  Atomic zones whose sprawls depend on
 some client may or may not be valid.  If the zone hierarchy is not
 connected to a client, they are invalid. 
 
-A compound zone whose gives depend on the gives of its children will
-have invalid gives if any of the children has invalid gives.  We
-maintain this invariant by using the gives change protocol.  Thus, the
-only case where a (compound) zone can have valid gives even though
-some child has invalid gives is when that zone is such that its gives
-are independent of the gives of the children.  In particular, this is
+A compound zone whose sprawls depend on the sprawls of its children will
+have invalid sprawls if any of the children has invalid sprawls.  We
+maintain this invariant by using the sprawls change protocol.  Thus, the
+only case where a (compound) zone can have valid sprawls even though
+some child has invalid sprawls is when that zone is such that its sprawls
+are independent of the sprawls of the children.  In particular, this is
 the case for scroller zones and bboard zones.
 
 When a zone is rendered, its position and size must be known.  In
 addition, we require that a zone that is rendered also have valid
-gives, even though this is not strictly necessary.
+sprawls, even though this is not strictly necessary.
 
 The size and sometimes the position of a zone are set by the parent.
 If the parent is a port, then the port must set these parameters
@@ -1012,12 +1076,12 @@ before rendering the zone.  Sometimes, when a zone is rendered, it is
 possible that its children do not have the correct position and size.
 For instance, if the position of a child of a hbox zone is modified by
 the application, then it is likely wrong, so it must be fixed before
-the hbox zone can be rendered.  Similarly, if the gives of a child of
+the hbox zone can be rendered.  Similarly, if the sprawls of a child of
 a bbox zone have changed, then the natural size of that child is very
 likely wrong, so it must be fixed before the bbox zone can be
 rendered.
 
-When the position or the gives of a zone change, we want to delay the
+When the position or the sprawls of a zone change, we want to delay the
 fixes until the parent zone must be rendered.  We do this by
 maintaining a flag in compound zones that indicate whether the child
 geometries are valid or not.  
@@ -1026,10 +1090,10 @@ geometries are valid or not.
 
 \subsection{Classes}
 
-\subsubsection{Class \texttt{dependent-gives-mixin}}
-\subsubsection{Class \texttt{hdependent-gives-mixin}}
-\subsubsection{Class \texttt{vdependent-gives-mixin}}
-\subsubsection{Class \texttt{independent-gives-mixin}}
+\subsubsection{Class \texttt{dependent-sprawls-mixin}}
+\subsubsection{Class \texttt{hdependent-sprawls-mixin}}
+\subsubsection{Class \texttt{vdependent-sprawls-mixin}}
+\subsubsection{Class \texttt{independent-sprawls-mixin}}
 
 \section{Application frame}
 
