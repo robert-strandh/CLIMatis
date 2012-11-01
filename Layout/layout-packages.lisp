@@ -5,6 +5,8 @@
    #:hbox #:hbox*
    #:pile #:pile*
    #:grid
+   #:scroller #:scroller*
+   #:wrap #:wrap*
    #:bboard #:bboard*
    #:sponge #:sponge* #:hsponge #:hsponge* #:vsponge  #:vsponge*
    #:brick #:brick* #:hbrick #:hbrick* #:vbrick #:vbrick*
