@@ -318,6 +318,14 @@
        (impose-size child width height)))
    zone))
 
+(defun scroller (children)
+  (make-instance 'scroller
+		 :children (coerce-to-list-of-at-most-one-zone children)))
+
+(defun scroller* (&rest children)
+  (make-instance 'scroller
+		 :children (coerce-to-list-of-at-most-one-zone children)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class BBOARD.
@@ -380,8 +388,8 @@
 
 (defclass sponge (compound-simple-zone
 		  at-most-one-child-mixin
-		  changing-child-hsprawl-changes-nothing
-		  changing-child-vsprawl-changes-nothing
+		  changing-child-hsprawl-changes-nothing-mixin
+		  changing-child-vsprawl-changes-nothing-mixin
 		  changing-children-changes-child-layouts-mixin
 		  changing-child-position-not-allowed-mixin
 		  changing-child-depth-changes-child-layouts-mixin)
