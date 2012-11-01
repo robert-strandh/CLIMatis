@@ -42,8 +42,9 @@
 	(error "Attempt to connect a zone that is already connected ~s"
 	       (car children-after)))
       (unless (zone-p (car children-after))
-	(error "Child must be a zone: ~s" (car children-after))))
-    (call-next-method children-after)))
+	(error "Child must be a zone: ~s" (car children-after)))
+      (setf (parent (car children-after)) zone))
+    (call-next-method children-after zone)))
 
 (defmethod map-over-children-top-to-bottom
     (function (zone at-most-one-child-mixin))
