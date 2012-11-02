@@ -2,34 +2,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function PARENT.
-;;;
-;;; Return the current parent of the zone. 
-;;;
-;;; The parent may be another zone, in which case the zone is a child
-;;; of that zone, or it may be a client (typically a port), in which
-;;; case the zone is the root zone of a hierarchy connected to that
-;;; client, or it may be nil, in which case, this zone is the root
-;;; zone of a hierarchy not currently connected to any client.
-
-(defgeneric parent (zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function (SETF PARENT).
-;;;
-;;; Set the parent of a zone.
-;;;
-;;; This generic function is part of the internal zone protocols.  It
-;;; should not be used directly by applications.  It is called
-;;; indirectly as a result of connecting the zone to a client, or as a
-;;; result of adding or removing the zone as a child of some other
-;;; zone by calling (SETF CHILDREN). 
-
-(defgeneric (setf parent) (new-parent zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Generic function CHILDREN.
 ;;;
 ;;; This generic function returns the children of a compound zone.
