@@ -36,13 +36,12 @@
 ;;; the children.  Setting the position and the dimensions of a child
 ;;; of such a layout zone will move and resize the child. 
 
-(defgeneric client (zone))
+(defclass zone () ())
 
-(defgeneric (setf client) (new-client zone))
-
-(defclass zone ()
-  ((%parent :initarg :parent :initform nil :accessor parent)
-   (%hpos :initform 0 :initarg :hpos :accessor hpos :writer set-hpos)
+(defclass standard-zone (zone
+			 parent-mixin
+			 client-mixin)
+  ((%hpos :initform 0 :initarg :hpos :accessor hpos :writer set-hpos)
    (%vpos :initform 0 :initarg :vpos :accessor vpos :writer set-vpos)
    (%width :initform 0 :accessor width)
    (%height :initform 0 :accessor height)
@@ -52,10 +51,7 @@
    ;; a compound zone.  This order is used to determine in which order
    ;; children are painted, and in which order input zones are
    ;; searched for event handlers.  The depth can be any real number.
-   (%depth :initform 0 :initarg :depth :accessor depth :writer set-depth)
-   ;; A zone can belong to at most one client at a time.  The nature
-   ;; of this object is entirely determined by client code.
-   (%client :initform nil :accessor client)))
+   (%depth :initform 0 :initarg :depth :accessor depth :writer set-depth)))
 
 (defun zone-p (object)
   (typep object 'zone))
@@ -66,16 +62,6 @@
 (defmethod print-object ((object zone) stream)
   (print-unreadable-object (object stream :type t :identity t)
     (print-components object stream)))
-
-(defun set-clients (zone client)
-  (labels ((aux (zone)
-	     (unless (eq (client zone) client)
-	       (setf (client zone) client)
-	       (map-over-children #'aux zone))))
-    (aux zone)))
-
-(defmethod (setf parent) :after ((new-parent zone) (zone zone))
-  (set-clients zone (client new-parent)))
 
 (defmethod notify-child-position-changed ((child zone) (parent null))
   nil)
@@ -137,7 +123,7 @@
 ;;; MAP-OVER-CHILDREN, MAP-OVER-CHILDREN-TOP-TO-BOTTOM, and
 ;;; MAP-OVER-CHILDREN-BOTTOM-TO-TOP that do nothing. 
 
-(defclass atomic-zone (zone) ())
+(defclass atomic-zone (standard-zone) ())
 
 (defmethod print-components progn ((zone zone) stream)
   (format stream
@@ -166,7 +152,7 @@
 ;;;
 ;;; A compound zone is any zone that may have some children.
 
-(defclass compound-zone (zone)
+(defclass compound-zone (standard-zone)
   ((%children :initarg :children :accessor children)
    (%child-layouts-valid-p :initform nil :accessor child-layouts-valid-p)))
 
