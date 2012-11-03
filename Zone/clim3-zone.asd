@@ -4,22 +4,26 @@
   :depends-on (:clim3-sprawl)
   :components
   ((:file "zone-packages" :depends-on ())
-   (:file "parent" :depends-on ("zone-packages"))
-   (:file "client" :depends-on ("zone-packages"))
-   (:file "position" :depends-on ("zone-packages"))
-   (:file "size" :depends-on ("zone-packages"))
-   (:file "paint-protocol" :depends-on ("zone-packages"))
-   (:file "gives-change" :depends-on ("zone-packages"))
-   (:file "position-change" :depends-on ("zone-packages"))
-   (:file "genealogy-change" :depends-on ("zone-packages"))
-   (:file "genealogy" :depends-on ("zone-packages"))
-   (:file "gives" :depends-on ("zone-packages"))
-   (:file "layout" :depends-on ("zone-packages"))
+   (:file "protocol-class" :depends-on ("zone-packages"))
+   (:file "parent" :depends-on ("zone-packages" "protocol-class"))
+   (:file "client" :depends-on ("zone-packages" "protocol-class"))
+   (:file "position" :depends-on ("zone-packages" "protocol-class"))
+   (:file "size" :depends-on ("zone-packages" "protocol-class"))
+   (:file "depth" :depends-on ("zone-packages" "protocol-class"))
+   (:file "paint-protocol" :depends-on ("zone-packages" "protocol-class"))
+   (:file "gives-change" :depends-on ("zone-packages" "protocol-class"))
+   (:file "position-change" :depends-on ("zone-packages" "protocol-class"))
+   (:file "genealogy-change" :depends-on ("zone-packages" "protocol-class"))
+   (:file "genealogy" :depends-on ("zone-packages" "protocol-class"))
+   (:file "gives" :depends-on ("zone-packages" "protocol-class"))
+   (:file "layout" :depends-on ("zone-packages" "protocol-class"))
    (:file "zone" :depends-on ("zone-packages"
+			      "protocol-class"
 			      "parent"
 			      "client"
 			      "position"
 			      "size"
+			      "depth"
 			      "gives-change"
 			      "position-change"
 			      "genealogy-change"
