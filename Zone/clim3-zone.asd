@@ -4,6 +4,10 @@
   :depends-on (:clim3-sprawl)
   :components
   ((:file "zone-packages" :depends-on ())
+   (:file "parent" :depends-on ("zone-packages"))
+   (:file "client" :depends-on ("zone-packages"))
+   (:file "position" :depends-on ("zone-packages"))
+   (:file "paint-protocol" :depends-on ("zone-packages"))
    (:file "gives-change" :depends-on ("zone-packages"))
    (:file "position-change" :depends-on ("zone-packages"))
    (:file "genealogy-change" :depends-on ("zone-packages"))
@@ -12,6 +16,9 @@
    (:file "gives" :depends-on ("zone-packages"))
    (:file "layout" :depends-on ("zone-packages"))
    (:file "zone" :depends-on ("zone-packages"
+			      "parent"
+			      "client"
+			      "position"
 			      "gives-change"
 			      "position-change"
 			      "genealogy-change"
