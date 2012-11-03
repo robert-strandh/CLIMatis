@@ -40,10 +40,9 @@
 
 (defclass standard-zone (zone
 			 parent-mixin
+			 position-mixin
 			 client-mixin)
-  ((%hpos :initform 0 :initarg :hpos :accessor hpos :writer set-hpos)
-   (%vpos :initform 0 :initarg :vpos :accessor vpos :writer set-vpos)
-   (%width :initform 0 :accessor width)
+  ((%width :initform 0 :accessor width)
    (%height :initform 0 :accessor height)
    (%hsprawl :initform nil :initarg :hsprawl :accessor hsprawl :writer set-hsprawl)
    (%vsprawl :initform nil :initarg :vsprawl :accessor vsprawl :writer set-vsprawl)
@@ -68,16 +67,6 @@
 
 (defmethod notify-child-depth-changed ((child zone) (parent null))
   nil)
-
-;;; After the horizontal position of a zone has been explicity
-;;; modified, we notify the parent.
-(defmethod (setf hpos) :after (new-hpos (zone zone))
-  (notify-child-position-changed zone (parent zone)))
-
-;;; After the vertical position of a zone has been explicity
-;;; modified, we notify the parent.
-(defmethod (setf vpos) :after (new-vpos (zone zone))
-  (notify-child-position-changed zone (parent zone)))
 
 ;;; After the hsprawl of a zone has been explicitly modified, we
 ;;; notify the parent.
