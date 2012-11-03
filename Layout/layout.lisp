@@ -58,7 +58,7 @@
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
 		changing-child-position-not-allowed-mixin
-		changing-child-depth-changes-nothing-mixin)
+		child-depth-insignificant-mixin)
   ())
 
 (defmethod compute-hsprawl ((zone vbox))
@@ -116,7 +116,7 @@
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
 		changing-child-position-not-allowed-mixin
-		changing-child-depth-changes-nothing-mixin)
+		child-depth-insignificant-mixin)
   ())
 
 (defmethod compute-hsprawl ((zone hbox))
@@ -174,7 +174,7 @@
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
 		changing-child-position-not-allowed-mixin
-		changing-child-depth-changes-nothing-mixin)
+		child-depth-significant-mixin)
   ())
 
 (defmethod compute-hsprawl ((zone pile))
@@ -228,7 +228,7 @@
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
 		changing-child-position-not-allowed-mixin
-		changing-child-depth-changes-nothing-mixin)
+		child-depth-insignificant-mixin)
   ((%combined-rows :initform nil :accessor combined-rows)
    (%combined-cols :initform nil :accessor combined-cols)))
 
@@ -298,7 +298,7 @@
 		    changing-child-vsprawl-changes-child-layouts-mixin
 		    changing-children-changes-child-layouts-mixin
 		    changing-child-position-not-allowed-mixin
-		    changing-child-depth-changes-nothing-mixin)
+		    child-depth-insignificant-mixin)
   ())
 
 (defmethod compute-hsprawl ((zone scroller))
@@ -336,7 +336,7 @@
 		  changing-child-vsprawl-changes-vsprawl-mixin
 		  changing-children-changes-both-sprawls-mixin
 		  changing-child-position-changes-both-sprawls-mixin
-		  changing-child-depth-changes-nothing-mixin)
+		  child-depth-significant-mixin)
   ()
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
@@ -392,7 +392,7 @@
 		  changing-child-vsprawl-changes-nothing-mixin
 		  changing-children-changes-child-layouts-mixin
 		  changing-child-position-not-allowed-mixin
-		  changing-child-depth-changes-child-layouts-mixin)
+		  child-depth-insignificant-mixin)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
@@ -440,7 +440,7 @@
 		   changing-child-vsprawl-changes-vsprawl-mixin
 		   changing-children-changes-vsprawl-mixin
 		   changing-child-position-not-allowed-mixin
-		   changing-child-depth-changes-nothing-mixin)
+		   child-depth-insignificant-mixin)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
@@ -495,7 +495,7 @@
 		   changing-child-vsprawl-changes-nothing-mixin
 		   changing-children-changes-hsprawl-mixin
 		   changing-child-position-not-allowed-mixin
-		   changing-child-depth-changes-nothing-mixin)
+		   child-depth-insignificant-mixin)
   ()
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
@@ -549,7 +549,7 @@
 		 changing-child-vsprawl-changes-nothing-mixin
 		 changing-children-changes-nothing-mixin
 		 changing-child-position-not-allowed-mixin
-		 changing-child-depth-changes-nothing-mixin)
+		 child-depth-insignificant-mixin)
   ())
 
 ;;; We should probably factor this one out to a mixin class
@@ -599,7 +599,7 @@
 		  changing-child-vsprawl-changes-vsprawl-mixin
 		  changing-children-changes-vsprawl-mixin
 		  changing-child-position-not-allowed-mixin
-		  changing-child-depth-changes-nothing-mixin)
+		  child-depth-insignificant-mixin)
   ())
 
 (defmethod compute-vsprawl ((zone hbrick))
@@ -655,7 +655,7 @@
 		  changing-child-vsprawl-changes-nothing-mixin
 		  changing-children-changes-hsprawl-mixin
 		  changing-child-position-not-allowed-mixin
-		  changing-child-depth-changes-nothing-mixin)
+		  child-depth-insignificant-mixin)
   ())
 
 (defmethod compute-hsprawl ((zone vbrick))
@@ -711,7 +711,7 @@
 		  changing-child-vsprawl-changes-vsprawl-mixin
 		  changing-children-changes-vsprawl-mixin
 		  changing-child-position-not-allowed-mixin
-		  changing-child-depth-changes-nothing-mixin)
+		  child-depth-insignificant-mixin)
   ())
 
 (defmethod compute-vsprawl ((zone hframe))
@@ -767,7 +767,7 @@
 		  changing-child-vsprawl-changes-nothing-mixin
 		  changing-children-changes-hsprawl-mixin
 		  changing-child-position-not-allowed-mixin
-		  changing-child-depth-changes-nothing-mixin)
+		  child-depth-insignificant-mixin)
   ())
 
 (defmethod compute-hsprawl ((zone vframe))
@@ -824,7 +824,7 @@
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
 		changing-child-position-not-allowed-mixin
-		changing-child-depth-changes-nothing-mixin)
+		child-depth-insignificant-mixin)
   ()
   (:default-initargs :children '()))
 
