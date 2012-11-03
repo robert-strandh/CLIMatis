@@ -52,7 +52,6 @@
    #:changing-child-position-changes-vsprawl-mixin
    #:changing-child-position-changes-both-sprawls-mixin
    #:changing-child-position-changes-child-layouts-mixin
-   #:changing-child-depth-not-allowed-mixin
-   #:changing-child-depth-changes-nothing-mixin
-   #:changing-child-depth-changes-child-layouts-mixin
+   #:child-depth-insignificant-mixin
+   #:child-depth-significant-mixin
    ))
