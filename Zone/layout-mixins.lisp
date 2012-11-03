@@ -290,35 +290,3 @@
 (defmethod notify-changing-child-position
     ((child zone) (parent changing-child-position-changes-child-layouts-mixin))
   (setf (child-layouts-valid-p parent) nil))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class CHANGING-CHILD-DEPTH-NOT-ALLOWED-MIXIN
-
-(defclass changing-child-depth-not-allowed-mixin () ())
-
-(defmethod notify-changing-child-depth
-    ((child zone) (parent changing-child-depth-not-allowed-mixin))
-  (error "attempt to change the depth of a child"))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class CHANGING-CHILD-DEPTH-CHANGES-NOTHING-MIXIN
-
-(defclass changing-child-depth-changes-nothing-mixin () ())
-
-(defmethod notify-changing-child-depth
-    ((child zone) (parent changing-child-depth-changes-nothing-mixin))
-  nil)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Class CHANGING-CHILD-DEPTH-CHANGES-CHILD-LAYOUTS-MIXIN
-
-(defclass changing-child-depth-changes-child-layouts-mixin () ())
-
-(defmethod notify-changing-child-depth
-    ((child zone) (parent changing-child-depth-changes-child-layouts-mixin))
-  (setf (child-layouts-valid-p parent) nil))
-
-
