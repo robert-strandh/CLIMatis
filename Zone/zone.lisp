@@ -24,7 +24,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class ZONE.
+;;; Class STANDARD-ZONE.
 ;;;
 ;;; The position of a zone is in the coordinate system of its parent.
 ;;; 
@@ -35,8 +35,6 @@
 ;;; like the bboard zone do not impose any position or dimensions on
 ;;; the children.  Setting the position and the dimensions of a child
 ;;; of such a layout zone will move and resize the child. 
-
-(defclass zone () ())
 
 (defclass standard-zone (zone
 			 parent-mixin
