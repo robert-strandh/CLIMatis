@@ -41,10 +41,9 @@
 (defclass standard-zone (zone
 			 parent-mixin
 			 position-mixin
+			 size-mixin
 			 client-mixin)
-  ((%width :initform 0 :accessor width)
-   (%height :initform 0 :accessor height)
-   (%hsprawl :initform nil :initarg :hsprawl :accessor hsprawl :writer set-hsprawl)
+  ((%hsprawl :initform nil :initarg :hsprawl :accessor hsprawl :writer set-hsprawl)
    (%vsprawl :initform nil :initarg :vsprawl :accessor vsprawl :writer set-vsprawl)
    ;; The depth is used to determine an order between the children of
    ;; a compound zone.  This order is used to determine in which order
@@ -97,10 +96,6 @@
 ;;; be called with any zone and its parent.
 (defmethod notify-child-vsprawl-changed ((child zone) (parent null))
   nil)
-
-(defmethod impose-size :after ((zone zone) width height)
-  (setf (width zone) width)
-  (setf (height zone) height))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
