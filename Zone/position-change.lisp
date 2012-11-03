@@ -27,11 +27,3 @@
 ;;; as having children with invalid positions. 
 
 (defgeneric notify-child-position-changed (child parent))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function NOTIFY-CHILD-DEPTH-CHANGED.
-;;;
-;;; FIXME: say more
-
-(defgeneric notify-child-depth-changed (child parent))
