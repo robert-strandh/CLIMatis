@@ -40,14 +40,10 @@
 			 parent-mixin
 			 position-mixin
 			 size-mixin
+			 depth-mixin
 			 client-mixin)
   ((%hsprawl :initform nil :initarg :hsprawl :accessor hsprawl :writer set-hsprawl)
-   (%vsprawl :initform nil :initarg :vsprawl :accessor vsprawl :writer set-vsprawl)
-   ;; The depth is used to determine an order between the children of
-   ;; a compound zone.  This order is used to determine in which order
-   ;; children are painted, and in which order input zones are
-   ;; searched for event handlers.  The depth can be any real number.
-   (%depth :initform 0 :initarg :depth :accessor depth :writer set-depth)))
+   (%vsprawl :initform nil :initarg :vsprawl :accessor vsprawl :writer set-vsprawl)))
 
 (defun zone-p (object)
   (typep object 'zone))
