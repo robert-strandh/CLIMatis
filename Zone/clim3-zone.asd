@@ -10,10 +10,9 @@
    (:file "position" :depends-on ("zone-packages" "protocol-class"))
    (:file "size" :depends-on ("zone-packages" "protocol-class"))
    (:file "depth" :depends-on ("zone-packages" "protocol-class"))
-   (:file "paint-protocol" :depends-on ("zone-packages" "protocol-class"))
+   (:file "sprawl" :depends-on ("zone-packages" "protocol-class"))
    (:file "gives-change" :depends-on ("zone-packages" "protocol-class"))
    (:file "position-change" :depends-on ("zone-packages" "protocol-class"))
-   (:file "genealogy-change" :depends-on ("zone-packages" "protocol-class"))
    (:file "genealogy" :depends-on ("zone-packages" "protocol-class"))
    (:file "gives" :depends-on ("zone-packages" "protocol-class"))
    (:file "layout" :depends-on ("zone-packages" "protocol-class"))
@@ -24,9 +23,9 @@
 			      "position"
 			      "size"
 			      "depth"
+			      "sprawl"
 			      "gives-change"
 			      "position-change"
-			      "genealogy-change"
 			      "genealogy"
 			      "gives"
 			      "layout"))
