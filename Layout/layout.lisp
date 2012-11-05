@@ -79,12 +79,6 @@
 	(mapcar #'vsprawl (children zone))))
    zone))
   
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone vbox) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
-
 (defmethod impose-child-layouts ((zone vbox))
   (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
@@ -137,12 +131,6 @@
 	(mapcar #'vsprawl (children zone))))
    zone))
   
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone hbox) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
-
 (defmethod impose-child-layouts ((zone hbox))
   (map-over-children #'ensure-hsprawl-valid zone)
   (map-over-children #'ensure-vsprawl-valid zone)
@@ -195,12 +183,6 @@
 	(mapcar #'vsprawl (children zone))))
    zone))
   
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone pile) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
-
 (defmethod impose-child-layouts ((zone pile))
   (map-over-children #'ensure-hsprawl-valid zone)
   (map-over-children #'ensure-vsprawl-valid zone)
@@ -397,12 +379,6 @@
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone sponge) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
-
 (defmethod impose-child-layouts ((zone sponge))
   (map-over-children #'ensure-hsprawl-valid zone)
   (map-over-children #'ensure-vsprawl-valid zone)
@@ -451,12 +427,6 @@
        (clim3-sprawl:sprawl 0 0 nil)
        (vsprawl (car (children zone))))
    zone))
-
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone hsponge) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone hsponge))
   (map-over-children #'ensure-hsprawl-valid zone)
@@ -507,12 +477,6 @@
        (hsprawl (car (children zone))))
    zone))
 
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone vsponge) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
-
 (defmethod impose-child-layouts ((zone vsponge))
   (map-over-children #'ensure-hsprawl-valid zone)
   (map-over-children #'ensure-vsprawl-valid zone)
@@ -551,12 +515,6 @@
 		 changing-child-position-not-allowed-mixin
 		 child-depth-insignificant-mixin)
   ())
-
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone brick) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone brick))
   (map-over-children #'ensure-hsprawl-valid zone)
@@ -610,12 +568,6 @@
        (vsprawl (car (children zone))))
    zone))
 
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone hbrick) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
-
 (defmethod impose-child-layouts ((zone hbrick))
   (map-over-children #'ensure-hsprawl-valid zone)
   (map-over-children #'ensure-vsprawl-valid zone)
@@ -665,12 +617,6 @@
        (clim3-sprawl:sprawl 0 0 nil)
        (hsprawl (car (children zone))))
    zone))
-
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone vbrick) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone vbrick))
   (map-over-children #'ensure-hsprawl-valid zone)
@@ -722,12 +668,6 @@
        (vsprawl (car (children zone))))
    zone))
 
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone hframe) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
-
 (defmethod impose-child-layouts ((zone hframe))
   (map-over-children #'ensure-hsprawl-valid zone)
   (map-over-children #'ensure-vsprawl-valid zone)
@@ -777,12 +717,6 @@
        (clim3-sprawl:sprawl 0 0 nil)
        (hsprawl (car (children zone))))
    zone))
-
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone vframe) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone vframe))
   (map-over-children #'ensure-hsprawl-valid zone)
@@ -843,12 +777,6 @@
        (clim3-sprawl:sprawl 0 0 nil)
        (vsprawl (car (children zone))))
    zone))
-
-;;; We should probably factor this one out to a mixin class
-(defmethod impose-size ((zone wrap) width height)
-  (unless (and (= width (width zone))
-	       (= height (height zone)))
-    (setf (child-layouts-valid-p zone) nil)))
 
 (defmethod impose-child-layouts ((zone wrap))
   (map-over-children #'ensure-hsprawl-valid zone)
