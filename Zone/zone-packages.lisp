@@ -37,21 +37,17 @@
    #:matrix-children-mixin
    #:any-number-of-children-mixin
    #:changing-child-hsprawl-changes-hsprawl-mixin
-   #:changing-child-hsprawl-changes-child-layouts-mixin
    #:changing-child-hsprawl-changes-nothing-mixin
    #:changing-child-vsprawl-changes-vsprawl-mixin
-   #:changing-child-vsprawl-changes-child-layouts-mixin
    #:changing-child-vsprawl-changes-nothing-mixin
    #:changing-children-changes-hsprawl-mixin
    #:changing-children-changes-vsprawl-mixin
    #:changing-children-changes-both-sprawls-mixin
-   #:changing-children-changes-child-layouts-mixin
    #:changing-children-changes-nothing-mixin
    #:changing-child-position-not-allowed-mixin
    #:changing-child-position-changes-hsprawl-mixin
    #:changing-child-position-changes-vsprawl-mixin
    #:changing-child-position-changes-both-sprawls-mixin
-   #:changing-child-position-changes-child-layouts-mixin
    #:child-depth-insignificant-mixin
    #:child-depth-significant-mixin
    ))
