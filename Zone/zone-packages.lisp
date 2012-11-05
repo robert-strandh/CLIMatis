@@ -24,17 +24,16 @@
    #:notify-child-depth-changed
    #:notify-child-hsprawl-changed
    #:notify-child-vsprawl-changed
-   #:notify-children-changed
-   #:child-layouts-valid-p
    #:impose-child-layouts
    #:ensure-child-layouts-valid
    #:impose-size
-   #:atomic-zone
-   #:compound-zone
-   #:compound-simple-zone
-   #:compound-sequence-zone
-   ;; Layout mixin classes.
+   #:atomic-mixin
+   #:compound-mixin
    #:at-most-one-child-mixin
+   #:several-children-mixin
+   #:list-children-mixin
+   #:vector-children-mixin
+   #:matrix-children-mixin
    #:any-number-of-children-mixin
    #:changing-child-hsprawl-changes-hsprawl-mixin
    #:changing-child-hsprawl-changes-child-layouts-mixin
