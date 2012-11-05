@@ -2,7 +2,7 @@
 
 (loop for subdir in '("Fonts/Camfer" "Backends/CLX-Framebuffer"
 		      "Color" "Zone" "Layout" "Graphics" "Text"
-		      "Rigidity" "Port" "Input" "Sprawl" "Ostream")
+		      "Rigidity" "Port" "Input" "Sprawl" "Ostream" "Paint")
       do (pushnew (concatenate
 		   'string
 		   "/home/strandh/Lisp/My-Projects/GIT-ified/CLIMatis2/"
