@@ -1,5 +1,9 @@
 (cl:in-package #:clim3-clx-framebuffer)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Paint a single pixel.
+
 ;;; Paint a pixel at *hpos* *vpos* provided that that
 ;;; pixel is in the clipping region.
 (defmethod clim3-port:new-port-paint-pixel
@@ -23,6 +27,10 @@
 			 (ash (round (* 255 new-b)) 0))))
       (setf (aref pa vp hp) new-pixel))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Paint the entire clipping region with an opaque color.
+
 (defmethod clim3-port:new-port-paint-opaque
     ((port clx-framebuffer-port) color)
   (let ((pa *pixel-array*)
@@ -32,6 +40,10 @@
     (loop for vpos from *vstart* below *vend*
 	  do (loop for hpos from *hstart* below *hend*
 		   do (setf (aref pa vpos hpos) pixel)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Paint a mask.
 
 (defmethod clim3-port:new-port-paint-mask
     ((port clx-framebuffer-port) mask color)
@@ -58,6 +70,10 @@
 					   (ash (round (* 255 new-b)) 0))))
 			(setf (aref pa vpos hpos) new-pixel))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Paint text
+
 (defmethod clim3-port:new-port-paint-text
     ((port clx-framebuffer-port) text text-style color)
   (let* ((font (font port))
@@ -81,3 +97,14 @@
  			    (glyph-space font (char text (1- i)) (char text i))))
 		   (clim3-port:with-position (pos-x (y-pos (char text i)))
 		     (clim3-port:new-port-paint-mask port (mask (char text i)) color))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Paint trapezoids.
+
+(defmethod clim3-port:new-port-paint-trapezoids
+    ((port clx-framebuffer-port) trapezoids color)
+  (multiple-value-bind (opacities min-x min-y)
+      (clim3-rendering:render-trapezoids trapezoids)
+    (clim3-port:with-position (min-x min-y)
+      (clim3-port:new-paint-mask opacities color))))
