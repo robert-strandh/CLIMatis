@@ -19,7 +19,7 @@
 			 position-mixin
 			 size-mixin
 			 depth-mixin
-			 sprawl-mixin
+			 sprawls-mixin
 			 client-mixin)
   ())
 
@@ -29,11 +29,11 @@
 (defgeneric print-components (zone stream)
   (:method-combination progn :most-specific-last))
 
-(defmethod print-object ((object zone) stream)
-  (print-unreadable-object (object stream :type t :identity t)
-    (print-components object stream)))
+;; (defmethod print-object ((object zone) stream)
+;;   (print-unreadable-object (object stream :type t :identity t)
+;;     (print-components object stream)))
 
-(defmethod print-components ((zone zone) stream)
+(defmethod print-components progn ((zone zone) stream)
   nil)
 
 (defmethod print-components progn ((zone standard-zone) stream)
