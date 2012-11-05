@@ -15,7 +15,7 @@
    #:paint-pixel
    #:with-zone #:call-with-zone
    #:with-area #:call-with-area
-   #:with-pixel #:call-with-pixel
+   #:with-position #:call-with-position
    #:*new-port*
    #:new-paint-image
    #:new-paint-pixel
