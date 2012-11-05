@@ -40,8 +40,3 @@
   (format stream
 	  "hp: ~a vp: ~a w: ~a h: ~a d: ~a "
 	  (hpos zone) (vpos zone) (width zone) (height zone) (depth zone)))
-
-(defmethod impose-size ((zone atomic-zone) width height)
-  (declare (ignore width height))
-  nil)
-
