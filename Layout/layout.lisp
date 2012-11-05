@@ -695,7 +695,7 @@
   (set-hsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (hsprawl (car (children zone))))
+       (hsprawl (children zone)))
    zone))
 
 (defmethod compute-vsprawl ((zone wrap))
@@ -703,7 +703,7 @@
   (set-vsprawl
    (if (null (children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (vsprawl (car (children zone))))
+       (vsprawl (children zone)))
    zone))
 
 (defmethod impose-child-layouts ((zone wrap))
