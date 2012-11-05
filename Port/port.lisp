@@ -114,3 +114,17 @@
   (lambda (zone keycode modifiers)
     (port-standard-key-processor
      (clim3-zone:client zone) handler-fun keycode modifiers)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Macros for traversing zones and areas
+;;;
+
+(defmacro with-zone (zone &body body)
+  `(call-with-zone *port* (lambda () ,@body) ,zone))
+
+(defmacro with-area ((hpos vpos width height) &body body)
+  `(call-with-area *port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
+
+(defmacro with-position ((hpos vpos width height) &body body)
+  `(call-with-position *port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))

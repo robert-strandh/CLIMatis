@@ -13,7 +13,11 @@
    #:port-standard-key-processor
    #:standard-key-processor
    #:paint-pixel
+   #:with-zone #:call-with-zone
+   #:with-area #:call-with-area
+   #:with-pixel #:call-with-pixel
    #:*new-port*
+   #:new-paint-image
    #:new-paint-pixel
    #:new-port-paint-pixel
    #:new-paint-mask

@@ -25,7 +25,7 @@
    ;; Implement text-style to font mappings instead
    (%font :accessor font)))
 
-(defmethod call-with-zone ((port clx-framebuffer-port) function zone)
+(defmethod clim3-port:call-with-zone ((port clx-framebuffer-port) function zone)
   (let ((zone-hpos (clim3-zone:hpos zone))
 	(zone-vpos (clim3-zone:vpos zone))
 	(zone-width (clim3-zone:width zone))
@@ -46,10 +46,7 @@
 		(*vend* new-vend))
 	    (funcall function)))))))
 	
-(defmacro with-zone (zone &body body)
-  `(call-with-zone *port* (lambda () ,@body) ,zone))
-
-(defmethod call-with-area
+(defmethod clim3-port:call-with-area
     ((port clx-framebuffer-port) function hpos vpos width height)
   (let ((new-hpos (+ *hpos* hpos))
 	(new-vpos (+ *vpos* vpos)))
@@ -67,10 +64,7 @@
 	      (*vend* new-vend))
 	  (funcall function))))))
 	
-(defmacro with-area ((hpos vpos width height) &body body)
-  `(call-with-area *port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
-
-(defmethod call-with-position
+(defmethod clim3-port:call-with-position
     ((port clx-framebuffer-port) function hpos vpos)
   (let ((new-hpos (+ *hpos* hpos))
 	(new-vpos (+ *vpos* vpos)))
@@ -83,9 +77,6 @@
 	      (*hstart* new-hstart)
 	      (*vstart* new-vstart))
 	  (funcall function))))))
-	
-(defmacro with-position ((hpos vpos width height) &body body)
-  `(call-with-position *port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
 
 (defmethod clim3-port:make-port ((display-server (eql :clx-framebuffer)))
   (let ((port (make-instance 'clx-framebuffer-port)))
