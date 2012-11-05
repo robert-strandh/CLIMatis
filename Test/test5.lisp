@@ -11,7 +11,7 @@
     (flet ((make-gray (x)
 	     (clim3-color:make-color x x x)))
       (clim3-layout:hbox*
-       (clim3-layout:brick*
+       (clim3-layout:brick
 	100 100
 	(clim3-layout:pile*
 	 (clim3-input:visit (lambda (zone) (setf (clim3-graphics:color red-zone) red))
@@ -22,11 +22,11 @@
 			       (setf (clim3-graphics:color z2)
 				     (make-gray (max 0.0 (min 1.0 (/ vpos 100.0)))))))
 	 red-zone))
-       (clim3-layout:brick*
+       (clim3-layout:brick
 	70 100
 	(clim3-graphics:opaque (clim3-color:make-color 0.0 1.0 0.0)))
-       (clim3-layout:brick* 20 100 z1)
-       (clim3-layout:brick* 20 100 z2)))))
+       (clim3-layout:brick 20 100 z1)
+       (clim3-layout:brick 20 100 z2)))))
 
 (defun test-zone (zone)
   (let ((port (clim3-port:make-port :clx-framebuffer)))
