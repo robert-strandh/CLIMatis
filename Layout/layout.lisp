@@ -300,13 +300,8 @@
        (impose-size child width height)))
    zone))
 
-(defun scroller (children)
-  (make-instance 'scroller
-		 :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun scroller* (&rest children)
-  (make-instance 'scroller
-		 :children (coerce-to-list-of-at-most-one-zone children)))
+(defun scroller (&optional child)
+  (make-instance 'scroller :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -388,15 +383,8 @@
 	(set-vpos 0 child)
 	(impose-size child width height)))))
 
-(defun sponge (children)
-  (make-instance
-   'sponge
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun sponge* (&rest children)
-  (make-instance
-   'sponge
-   :children (coerce-to-list-of-at-most-one-zone children)))
+(defun sponge (&optional child)
+  (make-instance 'sponge :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -437,15 +425,8 @@
 	(set-vpos 0 child)
 	(impose-size child width height)))))
 
-(defun hsponge (children)
-  (make-instance
-   'hsponge
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun hsponge* (&rest children)
-  (make-instance
-   'hsponge
-   :children (coerce-to-list-of-at-most-one-zone children)))
+(defun hsponge (&optional child)
+  (make-instance 'hsponge :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -486,15 +467,8 @@
 	(set-vpos 0 child)
 	(impose-size child width height)))))
 
-(defun vsponge (children)
-  (make-instance
-   'vsponge
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun vsponge* (&rest children)
-  (make-instance
-   'vsponge
-   :children (coerce-to-list-of-at-most-one-zone children)))
+(defun vsponge (&optional child)
+  (make-instance 'vsponge :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -525,19 +499,12 @@
 	(set-vpos 0 child)
 	(impose-size child width height)))))
 
-(defun brick (width height children)
+(defun brick (width height &optional child)
   (make-instance
    'brick
    :hsprawl (clim3-sprawl:sprawl width width width)
    :vsprawl (clim3-sprawl:sprawl height height height)
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun brick* (width height &rest children)
-  (make-instance
-   'brick
-   :hsprawl (clim3-sprawl:sprawl width width width)
-   :vsprawl (clim3-sprawl:sprawl height height height)
-   :children (coerce-to-list-of-at-most-one-zone children)))
+   :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -577,17 +544,11 @@
 	(set-vpos 0 child)
 	(impose-size child width height)))))
 
-(defun hbrick (width children)
+(defun hbrick (width &optional child)
   (make-instance
    'hbrick
    :hsprawl (clim3-sprawl:sprawl width width width)
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun hbrick* (width &rest children)
-  (make-instance
-   'hbrick
-   :hsprawl (clim3-sprawl:sprawl width width width)
-   :children (coerce-to-list-of-at-most-one-zone children)))
+   :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -627,17 +588,11 @@
 	(set-vpos 0 child)
 	(impose-size child width height)))))
 
-(defun vbrick (height children)
+(defun vbrick (height &optional child)
   (make-instance
    'vbrick
    :vsprawl (clim3-sprawl:sprawl height height height)
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun vbrick* (height &rest children)
-  (make-instance
-   'vbrick
-   :vsprawl (clim3-sprawl:sprawl height height height)
-   :children (coerce-to-list-of-at-most-one-zone children)))
+   :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -677,17 +632,11 @@
 	(set-vpos 0 child)
 	(impose-size child width height)))))
 
-(defun hframe (min-width width max-width children)
+(defun hframe (min-width width max-width &optional child)
   (make-instance
    'hframe
    :hsprawl (clim3-sprawl:sprawl min-width width max-width)
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun hframe* (min-width width max-width &rest children)
-  (make-instance
-   'hframe
-   :hsprawl (clim3-sprawl:sprawl min-width width max-width)
-   :children (coerce-to-list-of-at-most-one-zone children)))
+   :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -727,17 +676,11 @@
 	(set-vpos 0 child)
 	(impose-size child width height)))))
 
-(defun vframe (min-height height max-height children)
+(defun vframe (min-height height max-height &optional child)
   (make-instance
    'vframe
    :vsprawl (clim3-sprawl:sprawl min-height height max-height)
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun vframe* (min-height height max-height &rest children)
-  (make-instance
-   'vframe
-   :vsprawl (clim3-sprawl:sprawl min-height height max-height)
-   :children (coerce-to-list-of-at-most-one-zone children)))
+   :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -790,13 +733,5 @@
 ;;; These constructors would typically not be used.  Instead, client
 ;;; code would use MAKE-INSTANCE on the subclass of the wrap.
 
-(defun wrap (children)
-  (make-instance
-   'wrap
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
-(defun wrap* (&rest children)
-  (make-instance
-   'wrap
-   :children (coerce-to-list-of-at-most-one-zone children)))
-
+(defun wrap (&optional child)
+  (make-instance 'wrap :children child))
