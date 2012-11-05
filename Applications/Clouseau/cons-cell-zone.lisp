@@ -2,8 +2,8 @@
 
 (defclass cons-cell-zone (clim3-graphics:monochrome)
   ()
-  (:default-initargs :hsprawl (clim3-sprawl:sprawl 55 65 nil)
-		     :vsprawl (clim3-sprawl:sprawl 35 45 nil)))
+  (:default-initargs :hsprawl (clim3-sprawl:sprawl 55 65 65)
+		     :vsprawl (clim3-sprawl:sprawl 35 45 45)))
 
 (defmethod clim3-paint:new-paint ((zone cons-cell-zone))
   (let ((zone-width (clim3-zone:width zone))
