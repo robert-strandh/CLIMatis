@@ -30,9 +30,6 @@
 (defmethod inspect-object ((object cons))
   (clim3-layout:hbox*
    (clim3-layout:vbox*
-;;    (clim3-layout:brick
-;;     40 20
-;;     (clim3-graphics:opaque (clim3-color:make-color 0.5 0.5 0.5)))
     (cons-cell (clim3-color:make-color 0.6 0.2 0.2))
     (inspect-object (car object))
     (clim3-layout:sponge))
