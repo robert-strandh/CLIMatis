@@ -8,7 +8,7 @@
 
 (defgeneric new-port-paint-text (port text text-style color))
 
-(defgeneric new-port-paint-trapezoids (port trapezoids))
+(defgeneric new-port-paint-trapezoids (port trapezoids color))
 
 (defun new-paint-pixel (r g b alpha)
   (new-port-paint-pixel *new-port* r g b alpha))
@@ -22,5 +22,5 @@
 (defun new-paint-text (text text-style color)
   (new-port-paint-text *new-port* text text-style color))
 
-(defun new-paint-trapezoids (trapezoids)
-  (new-port-paint-trapezoids *new-port* trapezoids))
+(defun new-paint-trapezoids (trapezoids color)
+  (new-port-paint-trapezoids *new-port* trapezoids color))
