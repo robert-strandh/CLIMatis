@@ -3,7 +3,13 @@
 (defparameter *port* nil)
 (defparameter *hpos* nil)
 (defparameter *vpos* nil)
+(defparameter *hstart* nil)
+(defparameter *vstart* nil)
+(defparameter *hend* nil)
+(defparameter *vend* nil)
 (defparameter *pixel-array* nil)
+
+(defgeneric call-with-zone (port zone function))
 
 (defclass clx-framebuffer-port (clim3-port:port)
   ((%display :accessor display)
@@ -18,6 +24,68 @@
    (%keyboard-mapping :initform nil :accessor keyboard-mapping)
    ;; Implement text-style to font mappings instead
    (%font :accessor font)))
+
+(defmethod call-with-zone ((port clx-framebuffer-port) function zone)
+  (let ((zone-hpos (clim3-zone:hpos zone))
+	(zone-vpos (clim3-zone:vpos zone))
+	(zone-width (clim3-zone:width zone))
+	(zone-height (clim3-zone:height zone)))
+    (let ((new-hpos (+ *hpos* zone-hpos))
+	  (new-vpos (+ *vpos* zone-vpos)))
+      (let ((new-hstart (max *hstart* new-hpos))
+	    (new-vstart (max *vstart* new-vpos))
+	    (new-hend (min *hend* (+ new-hpos zone-width)))
+	    (new-vend (min *vend* (+ new-vpos zone-height))))
+	(when (and (< new-hstart new-hend)
+		   (< new-vstart new-vend))
+	  (let ((*vpos* new-vpos)
+		(*hpos* new-hpos)
+		(*hstart* new-hstart)
+		(*vstart* new-vstart)
+		(*hend* new-hend)
+		(*vend* new-vend))
+	    (funcall function)))))))
+	
+(defmacro with-zone (zone &body body)
+  `(call-with-zone *port* (lambda () ,@body) ,zone))
+
+(defmethod call-with-area
+    ((port clx-framebuffer-port) function hpos vpos width height)
+  (let ((new-hpos (+ *hpos* hpos))
+	(new-vpos (+ *vpos* vpos)))
+    (let ((new-hstart (max *hstart* new-hpos))
+	  (new-vstart (max *vstart* new-vpos))
+	  (new-hend (min *hend* (+ new-hpos width)))
+	  (new-vend (min *vend* (+ new-vpos height))))
+      (when (and (< new-hstart new-hend)
+		 (< new-vstart new-vend))
+	(let ((*vpos* new-vpos)
+	      (*hpos* new-hpos)
+	      (*hstart* new-hstart)
+	      (*vstart* new-vstart)
+	      (*hend* new-hend)
+	      (*vend* new-vend))
+	  (funcall function))))))
+	
+(defmacro with-area ((hpos vpos width height) &body body)
+  `(call-with-area *port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
+
+(defmethod call-with-position
+    ((port clx-framebuffer-port) function hpos vpos)
+  (let ((new-hpos (+ *hpos* hpos))
+	(new-vpos (+ *vpos* vpos)))
+    (let ((new-hstart (max *hstart* new-hpos))
+	  (new-vstart (max *vstart* new-vpos)))
+      (when (and (< new-hstart *hend*)
+		 (< new-vstart *vend*))
+	(let ((*vpos* new-vpos)
+	      (*hpos* new-hpos)
+	      (*hstart* new-hstart)
+	      (*vstart* new-vstart))
+	  (funcall function))))))
+	
+(defmacro with-position ((hpos vpos width height) &body body)
+  `(call-with-position *port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
 
 (defmethod clim3-port:make-port ((display-server (eql :clx-framebuffer)))
   (let ((port (make-instance 'clx-framebuffer-port)))
@@ -291,7 +359,8 @@
 	   (paint child port chstart cvstart chend cvend)))))
    zone))
 
-(defun paint-pixel (hpos vpos r g b alpha)
+(defmethod clim3-port:paint-pixel
+    ((port clx-framebuffer-port) hpos vpos r g b alpha)
   (let* ((pa *pixel-array*)
 	 (hp (+ hpos *hpos*))
 	 (vp (+ vpos *vpos*))
@@ -335,11 +404,12 @@
 (defun paint-mask (mask color hstart vstart hend vend)
   (loop for hpos from hstart below hend
 	do (loop for vpos from vstart below vend
-		 do (paint-pixel hpos vpos
-				 (clim3-color:red color)
-				 (clim3-color:green color)
-				 (clim3-color:blue color)
-				 (aref mask vpos hpos)))))
+		 do (clim3-port:paint-pixel
+		     *port* hpos vpos
+		     (clim3-color:red color)
+		     (clim3-color:green color)
+		     (clim3-color:blue color)
+		     (aref mask vpos hpos)))))
 
 (defmethod paint ((zone clim3-graphics:masked)
 		  (port clx-framebuffer-port)
