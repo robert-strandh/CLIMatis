@@ -323,9 +323,6 @@
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod impose-size ((zone bboard) width height)
-  nil)
-
 (defmethod compute-hsprawl ((zone bboard))
   (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
   (impose-child-layouts zone)
