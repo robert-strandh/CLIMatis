@@ -81,7 +81,8 @@
 (defmethod child ((zone atomic-mixin))
   nil)
 
-(defmethod (setf children) ((zone atomic-mixin))
+(defmethod (setf children) (new-children (zone atomic-mixin))
+  (declare (ignore new-children))
   (error "can't set the children of an atomic zone"))
 
 (defmethod map-over-children (function (zone atomic-mixin))
@@ -126,6 +127,11 @@
   (unless (or (null new-child) (zone-p new-child))
     (error "new child must be a zone or NIL")))
 
+(defmethod map-over-children (function (zone at-most-one-child-mixin))
+  (let ((child (children zone)))
+    (unless (null child)
+      (funcall function child))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class SEVERAL-CHILDREN-MIXIN.
@@ -144,7 +150,7 @@
        children-before children-after)
       (map-over-hash-table-difference
        (lambda (inserted-child)
-	 (setf (parent deleted-child) zone))
+	 (setf (parent inserted-child) zone))
        children-after children-before))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -160,7 +166,7 @@
 (defmethod (setf children) :before (new-children (zone list-children-mixin))
   ;; FIXME: check that new-children is a proper list.
   (loop for child in new-children
-	do (unless (zone-p (child))
+	do (unless (zone-p child)
 	     (error "new child must be a zone"))
 	   (unless (null (parent child))
 	     (error "attempt to connect a zone that is already connected"))))
@@ -179,7 +185,7 @@
   (unless (vectorp new-children)
     (error "new children must be a vector"))
   (loop for child across new-children
-	do (unless (zone-p (child))
+	do (unless (zone-p child)
 	     (error "new child must be a zone"))
 	   (unless (null (parent child))
 	     (error "attempt to connect a zone that is already connected"))))
@@ -204,7 +210,7 @@
   (loop for r from 0 below (array-dimension new-children 0)
 	do (loop for c from 0 below (array-dimension new-children 1)
 		 do (let ((child (aref new-children r c)))
-		      (unless (zone-p (child))
+		      (unless (zone-p child)
 			(error "new child must be a zone"))
 		      (unless (null (parent child))
 			(error "attempt to connect a zone that is already connected"))))))
