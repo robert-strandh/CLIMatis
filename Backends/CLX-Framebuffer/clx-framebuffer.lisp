@@ -1,6 +1,5 @@
 (in-package #:clim3-clx-framebuffer)
 
-(defparameter *port* nil)
 (defparameter *hpos* nil)
 (defparameter *vpos* nil)
 (defparameter *hstart* nil)
@@ -265,7 +264,8 @@
 
 (defmethod clim3-port:connect ((zone clim3-zone:zone)
 			       (port clx-framebuffer-port))
-  (let ((zone-entry (make-instance 'zone-entry :port port :zone zone)))
+  (let ((zone-entry (make-instance 'zone-entry :port port :zone zone))
+	(clim3-port:*new-port* port))
     ;; Register this zone entry.  We need to do this right away, because 
     ;; it has to exist when we set the parent of the zone. 
     (push zone-entry (zone-entries port))
@@ -311,8 +311,7 @@
 			     :width 0 :height 0
 			     :format :z-pixmap))
     ;; Make sure the window has the right contents.
-    (let ((*port* port))
-      (update zone-entry))))
+    (update zone-entry)))
 
 (defmethod clim3-port:disconnect (zone (port clx-framebuffer-port))
   (let ((zone-entry (find zone (zone-entries port) :key #'zone)))
@@ -400,7 +399,7 @@
   (loop for hpos from hstart below hend
 	do (loop for vpos from vstart below vend
 		 do (clim3-port:paint-pixel
-		     *port* hpos vpos
+		     clim3-port:*new-port* hpos vpos
 		     (clim3-color:red color)
 		     (clim3-color:green color)
 		     (clim3-color:blue color)
@@ -624,7 +623,7 @@
   (update zone-entry))
 
 (defun event-loop (port)
-  (let ((*port* port))
+  (let ((clim3-port:*new-port* port))
     (xlib:event-case ((display port))
       (:key-press
        (window code state x y)
