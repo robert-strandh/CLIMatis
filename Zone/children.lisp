@@ -73,7 +73,7 @@
 ;;; Class ATOMIC-MIXIN
 ;;;
 
-(defclass atomic-mixin () ())
+(defclass atomic-mixin (child-depth-insignificant-mixin) ())
 
 (defmethod children ((zone atomic-mixin))
   '())
