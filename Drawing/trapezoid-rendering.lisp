@@ -143,7 +143,7 @@
 	(t
 	 (small-trapezoid opacities row 0d0 height x1 x2)
 	 (rectangle opacities row height x2 x4)
-	 (small-trapezoid opacities row height 0d0 x4 x3))))	 
+	 (small-trapezoid opacities row height 0d0 x4 x3))))
 
 (defun big-trapezoid (opacities yt yb xtl xbl xtr xbr)
   (if (<= yb (+ (ffloor yt) 1d0))
@@ -173,4 +173,25 @@
 			      (- yb (ffloor yb))
 			      (xl (ffloor yb)) (xl yb)
 			      (xr (ffloor yb)) (xr yb))))))
+
+(defun translate-trapezoid (trapezoid dx dy)
+  (destructuring-bind (yt yb xtl xbl xtr xbr) trapezoid
+    (list (+ yt dy) (+ yb dy) (+ xtl dx) (+ xbl dx) (+ xtr dx) (+ xbr dx))))
+
+(defun render-trapezoids (trapezoids)
+  (let* ((min-y (reduce #'min trapezoids :key #'first))
+	 (max-y (reduce #'max trapezoids :key #'second))
+	 (min-x (min (reduce #'min trapezoids :key #'third)
+		     (reduce #'min trapezoids :key #'fourth)))
+	 (max-x (max (reduce #'max trapezoids :key #'fifth)
+		     (reduce #'max trapezoids :key #'sixth)))
+	 ;; FIXME: get rid of the 1+ by fixing elsewhere
+	 (opacities (make-array (list (1+ (- (ceiling max-y) (floor min-y)))
+				      (1+ (- (ceiling max-x) (floor min-x))))
+				:element-type 'double-float
+				:initial-element 0d0)))
+    (loop for trapezoid in trapezoids
+	  do (apply #'big-trapezoid opacities
+		    (translate-trapezoid trapezoid (- (floor min-x)) (- (floor min-y)))))
+    (values opacities (floor min-x) (floor min-y))))
 
