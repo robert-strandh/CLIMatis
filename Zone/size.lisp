@@ -69,17 +69,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function IMPOSE-SIZE.
+;;; Function IMPOSE-SIZE.
 ;;;
 ;;; This function is called in order to set the size of a zone.  
 
-(defgeneric impose-size (zone width height))
+(defun impose-size ((zone zone) width height)
+  (setf (width zone) width)
+  (setf (height zone) height))
 
 (defclass size-mixin ()
   ((%width :initform 0 :accessor width)
    (%height :initform 0 :accessor height)))
-
-(defmethod impose-size :after ((zone zone) width height)
-  (setf (width zone) width)
-  (setf (height zone) height))
 
