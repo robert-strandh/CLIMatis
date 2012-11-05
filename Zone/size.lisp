@@ -73,7 +73,7 @@
 ;;;
 ;;; This function is called in order to set the size of a zone.  
 
-(defun impose-size ((zone zone) width height)
+(defun impose-size (zone width height)
   (setf (width zone) width)
   (setf (height zone) height))
 
