@@ -3,6 +3,7 @@
   (:export
    #:zone
    #:zone-p
+   #:standard-zone
    #:print-components
    #:parent
    #:client
