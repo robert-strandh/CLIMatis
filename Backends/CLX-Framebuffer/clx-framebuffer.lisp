@@ -326,6 +326,8 @@
 ;;;
 ;;; Painting.
 
+
+
 ;; (defmethod paint ((zone clim3-zone:atomic-zone)
 ;; 		  (port clx-framebuffer-port)
 ;; 		  hstart vstart hend vend)
@@ -370,6 +372,16 @@
 		       (ash (round (* 255 new-b)) 0))))
     (setf (aref pa vp hp) new-pixel)))
 
+(defmethod clim3-port:new-port-paint-opaque
+    ((port clx-framebuffer-port) color)
+  (let ((pa *pixel-array*)
+	(pixel (+ (ash (round (* 255 (clim3-color:red color))) 16)
+		  (ash (round (* 255 (clim3-color:green color))) 8)
+		  (ash (round (* 255 (clim3-color:blue color))) 0))))
+    (loop for vpos from *vstart* below *vend*
+	  do (loop for hpos from *hstart* below *hend*
+		   do (setf (aref pa vpos hpos) pixel)))))
+
 ;;; Speed up painting of opaque zones by not calling
 ;;; paint-pixel in an inner loop.
 (defun fill-area (color hstart vstart hend vend)
@@ -404,6 +416,23 @@
 		     (clim3-color:green color)
 		     (clim3-color:blue color)
 		     (aref mask vpos hpos)))))
+
+(defmethod clim3-port:new-port-paint-mask
+    ((port clx-framebuffer-port) mask color)
+  (let ((width (array-dimension mask 1))
+	(height (array-dimension mask 0))
+	(r (clim3-color:red color))
+	(g (clim3-color:green color))
+	(b (clim3-color:blue color)))
+    (loop for vpos from *vstart* below *vend*
+	  for row from (- *vstart* *vpos*) below height
+	  do (loop for hpos from *hstart* below *hend*
+		   for col from (- *hstart* *hpos*) below width
+		   do (clim3-port:paint-pixel port
+					      hpos vpos
+					      r g b
+					      (aref mask row col))))))
+
 
 ;; (defmethod paint ((zone clim3-graphics:masked)
 ;; 		  (port clx-framebuffer-port)
