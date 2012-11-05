@@ -11,10 +11,7 @@
    (:file "size" :depends-on ("zone-packages" "protocol-class"))
    (:file "depth" :depends-on ("zone-packages" "protocol-class"))
    (:file "sprawls" :depends-on ("zone-packages" "protocol-class"))
-   (:file "gives-change" :depends-on ("zone-packages" "protocol-class"))
-   (:file "position-change" :depends-on ("zone-packages" "protocol-class"))
    (:file "genealogy" :depends-on ("zone-packages" "protocol-class"))
-   (:file "gives" :depends-on ("zone-packages" "protocol-class"))
    (:file "layout" :depends-on ("zone-packages" "protocol-class"))
    (:file "zone" :depends-on ("zone-packages"
 			      "protocol-class"
@@ -24,10 +21,7 @@
 			      "size"
 			      "depth"
 			      "sprawls"
-			      "gives-change"
-			      "position-change"
 			      "genealogy"
-			      "gives"
 			      "layout"))
    (:file "children" :depends-on ("zone"))
    (:file "layout-mixins" :depends-on ("zone"))))
