@@ -1,7 +1,7 @@
 (in-package :common-lisp-user)
 
 (loop for subdir in '("Fonts/Camfer" "Backends/CLX-Framebuffer"
-		      "Color" "Zone" "Layout" "Graphics" "Text"
+		      "Color" "Zone" "Layout" "Graphics" "Text" "Drawing"
 		      "Rigidity" "Port" "Input" "Sprawl" "Ostream" "Paint")
       do (pushnew (concatenate
 		   'string
