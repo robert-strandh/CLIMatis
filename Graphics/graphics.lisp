@@ -7,7 +7,8 @@
 ;;; An image zone has individual color and alpha values for each
 ;;; pixel.
 
-(defclass image (clim3-zone:atomic-zone)
+(defclass image (clim3-zone:standard-zone
+		 clim3-zone:atomic-mixin)
   ((%pixels :initarg :pixels :reader pixels)))
 
 (defun image (pixels)
@@ -20,7 +21,8 @@
 ;;; A monochrome zone is one that uses only one color, but different
 ;;; parts of the zone may use different alpha values. 
 
-(defclass monochrome (clim3-zone:atomic-zone)
+(defclass monochrome (clim3-zone:standard-zone
+		      clim3-zone:atomic-mixin)
   ((%color :initarg :color :accessor color)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
