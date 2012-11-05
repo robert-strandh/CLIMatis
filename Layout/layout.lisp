@@ -52,8 +52,7 @@
 ;;;
 ;;; Class VBOX. 
 
-(defclass vbox (compound-sequence-zone
-		any-number-of-children-mixin
+(defclass vbox (any-number-of-children-mixin
 		changing-child-hsprawl-changes-hsprawl-mixin
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
@@ -104,8 +103,7 @@
 ;;;
 ;;; Class HBOX.
 
-(defclass hbox (compound-sequence-zone
-		any-number-of-children-mixin
+(defclass hbox (any-number-of-children-mixin
 		changing-child-hsprawl-changes-hsprawl-mixin
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
@@ -156,8 +154,7 @@
 ;;;
 ;;; Class PILE.
 
-(defclass pile (compound-sequence-zone
-		any-number-of-children-mixin
+(defclass pile (any-number-of-children-mixin
 		changing-child-hsprawl-changes-hsprawl-mixin
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
@@ -204,8 +201,7 @@
 ;;;
 ;;; Class GRID.
 
-(defclass grid (compound-zone
-		any-number-of-children-mixin
+(defclass grid (any-number-of-children-mixin
 		changing-child-hsprawl-changes-hsprawl-mixin
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
@@ -274,8 +270,7 @@
 ;;;
 ;;; Class SCROLLER.
 
-(defclass scroller (compound-simple-zone
-		    at-most-one-child-mixin
+(defclass scroller (at-most-one-child-mixin
 		    changing-child-hsprawl-changes-child-layouts-mixin
 		    changing-child-vsprawl-changes-child-layouts-mixin
 		    changing-children-changes-child-layouts-mixin
@@ -307,8 +302,7 @@
 ;;;
 ;;; Class BBOARD.
 
-(defclass bboard (compound-simple-zone
-		  any-number-of-children-mixin
+(defclass bboard (any-number-of-children-mixin
 		  changing-child-hsprawl-changes-hsprawl-mixin
 		  changing-child-vsprawl-changes-vsprawl-mixin
 		  changing-children-changes-both-sprawls-mixin
@@ -360,8 +354,7 @@
 ;;; the sprawls of its child, and imposes its own, which makes it very
 ;;; elastic, both horizontally and vertically.
 
-(defclass sponge (compound-simple-zone
-		  at-most-one-child-mixin
+(defclass sponge (at-most-one-child-mixin
 		  changing-child-hsprawl-changes-nothing-mixin
 		  changing-child-vsprawl-changes-nothing-mixin
 		  changing-children-changes-child-layouts-mixin
@@ -395,8 +388,7 @@
 ;;; it very elastic horizontally.  It copies the vertical sprawl of its
 ;;; child, or if it has no child, makes it very elastic vertically.
 
-(defclass hsponge (compound-simple-zone
-		   at-most-one-child-mixin
+(defclass hsponge ( at-most-one-child-mixin
 		   changing-child-hsprawl-changes-nothing-mixin
 		   changing-child-vsprawl-changes-vsprawl-mixin
 		   changing-children-changes-vsprawl-mixin
@@ -437,8 +429,7 @@
 ;;; it very elastic vertically.  It copies the horizontal sprawl of its
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
-(defclass vsponge (compound-simple-zone
-		   at-most-one-child-mixin
+(defclass vsponge ( at-most-one-child-mixin
 		   changing-child-hsprawl-changes-hsprawl-mixin
 		   changing-child-vsprawl-changes-nothing-mixin
 		   changing-children-changes-hsprawl-mixin
@@ -478,7 +469,7 @@
 ;;; the sprawls of its child, and imposes its own, which makes it very
 ;;; rigid, both horizontally and vertically.
 
-(defclass brick (compound-simple-zone
+(defclass brick (standard-zone
 		 at-most-one-child-mixin
 		 changing-child-hsprawl-changes-nothing-mixin
 		 changing-child-vsprawl-changes-nothing-mixin
@@ -515,8 +506,7 @@
 ;;; it very rigid horizontally.  It copies the vertical sprawl of its
 ;;; child, or if it has no child, makes it very elastic vertically.
 
-(defclass hbrick (compound-simple-zone
-		  at-most-one-child-mixin
+(defclass hbrick (at-most-one-child-mixin
 		  changing-child-hsprawl-changes-nothing-mixin
 		  changing-child-vsprawl-changes-vsprawl-mixin
 		  changing-children-changes-vsprawl-mixin
@@ -559,8 +549,7 @@
 ;;; it very elastic vertically.  It copies the horizontal sprawl of its
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
-(defclass vbrick (compound-simple-zone
-		  at-most-one-child-mixin
+(defclass vbrick (at-most-one-child-mixin
 		  changing-child-hsprawl-changes-hsprawl-mixin
 		  changing-child-vsprawl-changes-nothing-mixin
 		  changing-children-changes-hsprawl-mixin
@@ -603,8 +592,7 @@
 ;;; copies the vertical sprawl of its child, or if it has no child,
 ;;; makes it very elastic vertically.
 
-(defclass hframe (compound-simple-zone
-		  at-most-one-child-mixin
+(defclass hframe (at-most-one-child-mixin
 		  changing-child-hsprawl-changes-nothing-mixin
 		  changing-child-vsprawl-changes-vsprawl-mixin
 		  changing-children-changes-vsprawl-mixin
@@ -647,8 +635,7 @@
 ;;; the horizontal sprawl of its child, or if it has no child, makes
 ;;; it very elastic horizontally.
 
-(defclass vframe (compound-simple-zone
-		  at-most-one-child-mixin
+(defclass vframe (at-most-one-child-mixin
 		  changing-child-hsprawl-changes-hsprawl-mixin
 		  changing-child-vsprawl-changes-nothing-mixin
 		  changing-children-changes-hsprawl-mixin
@@ -692,8 +679,7 @@
 ;;;
 ;;; This class can be subclassed for convenience
 
-(defclass wrap (compound-simple-zone
-		at-most-one-child-mixin
+(defclass wrap (at-most-one-child-mixin
 		changing-child-hsprawl-changes-hsprawl-mixin
 		changing-child-vsprawl-changes-vsprawl-mixin
 		changing-children-changes-both-sprawls-mixin
