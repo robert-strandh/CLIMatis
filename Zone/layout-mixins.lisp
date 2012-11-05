@@ -102,7 +102,7 @@
 
 (defclass changing-child-position-not-allowed-mixin () ())
 
-(defmethod notify-changing-child-position
+(defmethod notify-child-position-changed
     ((child zone) (parent changing-child-position-not-allowed-mixin))
   (error "attempt to change the position of a child"))
 
@@ -112,7 +112,7 @@
 
 (defclass changing-child-position-changes-hsprawl-mixin () ())
 
-(defmethod notify-changing-child-position
+(defmethod notify-child-position-changed
     ((child zone) (parent changing-child-position-changes-hsprawl-mixin))
   (setf (hsprawl parent) nil))
 
@@ -122,7 +122,7 @@
 
 (defclass changing-child-position-changes-vsprawl-mixin () ())
 
-(defmethod notify-changing-child-position
+(defmethod notify-child-position-changed
     ((child zone) (parent changing-child-position-changes-vsprawl-mixin))
   (setf (vsprawl parent) nil))
 
@@ -132,7 +132,7 @@
 
 (defclass changing-child-position-changes-both-sprawls-mixin () ())
 
-(defmethod notify-changing-child-position
+(defmethod notify-child-position-changed
     ((child zone) (parent changing-child-position-changes-both-sprawls-mixin))
   (setf (hsprawl parent) nil)
   (setf (vsprawl parent) nil))
