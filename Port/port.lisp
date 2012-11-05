@@ -2,6 +2,8 @@
 
 (defclass port () ())
 
+(defparameter *new-port* nil)
+
 ;;; FIXME: add a comment
 
 (defmethod (setf clim3-zone:parent) :after ((new-parent port) (zone clim3-zone:zone))
@@ -117,14 +119,25 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic functions for traversing zones and areas
+
+(defgeneric call-with-zone (port thunk zone))
+
+(defgeneric call-with-area (port thunk hpos vpos width heigt))
+
+(defgeneric call-with-position (port thunk hpos vpos))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Macros for traversing zones and areas
 ;;;
 
 (defmacro with-zone (zone &body body)
-  `(call-with-zone *port* (lambda () ,@body) ,zone))
+  `(call-with-zone *new-port* (lambda () ,@body) ,zone))
 
 (defmacro with-area ((hpos vpos width height) &body body)
-  `(call-with-area *port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
+  `(call-with-area *new-port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
 
-(defmacro with-position ((hpos vpos width height) &body body)
-  `(call-with-position *port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
+(defmacro with-position ((hpos vpos) &body body)
+  `(call-with-position *new-port* (lambda () ,@body) ,hpos  ,vpos))
