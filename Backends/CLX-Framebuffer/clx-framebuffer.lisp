@@ -216,7 +216,7 @@
 ;;;
 ;;; Update zones.
 
-(defgeneric paint (zone port hstart vstart hend vend))
+;; (defgeneric paint (zone port hstart vstart hend vend))
 
 (defun update (zone-entry)
   (with-accessors ((zone zone)
@@ -250,8 +250,12 @@
       ;; Paint.
       (let ((*hpos* 0)
 	    (*vpos* 0)
+	    (*hstart* 0)
+	    (*vstart* 0)
+	    (*hend* width)
+	    (*vend* height)
 	    (*pixel-array* pixel-array))
-	(paint zone *port* 0 0 width height))
+	(clim3-paint:new-paint zone))
       ;; Transfer the image. 
       (xlib::put-image window
 		       gcontext
@@ -323,32 +327,32 @@
 ;;;
 ;;; Painting.
 
-(defmethod paint ((zone clim3-zone:atomic-zone)
-		  (port clx-framebuffer-port)
-		  hstart vstart hend vend)
-  (declare (ignore port hstart vstart hend vend))
-  nil)
+;; (defmethod paint ((zone clim3-zone:atomic-zone)
+;; 		  (port clx-framebuffer-port)
+;; 		  hstart vstart hend vend)
+;;   (declare (ignore port hstart vstart hend vend))
+;;   nil)
 
-(defmethod paint ((zone clim3-zone:compound-zone)
-		  (port clx-framebuffer-port)
-		  hstart vstart hend vend)
-  (clim3-zone:ensure-hsprawl-valid zone)
-  (clim3-zone:ensure-vsprawl-valid zone)
-  (clim3-zone:ensure-child-layouts-valid zone)
-  (clim3-zone:map-over-children-bottom-to-top
-   (lambda (child)
-     (let ((chstart (max 0 (- hstart (clim3-zone:hpos child))))
-	   (cvstart (max 0 (- vstart (clim3-zone:vpos child))))
-	   (chend (min (clim3-zone:width child)
-		       (- hend (clim3-zone:hpos child))))
-	   (cvend (min (clim3-zone:height child)
-		       (- vend (clim3-zone:vpos child)))))
-       (when (and (> chend chstart)
-		  (> cvend cvstart))
-	 (let ((*hpos* (+ *hpos* (clim3-zone:hpos child)))
-	       (*vpos* (+ *vpos* (clim3-zone:vpos child))))
-	   (paint child port chstart cvstart chend cvend)))))
-   zone))
+;; (defmethod paint ((zone clim3-zone:compound-zone)
+;; 		  (port clx-framebuffer-port)
+;; 		  hstart vstart hend vend)
+;;   (clim3-zone:ensure-hsprawl-valid zone)
+;;   (clim3-zone:ensure-vsprawl-valid zone)
+;;   (clim3-zone:ensure-child-layouts-valid zone)
+;;   (clim3-zone:map-over-children-bottom-to-top
+;;    (lambda (child)
+;;      (let ((chstart (max 0 (- hstart (clim3-zone:hpos child))))
+;; 	   (cvstart (max 0 (- vstart (clim3-zone:vpos child))))
+;; 	   (chend (min (clim3-zone:width child)
+;; 		       (- hend (clim3-zone:hpos child))))
+;; 	   (cvend (min (clim3-zone:height child)
+;; 		       (- vend (clim3-zone:vpos child)))))
+;;        (when (and (> chend chstart)
+;; 		  (> cvend cvstart))
+;; 	 (let ((*hpos* (+ *hpos* (clim3-zone:hpos child)))
+;; 	       (*vpos* (+ *vpos* (clim3-zone:vpos child))))
+;; 	   (paint child port chstart cvstart chend cvend)))))
+;;    zone))
 
 (defmethod clim3-port:paint-pixel
     ((port clx-framebuffer-port) hpos vpos r g b alpha)
@@ -382,10 +386,10 @@
 	  do (loop for hpos from hs below he
 		   do (setf (aref pa vpos hpos) pixel)))))
 
-(defmethod paint ((zone clim3-graphics:opaque)
-		  (port clx-framebuffer-port)
-		  hstart vstart hend vend)
-  (fill-area (clim3-graphics:color zone) hstart vstart hend vend))
+;; (defmethod paint ((zone clim3-graphics:opaque)
+;; 		  (port clx-framebuffer-port)
+;; 		  hstart vstart hend vend)
+;;   (fill-area (clim3-graphics:color zone) hstart vstart hend vend))
 
 ;;; Pait an array of opacities.  The bounding rectangle defined by
 ;;; hstart, hend, vstart, and vend is not outside the array
@@ -402,14 +406,14 @@
 		     (clim3-color:blue color)
 		     (aref mask vpos hpos)))))
 
-(defmethod paint ((zone clim3-graphics:masked)
-		  (port clx-framebuffer-port)
-		  hstart vstart hend vend)
-  (let* ((opacities (clim3-graphics:opacities zone))
-	 (width (min hend (array-dimension opacities 1)))
-	 (height (min vend (array-dimension opacities 1))))
-    (paint-mask opacities (clim3-graphics:color zone)
-		hstart vstart width height)))
+;; (defmethod paint ((zone clim3-graphics:masked)
+;; 		  (port clx-framebuffer-port)
+;; 		  hstart vstart hend vend)
+;;   (let* ((opacities (clim3-graphics:opacities zone))
+;; 	 (width (min hend (array-dimension opacities 1)))
+;; 	 (height (min vend (array-dimension opacities 1))))
+;;     (paint-mask opacities (clim3-graphics:color zone)
+;; 		hstart vstart width height)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -462,44 +466,44 @@
 				     (char string (1- i))
 				     (char string i))))))))
 
-(defmethod paint ((zone clim3-text:text)
-		  (port clx-framebuffer-port)
-		  hstart vstart hend vend)
-  (let ((color (clim3-graphics:color zone))
-	(font (font port))
-	;; FIXME: either make chars external or move this method
-	(string (clim3-text::chars zone))
-	(ascent (clim3-port:text-style-ascent port (clim3-text:style zone))))
-    (unless (zerop (length string))
-      (flet ((paint-glyph (mask pos-x pos-y)
-	       ;; pos-x and pos-y are the coordinates of the upper-left
-	       ;; corner of the mask relative to the zone
-	       (let ((width (array-dimension mask 1))
-		     (height (array-dimension mask 0)))
-		 (let ((*hpos* (+ *hpos* pos-x))
-		       (*vpos* (+ *vpos* pos-y)))
-		   (paint-mask mask color
-			       (max 0 (- hstart pos-x))
-			       (max 0 (- vstart pos-y))
-			       (min width (- hend pos-x))
-			       (min height (- vend pos-y)))))))
-	;; paint the first character
-	(paint-glyph (camfer:mask (camfer:find-glyph font (char string 0)))
-		     0
-		     ;; I don't know why the -1 is necessary
-		     (+ -1 ascent (camfer:y-offset (camfer:find-glyph font (char string 0)))))
-	(loop with pos-x = 0
-	      for i from 1 below (length string)
-	      for glyph = (camfer:find-glyph font (char string i))
-	      do (progn
-		   ;; compute the new x position
-		   (incf pos-x
-			 (+ (glyph-width font (char string (1- i)))
-			    (glyph-space font (char string (1- i)) (char string i))))
-		   (paint-glyph (camfer:mask glyph)
-				pos-x
-				;; I don't know why the -1 is necessary
-				(+ -1 ascent (camfer:y-offset glyph)))))))))
+;; (defmethod paint ((zone clim3-text:text)
+;; 		  (port clx-framebuffer-port)
+;; 		  hstart vstart hend vend)
+;;   (let ((color (clim3-graphics:color zone))
+;; 	(font (font port))
+;; 	;; FIXME: either make chars external or move this method
+;; 	(string (clim3-text::chars zone))
+;; 	(ascent (clim3-port:text-style-ascent port (clim3-text:style zone))))
+;;     (unless (zerop (length string))
+;;       (flet ((paint-glyph (mask pos-x pos-y)
+;; 	       ;; pos-x and pos-y are the coordinates of the upper-left
+;; 	       ;; corner of the mask relative to the zone
+;; 	       (let ((width (array-dimension mask 1))
+;; 		     (height (array-dimension mask 0)))
+;; 		 (let ((*hpos* (+ *hpos* pos-x))
+;; 		       (*vpos* (+ *vpos* pos-y)))
+;; 		   (paint-mask mask color
+;; 			       (max 0 (- hstart pos-x))
+;; 			       (max 0 (- vstart pos-y))
+;; 			       (min width (- hend pos-x))
+;; 			       (min height (- vend pos-y)))))))
+;; 	;; paint the first character
+;; 	(paint-glyph (camfer:mask (camfer:find-glyph font (char string 0)))
+;; 		     0
+;; 		     ;; I don't know why the -1 is necessary
+;; 		     (+ -1 ascent (camfer:y-offset (camfer:find-glyph font (char string 0)))))
+;; 	(loop with pos-x = 0
+;; 	      for i from 1 below (length string)
+;; 	      for glyph = (camfer:find-glyph font (char string i))
+;; 	      do (progn
+;; 		   ;; compute the new x position
+;; 		   (incf pos-x
+;; 			 (+ (glyph-width font (char string (1- i)))
+;; 			    (glyph-space font (char string (1- i)) (char string i))))
+;; 		   (paint-glyph (camfer:mask glyph)
+;; 				pos-x
+;; 				;; I don't know why the -1 is necessary
+;; 				(+ -1 ascent (camfer:y-offset glyph)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
