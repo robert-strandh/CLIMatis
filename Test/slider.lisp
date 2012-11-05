@@ -1,10 +1,3 @@
-(defun brick (w h contents)
-  (clim3-layout:hframe*
-   w w w
-   (clim3-layout:vframe*
-    h h h
-    contents)))
-
 (defun slider ()
   (let* ((slider-height 200)
 	 (slider-width 50)
@@ -30,14 +23,15 @@
 			    (declare (ignore zone code modifiers))
 			    (setf pos-diff nil)))
 	 (button-button (clim3-input:button press-handler release-handler)))
+    (setf (clim3-zone:depth background) 2)
     (setf (clim3-zone:depth button-background) 10)
     (setf pile
-	  (brick
+	  (clim3-layout:brick
 	   slider-width button-height
 	   (clim3-layout:pile* button-button button-background)))
     (setf (clim3-zone:hpos pile) 0)
     (setf (clim3-zone:vpos pile) max-pos)
-    (brick
+    (clim3-layout:brick
      slider-width slider-height
      (clim3-layout:pile*
       (clim3-input:motion motion-handler)
