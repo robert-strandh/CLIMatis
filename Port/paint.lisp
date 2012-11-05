@@ -1,9 +1,5 @@
 (cl:in-package #:clim3-port)
 
-(defgeneric paint-pixel (port hpos vpos r g b alpha))
-
-(defgeneric paint-text (port text text-style))
-
 (defgeneric new-port-paint-pixel (port r g b alpha))
 
 (defgeneric new-port-paint-mask (port mask color))
