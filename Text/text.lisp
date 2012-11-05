@@ -40,5 +40,5 @@
   (make-instance 'text :style style :chars string :color color))
   
 (defmethod clim3-paint:new-paint ((zone text))
-  (clim3-port:new-paint-text (chars zone) (style zone)))
+  (clim3-port:new-paint-text (chars zone) (style zone) (clim3-graphics:color zone)))
 
