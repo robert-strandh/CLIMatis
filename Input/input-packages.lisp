@@ -1,6 +1,7 @@
 (defpackage #:clim3-input
   (:use :common-lisp)
   (:export
+   #:input
    #:key
    #:button
    #:press-handler
