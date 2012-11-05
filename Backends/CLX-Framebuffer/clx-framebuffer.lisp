@@ -428,11 +428,19 @@
 	  for row from (- *vstart* *vpos*) below height
 	  do (loop for hpos from *hstart* below *hend*
 		   for col from (- *hstart* *hpos*) below width
-		   do (clim3-port:paint-pixel port
-					      hpos vpos
-					      r g b
-					      (aref mask row col))))))
-
+		   do (let* ((pa *pixel-array*)
+			     (pixel (aref pa vpos hpos))
+			     (alpha (aref mask row col))
+			     (old-r (/ (logand 255 (ash pixel -16)) 255d0))
+			     (old-g (/ (logand 255 (ash pixel -8)) 255d0))
+			     (old-b (/ (logand 255 pixel) 255d0))
+			     (new-r (+ (* r alpha) (* old-r (- 1d0 alpha))))
+			     (new-g (+ (* g alpha) (* old-g (- 1d0 alpha))))
+			     (new-b (+ (* b alpha) (* old-b (- 1d0 alpha))))
+			     (new-pixel (+ (ash (round (* 255 new-r)) 16)
+					   (ash (round (* 255 new-g)) 8)
+					   (ash (round (* 255 new-b)) 0))))
+			(setf (aref pa vpos hpos) new-pixel))))))
 
 ;; (defmethod paint ((zone clim3-graphics:masked)
 ;; 		  (port clx-framebuffer-port)
@@ -493,6 +501,30 @@
 			(glyph-space font
 				     (char string (1- i))
 				     (char string i))))))))
+
+(defmethod clim3-port:new-port-paint-text
+    ((port clx-framebuffer-port) text text-style color)
+  (let* ((font (font port))
+	 (ascent (clim3-port:text-style-ascent port text-style)))
+    (unless (zerop (length text))
+      (flet ((y-pos (char)
+	       ;; I don't know why the -1 is necessary
+	       (+ -1 ascent (camfer:y-offset (camfer:find-glyph font char))))
+	     (mask (char)
+	       (camfer:mask (camfer:find-glyph font char))))
+	;; paint the first character
+	(clim3-port:with-position (0 (y-pos (char text 0)))
+	  (clim3-port:new-port-paint-mask port (mask (char text 0)) color))
+ 	(loop with pos-x = 0
+ 	      for i from 1 below (length text)
+ 	      for glyph = (camfer:find-glyph font (char text i))
+ 	      do (progn
+ 		   ;; compute the new x position
+ 		   (incf pos-x
+ 			 (+ (glyph-width font (char text (1- i)))
+ 			    (glyph-space font (char text (1- i)) (char text i))))
+		   (clim3-port:with-position (pos-x (y-pos (char text i)))
+		     (clim3-port:new-port-paint-mask port (mask (char text i)) color))))))))
 
 ;; (defmethod paint ((zone clim3-text:text)
 ;; 		  (port clx-framebuffer-port)
