@@ -37,6 +37,9 @@
 (defun opaque (color)
   (make-instance 'opaque :color color))
 
+(defmethod clim3-paint:new-paint ((zone opaque))
+  (clim3-port:new-paint-opaque (color zone)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Masked zone.
@@ -59,3 +62,6 @@
   (make-instance 'masked
 		 :color color
 		 :opacities opacities))
+
+(defmethod clim3-paint:new-paint ((zone masked))
+  (clim3-port:new-paint-mask (opacities zone) (color zone)))
