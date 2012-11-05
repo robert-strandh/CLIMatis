@@ -5,6 +5,7 @@
 	       :clim3-paint :clim3-color :clim3-input :clim3-text :camfer :clx)
   :components
   ((:file "clx-framebuffer-packages" :depends-on ())
-   (:file "clx-framebuffer" :depends-on ("clx-framebuffer-packages"))))
+   (:file "clx-framebuffer" :depends-on ("clx-framebuffer-packages"))
+   (:file "paint" :depends-on ("clx-framebuffer-packages"))))
 
 	    
