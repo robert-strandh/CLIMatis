@@ -5,4 +5,4 @@
   :components
   ((:file "port-packages" :depends-on ())
    (:file "port" :depends-on ("port-packages"))
-   (:file "paint" :depends-on ("port-packages"))))
+   (:file "paint" :depends-on ("port-packages" "port"))))
