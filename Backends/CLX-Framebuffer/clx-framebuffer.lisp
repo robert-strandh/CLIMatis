@@ -63,19 +63,13 @@
 	      (*vend* new-vend))
 	  (funcall function))))))
 	
+;;; Do not change the clipping region, just the 
+;;; origin of the coordinate system. 
 (defmethod clim3-port:call-with-position
     ((port clx-framebuffer-port) function hpos vpos)
-  (let ((new-hpos (+ *hpos* hpos))
-	(new-vpos (+ *vpos* vpos)))
-    (let ((new-hstart (max *hstart* new-hpos))
-	  (new-vstart (max *vstart* new-vpos)))
-      (when (and (< new-hstart *hend*)
-		 (< new-vstart *vend*))
-	(let ((*vpos* new-vpos)
-	      (*hpos* new-hpos)
-	      (*hstart* new-hstart)
-	      (*vstart* new-vstart))
-	  (funcall function))))))
+  (let ((*hpos* (+ *hpos* hpos))
+	(*vpos* (+ *vpos* vpos)))
+    (funcall function)))
 
 (defmethod clim3-port:make-port ((display-server (eql :clx-framebuffer)))
   (let ((port (make-instance 'clx-framebuffer-port)))
