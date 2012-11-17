@@ -22,7 +22,8 @@
    ;; short vector of keysyms
    (%keyboard-mapping :initform nil :accessor keyboard-mapping)
    ;; Implement text-style to font mappings instead
-   (%font :accessor font)))
+   (%font :accessor font)
+   (%meter :initform (make-instance 'clim3-meter:meter) :reader meter)))
 
 (defmethod clim3-port:call-with-zone ((port clx-framebuffer-port) function zone)
   (let ((zone-hpos (clim3-zone:hpos zone))
