@@ -52,10 +52,10 @@
 	(r (clim3-color:red color))
 	(g (clim3-color:green color))
 	(b (clim3-color:blue color)))
-    (loop for vpos from *vstart* below *vend*
-	  for row from (- *vstart* *vpos*) below height
-	  do (loop for hpos from *hstart* below *hend*
-		   for col from (- *hstart* *hpos*) below width
+    (loop for vpos from (max *vstart* *vpos*) below *vend*
+	  for row from (max 0 (- *vstart* *vpos*)) below height
+	  do (loop for hpos from (max *hstart* *hpos*) below *hend*
+		   for col from (max 0 (- *hstart* *hpos*)) below width
 		   do (let* ((pa *pixel-array*)
 			     (pixel (aref pa vpos hpos))
 			     (alpha (aref mask row col))
