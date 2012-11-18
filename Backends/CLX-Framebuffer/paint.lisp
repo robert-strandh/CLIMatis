@@ -33,28 +33,26 @@
 
 (defmethod clim3-port:new-port-paint-opaque
     ((port clx-framebuffer-port) color)
-  (let ((pa *pixel-array*)
-	(pixel (+ (ash (round (* 255 (clim3-color:red color))) 16)
-		  (ash (round (* 255 (clim3-color:green color))) 8)
-		  (ash (round (* 255 (clim3-color:blue color))) 0)))
-	(hstart *hstart*)
-	(hend *hend*)
-	(vstart *vstart*)
-	(vend *vend*))
+  (let* ((pa *pixel-array*)
+	 (height (array-dimension pa 0))
+	 (width (array-dimension pa 1))
+	 (pixel (+ (ash (round (* 255 (clim3-color:red color))) 16)
+		   (ash (round (* 255 (clim3-color:green color))) 8)
+		   (ash (round (* 255 (clim3-color:blue color))) 0)))
+	 (hstart *hstart*)
+	 (hend *hend*)
+	 (vstart *vstart*)
+	 (vend *vend*))
     (declare (type (simple-array (unsigned-byte 32) (* *)) pa)
 	     (type (unsigned-byte 32) pixel)
 	     (type (integer 0) hstart hend vstart vend))
-    (if (and (typep hstart 'fixnum)
-	     (typep hend 'fixnum)
-	     (typep vstart 'fixnum)
-	     (typep vend 'fixnum))
-	(locally (declare (type fixnum hstart hend vstart vend))
-	  (loop for vp from vstart below vend
-		do (loop for hp from hstart below hend
-			 do (setf (aref pa vp hp) pixel))))
-	(loop for vp from vstart below vend
-	      do (loop for hp from hstart below hend
-		       do (setf (aref pa vp hp) pixel))))))
+    (let ((v (make-array (* height width)
+			 :element-type '(unsigned-byte 32)
+			 :displaced-to pa)))
+      (loop for vp from vstart below vend
+	    do (fill v pixel
+		     :start (+ (* vp width) hstart)
+		     :end (+ (* vp width) hend))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
