@@ -1,9 +1,4 @@
-(defpackage #:clim3-truetype
-  (:use #:common-lisp)
-  (:export
-   ))
-
-(in-package #:clim3-truetype)
+(cl:in-package #:clim3-truetype)
 
 (defclass segment ()
   ((%start :initarg :start :reader start)))
@@ -173,10 +168,22 @@
 (defclass font-instance ()
   ((%font-loader :initarg :font-loader :reader font-loader)
    (%size :initarg :size :reader size)
+   (%ascender :initarg :ascender :reader ascender)
+   (%descender :initarg :descender :reader descender)
    ;; A hash table in which the keys are the glyphs of the
    ;; TrueType font, and the values are the glyph instances
    (%glyph-instances :initform (make-hash-table :test #'eq)
 		     :reader glyph-instances)))
+
+(defun instantiate-font (font-loader size)
+  (let* ((resolution *screen-resolution*)
+	 (units/em (zpb-ttf:units/em font-loader))
+	 (factor (coerce (/ (* size resolution 1/72) units/em) 'double-float)))
+    (make-instance 'font-instance
+       :font-loader font-loader
+       :size size
+       :ascender (floor (* (- (zpb-ttf:ascender font-loader)) factor))
+       :descender (ceiling (* (- (zpb-ttf:descender font-loader)) factor)))))
 
 (defun find-glyph-instance (font-instance character)
   (let* ((font-loader (font-loader font-instance))
