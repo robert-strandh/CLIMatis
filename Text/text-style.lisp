@@ -15,4 +15,6 @@
 		 :face face
 		 :size size))
 
+(defclass camfer-text-style (text-style))
 
+(defclass truetype-text-style (text-style))
