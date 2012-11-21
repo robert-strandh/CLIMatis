@@ -1,20 +1,19 @@
 (in-package #:clim3-text-style)
 
+(defgeneric foundry (text-style))
 (defgeneric family (text-style))
 (defgeneric face (text-style))
 (defgeneric size (text-style))
 
 (defclass text-style ()
-  ((%family :initarg :family :reader family)
+  ((%foundry :initarg :foundry :reader foundry)
+   (%family :initarg :family :reader family)
    (%face :initarg :face :reader face)
    (%size :initarg :size :reader size)))
 
-(defun make-text-style (family face size)
+(defun make-text-style (foundry family face size)
   (make-instance 'text-style
+		 :foundry foundry
 		 :family family
 		 :face face
 		 :size size))
-
-(defclass camfer-text-style (text-style))
-
-(defclass truetype-text-style (text-style))

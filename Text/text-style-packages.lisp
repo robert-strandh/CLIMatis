@@ -4,8 +4,7 @@
   (:use #:common-lisp)
   (:export
    #:text-style
-   #:camfer-text-style
-   #:truetype-text-style
+   #:foundry
    #:family
    #:face
    #:size
