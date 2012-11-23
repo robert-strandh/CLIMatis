@@ -36,7 +36,10 @@
 		     (list (current-line stream)))))
      (if (null (current-word stream))
 	 (let* ((ink (foreground-ink stream))
-		(word (clim3-text:text (string char) nil ink))
+		(word (clim3-text:text
+		       (string char)
+		       (clim3-text-style:text-style :camfer :sans :roman 12)
+		       ink))
 		(line (current-line stream)))
 	   (setf (current-word stream) word)
 	   (setf (clim3-zone:children line)

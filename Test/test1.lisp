@@ -33,7 +33,10 @@
 (defparameter *za4*
   (let* ((color (clim3-color:make-color 1.0 0.0 0.0))
 	 (str "hello")
-	 (text (clim3-text:text str nil color))
+	 (text (clim3-text:text
+		str
+		(clim3-text-style:text-style :camfer :sans :roman 12)
+		color))
 	 (hbox (clim3-layout:hbox*
 		text
 		(clim3-layout:hframe
@@ -47,7 +50,10 @@
       (lambda (zone button modifiers)
 	(declare (ignore zone button modifiers))
 	(setf str (concatenate 'string str "a"))
-	(let ((new-text (clim3-text:text str nil color)))
+	(let ((new-text (clim3-text:text
+			 str
+			 (clim3-text-style:text-style :camfer :sans :roman 12)
+			 color)))
 	  (setf (clim3-zone:children hbox)
 		(substitute new-text text (clim3-zone:children hbox)))
 	  (setf text new-text)))
@@ -70,7 +76,10 @@
 	(clim3-layout:vbox
 	 (loop for i from 0 below 100
 	       collect (clim3-layout:hbox*
-			(clim3-text:text (format nil "hello ~a" i) nil text-color)
+			(clim3-text:text
+			 (format nil "hello ~a" i)
+			 (clim3-text-style:text-style :camfer :sans :roman 12)
+			 text-color)
 			(clim3-layout:hframe 0 0 nil))))
 	(clim3-graphics:opaque background-color)))))))
 
@@ -82,7 +91,10 @@
      (clim3-layout:hbox*
       (clim3-layout:hbox
        (loop for word in (split-sequence:split-sequence #\Space text)
-	     collect (clim3-text:text word nil text-color)
+	     collect (clim3-text:text
+		      word
+		      (clim3-text-style:text-style :camfer :sans :roman 12)
+		      text-color)
 	     collect (clim3-layout:hframe 7 7 7)))
       (clim3-layout:hframe 0 0 nil))
      (clim3-layout:vframe 20 20 20))))

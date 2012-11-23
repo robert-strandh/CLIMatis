@@ -11,7 +11,7 @@
    (%face :initarg :face :reader face)
    (%size :initarg :size :reader size)))
 
-(defun make-text-style (foundry family face size)
+(defun text-style (foundry family face size)
   (make-instance 'text-style
 		 :foundry foundry
 		 :family family

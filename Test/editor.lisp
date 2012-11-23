@@ -221,9 +221,10 @@
     (mapcar (lambda (item)
 	      (if (numberp item)
 		  (clim3-layout:hframe* 7 7 7)
-		  (clim3-text:text (coerce item 'string)
-				   nil
-				   (clim3-color:make-color 0.0 0.0 0.0))))
+		  (clim3-text:text
+		   (coerce item 'string)
+		   (clim3-text-style:text-style :camfer :sans :roman 12)
+		   (clim3-color:make-color 0.0 0.0 0.0))))
 	    (string-to-words-and-spaces string 0)))
    (clim3-layout:hframe* 0 0 nil)))
 
@@ -240,7 +241,10 @@
    (clim3-layout:pile*
     (clim3-layout:hbox*
      (clim3-layout:hframe* 30 30 30)
-     (clim3-text:text "Climacs" nil (clim3-color:make-color 0.0 0.0 0.0))
+     (clim3-text:text
+      "Climacs"
+      (clim3-text-style:text-style :camfer :sans :roman 12)
+      (clim3-color:make-color 0.0 0.0 0.0))
      (clim3-layout:hframe* 0 0 nil))
     (clim3-graphics:opaque (clim3-color:make-color 0.8 0.8 0.8)))))
    
