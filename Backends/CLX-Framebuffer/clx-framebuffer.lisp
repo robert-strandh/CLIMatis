@@ -317,57 +317,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Text styles.
-
-(defmethod clim3-port:text-style-ascent ((port clx-framebuffer-port)
-					 text-style)
-  (camfer:ascent (font port)))
-
-(defmethod clim3-port:text-style-descent ((port clx-framebuffer-port)
-					  text-style)
-  (camfer:descent (font port)))
-
-(defmethod clim3-port:text-ascent ((port clx-framebuffer-port)
-				   text-style
-				   string)
-  (let ((font (font port)))
-    (reduce #'min string
-	    :key (lambda (char)
-		   (camfer:y-offset (camfer:find-glyph font char))))))
-
-(defmethod clim3-port:text-descent ((port clx-framebuffer-port)
-				    text-style
-				    string)
-  (let ((font (font port)))
-    (reduce #'max string
-	    :key (lambda (char)
-		   (+ (array-dimension (camfer:mask (camfer:find-glyph font char)) 0)
-		      (camfer:y-offset (camfer:find-glyph font char)))))))
-
-(defun glyph-space (font char1 char2)
-  (- (* 2 (camfer::stroke-width font))
-     (camfer:kerning font
-		     (camfer:find-glyph font char1)
-		     (camfer:find-glyph font char2))))
-
-(defun glyph-width (font char)
-  (array-dimension (camfer:mask (camfer:find-glyph font char)) 1))
-
-(defmethod clim3-port:text-width ((port clx-framebuffer-port)
-				  text-style
-				  string)
-  (let ((font (font port)))
-    (if (zerop (length string))
-	0
-	(+ (glyph-width font (char string 0))
-	   (loop for i from 1 below (length string)
-		 sum (+ (glyph-width font (char string i))
-			(glyph-space font
-				     (char string (1- i))
-				     (char string i))))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Mapping from text styles to font instances.
 ;;;
 ;;; Do this better later.
@@ -435,6 +384,67 @@
 		       (setf (gethash size (cdr font)) instance)))
 		    (t
 		     (gethash size (cdr font)))))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Text styles.
+
+(defgeneric font-instance-ascent (font))
+
+(defmethod font-instance-ascent ((font camfer:font))
+  (camfer:ascent font))
+
+(defgeneric font-instance-descent (font))
+
+(defmethod font-instance-descent ((font camfer:font))
+  (camfer:descent font))
+
+(defmethod clim3-port:text-style-ascent ((port clx-framebuffer-port)
+					 text-style)
+  (font-instance-ascent (text-style-to-font-instance text-style)))
+
+(defmethod clim3-port:text-style-descent ((port clx-framebuffer-port)
+					  text-style)
+  (font-instance-descent (text-style-to-font-instance text-style)))
+
+(defmethod clim3-port:text-ascent ((port clx-framebuffer-port)
+				   text-style
+				   string)
+  (let ((font (font port)))
+    (reduce #'min string
+	    :key (lambda (char)
+		   (camfer:y-offset (camfer:find-glyph font char))))))
+
+(defmethod clim3-port:text-descent ((port clx-framebuffer-port)
+				    text-style
+				    string)
+  (let ((font (font port)))
+    (reduce #'max string
+	    :key (lambda (char)
+		   (+ (array-dimension (camfer:mask (camfer:find-glyph font char)) 0)
+		      (camfer:y-offset (camfer:find-glyph font char)))))))
+
+(defun glyph-space (font char1 char2)
+  (- (* 2 (camfer::stroke-width font))
+     (camfer:kerning font
+		     (camfer:find-glyph font char1)
+		     (camfer:find-glyph font char2))))
+
+(defun glyph-width (font char)
+  (array-dimension (camfer:mask (camfer:find-glyph font char)) 1))
+
+(defmethod clim3-port:text-width ((port clx-framebuffer-port)
+				  text-style
+				  string)
+  (let ((font (font port)))
+    (if (zerop (length string))
+	0
+	(+ (glyph-width font (char string 0))
+	   (loop for i from 1 below (length string)
+		 sum (+ (glyph-width font (char string i))
+			(glyph-space font
+				     (char string (1- i))
+				     (char string i))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
