@@ -14,6 +14,7 @@
 (asdf:defsystem :climatis
   :depends-on (:camfer :clim3-sprawl :clim3-zone :clim3-layout
 	       :clim3-color :clim3-clx-framebuffer :clim3-port
-	       :clim3-graphics :clim3-text :clim3-input :clim3-meter))
+	       :clim3-graphics :clim3-text-style :clim3-text
+	       :clim3-input :clim3-meter))
 
 		       
