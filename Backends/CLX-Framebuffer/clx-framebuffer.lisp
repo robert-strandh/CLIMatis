@@ -407,22 +407,23 @@
 					  text-style)
   (font-instance-descent (text-style-to-font-instance text-style)))
 
-(defmethod clim3-port:text-ascent ((port clx-framebuffer-port)
-				   text-style
-				   string)
-  (let ((font (font port)))
-    (reduce #'min string
-	    :key (lambda (char)
-		   (camfer:y-offset (camfer:find-glyph font char))))))
+;;; These are not used for now.
+;; (defmethod clim3-port:text-ascent ((port clx-framebuffer-port)
+;; 				   text-style
+;; 				   string)
+;;   (let ((font (font port)))
+;;     (reduce #'min string
+;; 	    :key (lambda (char)
+;; 		   (camfer:y-offset (camfer:find-glyph font char))))))
 
-(defmethod clim3-port:text-descent ((port clx-framebuffer-port)
-				    text-style
-				    string)
-  (let ((font (font port)))
-    (reduce #'max string
-	    :key (lambda (char)
-		   (+ (array-dimension (camfer:mask (camfer:find-glyph font char)) 0)
-		      (camfer:y-offset (camfer:find-glyph font char)))))))
+;; (defmethod clim3-port:text-descent ((port clx-framebuffer-port)
+;; 				    text-style
+;; 				    string)
+;;   (let ((font (font port)))
+;;     (reduce #'max string
+;; 	    :key (lambda (char)
+;; 		   (+ (array-dimension (camfer:mask (camfer:find-glyph font char)) 0)
+;; 		      (camfer:y-offset (camfer:find-glyph font char)))))))
 
 (defun glyph-space (font char1 char2)
   (- (* 2 (camfer::stroke-width font))
@@ -433,18 +434,22 @@
 (defun glyph-width (font char)
   (array-dimension (camfer:mask (camfer:find-glyph font char)) 1))
 
+(defgeneric font-instance-text-width (font text))
+
+(defmethod font-instance-text-width ((font camfer:font) string)
+  (if (zerop (length string))
+      0
+      (+ (glyph-width font (char string 0))
+	 (loop for i from 1 below (length string)
+	       sum (+ (glyph-width font (char string i))
+		      (glyph-space font
+				   (char string (1- i))
+				   (char string i)))))))
+
 (defmethod clim3-port:text-width ((port clx-framebuffer-port)
 				  text-style
 				  string)
-  (let ((font (font port)))
-    (if (zerop (length string))
-	0
-	(+ (glyph-width font (char string 0))
-	   (loop for i from 1 below (length string)
-		 sum (+ (glyph-width font (char string i))
-			(glyph-space font
-				     (char string (1- i))
-				     (char string i))))))))
+  (font-instance-text-width (text-style-to-font-instance text-style) string))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
