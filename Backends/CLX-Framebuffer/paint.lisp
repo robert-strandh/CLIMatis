@@ -87,29 +87,35 @@
 ;;;
 ;;; Paint text
 
-(defmethod clim3-port:new-port-paint-text
-    ((port clx-framebuffer-port) text text-style color)
-  (let* ((font (font port))
-	 (ascent (clim3-port:text-style-ascent port text-style)))
+(defgeneric font-instance-paint-text (port font-instance text color))
+
+(defmethod font-instance-paint-text
+    (port text (font-instance camfer:font) color)
+  (let ((ascent (font-instance-ascent font-instance)))
     (unless (zerop (length text))
       (flet ((y-pos (char)
 	       ;; I don't know why the -1 is necessary
-	       (+ -1 ascent (camfer:y-offset (camfer:find-glyph font char))))
+	       (+ -1 ascent (camfer:y-offset (camfer:find-glyph font-instance char))))
 	     (mask (char)
-	       (camfer:mask (camfer:find-glyph font char))))
+	       (camfer:mask (camfer:find-glyph font-instance char))))
 	;; paint the first character
 	(clim3-port:with-position (0 (y-pos (char text 0)))
 	  (clim3-port:new-port-paint-mask port (mask (char text 0)) color))
  	(loop with pos-x = 0
  	      for i from 1 below (length text)
- 	      for glyph = (camfer:find-glyph font (char text i))
+ 	      for glyph = (camfer:find-glyph font-instance (char text i))
  	      do (progn
  		   ;; compute the new x position
  		   (incf pos-x
- 			 (+ (glyph-width font (char text (1- i)))
- 			    (glyph-space font (char text (1- i)) (char text i))))
+ 			 (+ (glyph-width font-instance (char text (1- i)))
+ 			    (glyph-space font-instance (char text (1- i)) (char text i))))
 		   (clim3-port:with-position (pos-x (y-pos (char text i)))
 		     (clim3-port:new-port-paint-mask port (mask (char text i)) color))))))))
+
+(defmethod clim3-port:new-port-paint-text
+    ((port clx-framebuffer-port) text text-style color)
+  (font-instance-paint-text
+   port text (text-style-to-font-instance text-style) color))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
