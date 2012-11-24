@@ -14,17 +14,17 @@
 
 (defmethod inspect-object ((object number))
   (clim3-text:text (format nil "~s" object)
-		   (clim3-text-style:text-style :camfer :sans :roman 12)
+		   (clim3-text-style:text-style :free :sans :roman 12)
 		   (clim3-color:make-color 0.0 0.0 0.0)))
 
 (defmethod inspect-object ((object symbol))
   (clim3-text:text (format nil "~s" object)
-		   (clim3-text-style:text-style :camfer :sans :roman 12)
+		   (clim3-text-style:text-style :free :sans :roman 12)
 		   (clim3-color:make-color 0.0 0.0 0.0)))
 
 (defmethod inspect-object ((object string))
   (clim3-text:text (format nil "~s" object)
-		   (clim3-text-style:text-style :camfer :sans :roman 12)
+		   (clim3-text-style:text-style :free :sans :roman 12)
 		   (clim3-color:make-color 0.0 0.0 0.0)))
 
 (defmethod inspect-object ((object cons))
