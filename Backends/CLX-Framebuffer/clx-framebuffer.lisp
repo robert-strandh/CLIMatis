@@ -391,7 +391,7 @@
   (camfer:ascent font))
 
 (defmethod font-instance-ascent ((font clim3-truetype:font-instance))
-  (clim3-truetype:ascender font))
+  (- (clim3-truetype:ascender font)))
 
 (defgeneric font-instance-descent (font))
 
