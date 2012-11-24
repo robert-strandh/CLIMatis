@@ -112,6 +112,25 @@
 		   (clim3-port:with-position (pos-x (y-pos (char text i)))
 		     (clim3-port:new-port-paint-mask port (mask (char text i)) color))))))))
 
+(defmethod font-instance-paint-text
+    (port text (font-instance clim3-truetype:font-instance) color)
+  (let ((ascent (font-instance-ascent font-instance))
+	(glyphs (map 'list
+		     (lambda (char)
+		       (clim3-truetype:find-glyph-instance font-instance char))
+		     text)))
+    (unless (zerop (length text))
+      (flet ((y-pos (glyph)
+	       (+ ascent (clim3-truetype:y-offset glyph))))
+	(clim3-port:with-position
+	    ((- (clim3-truetype:x-offset (car glyphs))) 0)
+	  (loop for x = 0 then (+ x (clim3-truetype:advance-width glyph))
+		for glyph in glyphs
+		do (clim3-port:with-position ((+ x (clim3-truetype:x-offset glyph))
+					      (y-pos glyph))
+		     (clim3-port:new-port-paint-mask
+		      port (clim3-truetype:mask glyph) color))))))))
+
 (defmethod clim3-port:new-port-paint-text
     ((port clx-framebuffer-port) text text-style color)
   (font-instance-paint-text
