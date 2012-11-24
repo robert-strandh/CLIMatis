@@ -390,10 +390,16 @@
 (defmethod font-instance-ascent ((font camfer:font))
   (camfer:ascent font))
 
+(defmethod font-instance-ascent ((font clim3-truetype:font-instance))
+  (clim3-truetype:ascender font))
+
 (defgeneric font-instance-descent (font))
 
 (defmethod font-instance-descent ((font camfer:font))
   (camfer:descent font))
+
+(defmethod font-instance-descent ((font clim3-truetype:font-instance))
+  (clim3-truetype:descender font))
 
 (defmethod clim3-port:text-style-ascent ((port clx-framebuffer-port)
 					 text-style)
@@ -441,6 +447,20 @@
 		      (glyph-space font
 				   (char string (1- i))
 				   (char string i)))))))
+
+(defmethod font-instance-text-width ((font clim3-truetype:font-instance) string)
+  (let ((length (length string))
+	(glyphs (map 'vector
+		     (lambda (char)
+		       (clim3-truetype:find-glyph-instance font char))
+		     string)))
+    (if (zerop length)
+	0
+	(- (+ (clim3-truetype:x-offset (aref glyphs (1- length)))
+	      (array-dimension (clim3-truetype:mask (aref glyphs (1- length))) 1)
+	      (loop for i from 0 to (- length 2)
+		    sum (clim3-truetype:advance-width (aref glyphs i))))
+	   (clim3-truetype:x-offset (aref glyphs 0))))))
 
 (defmethod clim3-port:text-width ((port clx-framebuffer-port)
 				  text-style
