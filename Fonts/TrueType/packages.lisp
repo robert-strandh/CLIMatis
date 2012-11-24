@@ -3,6 +3,7 @@
   (:export
    #:ascender
    #:descender
+   #:font-instance
    #:instantiate-font
    #:find-glyph-instance
    #:x-offset
