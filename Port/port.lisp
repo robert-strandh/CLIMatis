@@ -41,6 +41,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function EVENT-LOOP.
+
+(defgeneric event-loop (port))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic function TEXT-ASCENT.
 ;;;
 ;;; Take a port, a text style and a string, and return the ascent of
@@ -94,28 +100,14 @@
 ;;; Generic function PORT-STANDARD-KEY-PROCESSOR.
 ;;;
 
-(defgeneric port-standard-key-processor (port handler-fun keycode modifier))
+(defgeneric port-standard-key-processor (port keycode modifier))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Function STANDARD-KEY-PROCESSOR.
-;;;
-;;; Take a function of one argument, and return a function that can be
-;;; used as a handler function for a key-press or a key-release zone.
-;;;
-;;; The function passed as an argument is called with the standard
-;;; interpretation of the key that was pressed, in the form of a list.
-;;; The first element of the list is a character, and the remaining
-;;; elements of the list are keywords that name modifier keys.
-;;;
-;;; The function returned calls the generic-function
-;;; PORT-STANDARD-KEY-PROCESSOR with the port, the function given to
-;;; this function as an argument, the keycode and the modifier. 
 
-(defun standard-key-processor (handler-fun)
-  (lambda (zone keycode modifiers)
-    (port-standard-key-processor
-     (clim3-zone:client zone) handler-fun keycode modifiers)))
+(defun standard-key-processor (key-code modifiers)
+  (port-standard-key-processor *new-port* key-code modifiers))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -141,3 +133,46 @@
 
 (defmacro with-position ((hpos vpos) &body body)
   `(call-with-position *new-port* (lambda () ,@body) ,hpos  ,vpos))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Key handler
+
+(defgeneric handle-key-press (key-handler key-code modifiers))
+(defgeneric handle-key-release (key-handler key-code modifiers))
+
+(defclass key-handler () ())
+
+(defclass null-key-handler (key-handler) ())
+
+(defmethod handle-key-press
+    ((key-handler null-key-handler) key-code modifiers)
+  (declare (ignore key-code modifiers))
+  nil)
+
+(defmethod handle-key-release
+    ((key-handler null-key-handler) key-code modifiers)
+  (declare (ignore key-code modifiers))
+  nil)
+
+(defparameter *key-handler* (make-instance 'null-key-handler))
+
+(defclass read-keystroke-key-handler (key-handler)
+  ((%receiver :initarg :receiver :reader receiver)))
+
+(defmethod handle-key-press
+    ((key-handler read-keystroke-key-handler) key-code modifiers)
+  (funcall (receiver key-handler)
+	   (standard-key-processor key-code modifiers)))
+
+(defmethod handle-key-release
+    ((key-handler read-keystroke-key-handler) key-code modifiers)
+  (declare (ignore key-code modifiers))
+  nil)
+
+(defun read-keystroke ()
+  (let ((*key-handler*
+	  (make-instance 'read-keystroke-key-handler
+	     :receiver (lambda (keystroke)
+			 (return-from read-keystroke keystroke)))))
+    (event-loop *new-port*)))
