@@ -102,4 +102,4 @@
 (defun test-zone (zone)
   (let ((port (clim3-port:make-port :clx-framebuffer)))
     (clim3-port:connect zone port)
-    (clim3-clx-framebuffer::event-loop port)))
+    (clim3-port:event-loop port)))

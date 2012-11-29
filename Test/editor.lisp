@@ -313,6 +313,6 @@
 	(root (editor-zones width height)))
     (clim3-port:connect root port)
     (catch 'end 
-      (clim3-clx-framebuffer::event-loop port))
+      (clim3-port:event-loop port))
     (clim3-port:disconnect root port)))
 
