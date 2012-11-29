@@ -15,25 +15,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class KEY
-;;;
-;;; The handlers are called with the following arguments:
-;;;
-;;;   the zone
-;;;   key-code   
-;;;   modifiers
-
-(defclass key (input)
-  ((%press-handler :initarg :press-handler :reader press-handler)
-   (%release-handler :initarg :release-handler :reader release-handler)))
-
-(defun key (press-handler release-handler)
-  (make-instance 'key
-		 :press-handler press-handler
-		 :release-handler release-handler))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Class BUTTON
 ;;;
 ;;; The handlers are called with the following arguments:

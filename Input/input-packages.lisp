@@ -2,7 +2,6 @@
   (:use :common-lisp)
   (:export
    #:input
-   #:key
    #:button
    #:press-handler
    #:release-handler
