@@ -98,7 +98,6 @@
    (%window :accessor window)
    (%pixel-array :accessor pixel-array)
    (%image :accessor image)
-   (%pointer-zones :initform '() :accessor pointer-zones)
    (%motion-zones :initform '() :accessor motion-zones)
    (%button-press-zone :initform nil :accessor button-press-zone)
    (%zone-containing-pointer :initform nil :accessor zone-containing-pointer)
@@ -494,72 +493,32 @@
 	(multiple-value-list (xlib:modifier-mapping (display port)))))
 
 (defmethod clim3-port:port-standard-key-processor
-    ((port clx-framebuffer-port) handler-fun keycode modifiers)
+    ((port clx-framebuffer-port) keycode modifiers)
   (if (keycode-is-modifier-p port keycode)
       nil
       (let ((keysyms (vector (xlib:keycode->keysym (display port) keycode 0)
 			     (xlib:keycode->keysym (display port) keycode 1)
 			     (xlib:keycode->keysym (display port) keycode 2)
 			     (xlib:keycode->keysym (display port) keycode 3))))
-	(funcall handler-fun
-		 (cond ((= (aref keysyms 0) (aref keysyms 1))
-			;; FIXME: do this better
-			(if (= (aref keysyms 0) 65293)
-			    (cons #\Return
-				  (modifier-names modifiers))
-			    (cons (code-char (aref keysyms 0))
-				  (modifier-names modifiers))))
-		       ((plusp (logand +shift-mask+ modifiers))
-			(cons (code-char (aref keysyms 1))
-			      (modifier-names
-			       (logandc2 modifiers +shift-mask+))))
-		       (t
-			(cons (code-char (aref keysyms 0))
-			      (modifier-names modifiers))))))))
+	(cond ((= (aref keysyms 0) (aref keysyms 1))
+	       ;; FIXME: do this better
+	       (if (= (aref keysyms 0) 65293)
+		   (cons #\Return
+			 (modifier-names modifiers))
+		   (cons (code-char (aref keysyms 0))
+			 (modifier-names modifiers))))
+	      ((plusp (logand +shift-mask+ modifiers))
+	       (cons (code-char (aref keysyms 1))
+		     (modifier-names
+		      (logandc2 modifiers +shift-mask+))))
+	      (t
+	       (cons (code-char (aref keysyms 0))
+		     (modifier-names modifiers)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Handling events.
 
-(defun handle-other (zone-entry)
-  (handle-visit zone-entry)
-  (update zone-entry))
-
-;;; Some code factoring is needed here. 
-(defun handle-key-press (zone-entry code state hpos vpos)
-  (labels ((traverse (zone hpos vpos)
-	     (unless (or (< hpos 0)
-			 (< vpos 0)
-			 (> hpos (clim3-zone:width zone))
-			 (> vpos (clim3-zone:height zone)))
-	       (when (typep zone 'clim3-input:key)
-		 (funcall (clim3-input:press-handler zone) zone code state))
-	       (clim3-zone:map-over-children-top-to-bottom
-		(lambda (child)
-		  (traverse child
-			    (- hpos (clim3-zone:hpos child))
-			    (- vpos (clim3-zone:vpos child))))
-		zone))))
-	(traverse (zone zone-entry) hpos vpos))
-  (update zone-entry))
-  
-(defun handle-key-release (zone-entry code state hpos vpos)
-  (labels ((traverse (zone hpos vpos)
-	     (unless (or (< hpos 0)
-			 (< vpos 0)
-			 (> hpos (clim3-zone:width zone))
-			 (> vpos (clim3-zone:height zone)))
-	       (when (typep zone 'clim3-input:key)
-		 (funcall (clim3-input:release-handler zone) zone code state))
-	       (clim3-zone:map-over-children-top-to-bottom
-		(lambda (child)
-		  (traverse child
-			    (- hpos (clim3-zone:hpos child))
-			    (- vpos (clim3-zone:vpos child))))
-		zone))))
-	(traverse (zone zone-entry) hpos vpos))
-  (update zone-entry))
-  
 (defun handle-button-press (zone-entry code state hpos vpos)
   (labels ((traverse (zone hpos vpos)
 	     (unless (or (< hpos 0)
@@ -576,66 +535,81 @@
 			    (- hpos (clim3-zone:hpos child))
 			    (- vpos (clim3-zone:vpos child))))
 		zone))))
-	(traverse (zone zone-entry) hpos vpos))
-  (update zone-entry))
+	(traverse (zone zone-entry) hpos vpos)))
   
 (defun handle-button-release (zone-entry code state)
   (let ((zone (button-press-zone zone-entry)))
     (unless (null zone)
-      (funcall (clim3-input:release-handler zone) zone code state)))
-  (update zone-entry))
+      (funcall (clim3-input:release-handler zone) zone code state))))
 
-(defun event-loop (port)
+(defmethod clim3-port:event-loop ((port clx-framebuffer-port))
   (let ((clim3-port:*new-port* port))
-    (xlib:event-case ((display port))
-      (:key-press
-       (window code state x y)
-       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
-	 (unless (null entry)
-	   ;; FIXME: needs code factoring
-	   (handle-motion-zones entry)
-	   (handle-key-press entry code state x y)))
-       nil)
-      (:key-release
-       (window code state x y)
-       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
-	 (unless (null entry)
-	   ;; FIXME: needs code factoring
-	   (handle-motion-zones entry)
-	   (handle-key-release entry code state x y)))
-       nil)
-      (:button-press
-       (window code state x y)
-       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
-	 (unless (null entry)
-	   ;; FIXME: needs code factoring
-	   (handle-motion-zones entry)
-	   (handle-button-press entry code state x y)))
-       nil)
-      (:button-release
-       (window code state)
-       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
-	 (unless (null entry)
-	   (handle-motion-zones entry)
-	   (handle-button-release entry code state)))
-       nil)
-      ((:exposure :enter-notify :leave-notify)
-       (window)
-       (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
-	 (unless (null entry)
-	   (handle-motion-zones entry)
-	   (handle-other entry))))
-      ((:motion-notify)
-       (display window)
-       (when (null (xlib:event-listen display))
-	 (let ((entry (find window (zone-entries port) :test #'eq :key #'window)))
-	   (unless (null entry)
-	     (handle-motion-zones entry)
-	     (handle-other entry)))))
-      (t
-       ()
-       (loop for zone-entry in (zone-entries port)
-	     do ;; FIXME: needs code factoring
-		(handle-motion-zones zone-entry)
-		(handle-other zone-entry))
-       nil))))
+    (loop do (let ((event (xlib:event-case ((display port))
+			    (:key-press
+			     (window code state)
+			     `(:key-press ,window ,code ,state))
+			    (:key-release
+			     (window code state)
+			     `(:key-release ,window ,code ,state))
+			    (:button-press
+			     (window code state x y)
+			     `(:button-press ,window ,code ,state ,x ,y))
+			    (:button-release
+			     (window code state)
+			     `(:button-release ,window ,code ,state))
+			    (:exposure
+			     (window)
+			     `(:exposure ,window))
+			    (:enter-notify
+			     (window)
+			     `(:enter-notify ,window))
+			    (:leave-notify
+			     (window)
+			     `(:leave-notify ,window))
+			    (:motion-notify
+			     (window display)
+			     `(:motion-notify ,display ,window))
+			    (t
+			     ()
+			     `(:other)))))
+	       (cond  ((eq (car event) :other)
+		       (loop for zone-entry in (zone-entries port)
+			     do (handle-motion-zones zone-entry)
+				(handle-visit zone-entry)
+				(update zone-entry)))
+		      ((eq (car event) :motion-notify)
+		       (let ((display (cadr event)))
+			 (when (null (xlib:event-listen display))
+			   (let ((entry (find (car event) (zone-entries port)
+					      :test #'eq :key #'window)))
+			     (unless (null entry)
+			       (handle-motion-zones entry)
+			       (handle-visit entry)
+			       (update entry))))))
+		      (t
+		       (let ((entry (find (cadr event) (zone-entries port)
+					  :test #'eq :key #'window)))
+			 (unless (null entry)
+			   (handle-motion-zones entry)
+			   (handle-visit entry)
+			   (ecase (car event)
+			     (:key-press 
+			      (destructuring-bind (code state) (cddr event)
+				(clim3-port:handle-key-press
+				 clim3-port:*key-handler* code state)))
+			     (:key-release 
+			      (destructuring-bind (code state) (cddr event)
+				(clim3-port:handle-key-release
+				 clim3-port:*key-handler* code state)))
+			     (:button-press 
+			      (destructuring-bind (code state x y) (cddr event)
+				(handle-button-press entry code state x y)))
+			     (:button-release 
+			      (destructuring-bind (code state) (cddr event)
+				(handle-button-release entry code state)))
+			     ((:exposure :enter-notify :leave-notify)
+			      nil))
+			   (update entry)))))))))
+		     
+		 
+		
