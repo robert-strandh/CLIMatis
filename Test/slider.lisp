@@ -15,7 +15,7 @@
 			   (if (null pos-diff)
 			       (setf pointer-vpos vpos)
 			       (setf (clim3-zone:vpos pile)
-				     (max 00 (min max-pos (+ vpos pos-diff)))))))
+				     (max 0 (min max-pos (+ vpos pos-diff)))))))
 	 (press-handler (lambda (zone code modifiers)
 			  (declare (ignore zone code modifiers))
 			  (setf pos-diff (- (clim3-zone:vpos pile) pointer-vpos))))
