@@ -42,12 +42,14 @@
 
 (defclass visit (input)
   ((%enter-handler :initarg :enter-handler :reader enter-handler)
-   (%leave-handler :initarg :leave-handler :reader leave-handler)))
+   (%leave-handler :initarg :leave-handler :reader leave-handler)
+   (%inside-p :initarg :inside-p :reader inside-p)))
 
-(defun visit (enter-handler leave-handler)
+(defun visit (enter-handler leave-handler &optional (inside-p (constantly t)))
   (make-instance 'visit
 		 :enter-handler enter-handler
-		 :leave-handler leave-handler))
+		 :leave-handler leave-handler
+		 :inside-p inside-p))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

@@ -8,6 +8,7 @@
    #:visit
    #:enter-handler
    #:leave-handler
+   #:inside-p
    #:motion
    #:handler
    ))
