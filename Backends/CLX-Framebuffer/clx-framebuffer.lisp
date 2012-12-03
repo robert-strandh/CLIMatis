@@ -181,25 +181,32 @@
 	(xlib:pointer-position (window zone-entry))
       ;; FIXME: Figure out what to do with same-screen-p
       (declare (ignore same-screen-p))
-      (labels ((traverse (zone hpos vpos)
-		 (unless (or (< hpos 0)
-			     (< vpos 0)
-			     (> hpos (clim3-zone:width zone))
-			     (> vpos (clim3-zone:height zone)))
-		   (when (typep zone 'clim3-input:visit)
-		     (unless (eq zone prev)
-		       (unless (null prev)
-			 (funcall (clim3-input:leave-handler prev) prev))
-		       (funcall (clim3-input:enter-handler zone) zone)
-		       (setf (zone-containing-pointer zone-entry) zone))
-		     (return-from handle-visit nil))
-		   (clim3-zone:map-over-children-top-to-bottom
-		    (lambda (child)
-		      (traverse child
-				(- hpos (clim3-zone:hpos child))
-				(- vpos (clim3-zone:vpos child))))
-		    zone))))
-	(traverse (zone zone-entry) hpos vpos)))))
+      (let ((zone
+	      (block found
+		(labels ((traverse (zone hpos vpos)
+			   (unless (or (< hpos 0)
+				       (< vpos 0)
+				       (> hpos (clim3-zone:width zone))
+				       (> vpos (clim3-zone:height zone)))
+			     (if (and (typep zone 'clim3-input:visit)
+				      (funcall (clim3-input:inside-p zone)
+					       hpos vpos))
+				 (return-from found zone)
+				 (progn 
+				   (clim3-zone:map-over-children-top-to-bottom
+				    (lambda (child)
+				      (traverse child
+						(- hpos (clim3-zone:hpos child))
+						(- vpos (clim3-zone:vpos child))))
+				    zone)
+				   nil)))))
+		  (traverse (zone zone-entry) hpos vpos)))))
+	(unless (eq zone prev)
+	  (unless (null prev)
+	    (funcall (clim3-input:leave-handler prev) prev))
+	  (unless (null zone)
+	    (funcall (clim3-input:enter-handler zone) zone))
+	  (setf (zone-containing-pointer zone-entry) zone))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -580,7 +587,7 @@
 		      ((eq (car event) :motion-notify)
 		       (let ((display (cadr event)))
 			 (when (null (xlib:event-listen display))
-			   (let ((entry (find (car event) (zone-entries port)
+			   (let ((entry (find (caddr event) (zone-entries port)
 					      :test #'eq :key #'window)))
 			     (unless (null entry)
 			       (handle-motion-zones entry)
