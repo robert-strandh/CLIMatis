@@ -278,11 +278,13 @@
 				:class :input-output
 				:visual :copy
 				:background (white port)
+				:bit-gravity :north-west
 				:event-mask
 				'(:key-press :key-release
 				  :button-motion :button-press :button-release
 				  :enter-window :leave-window
 				  :exposure
+				  :structure-notify
 				  :pointer-motion))))
     (xlib:map-window (window zone-entry))
     ;; Create an adequate gcontext for this window.
