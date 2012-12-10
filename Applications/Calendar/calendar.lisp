@@ -1,5 +1,13 @@
 (cl:in-package #:clim3-calendar)
 
+(defparameter *dayname-text-style*
+  (clim3-text-style:text-style :free :sans :bold 16))
+
+(defparameter *hour-text-style*
+  (clim3-text-style:text-style :free :fixed :roman 13))
+
+(defparameter *follow-hour-space* 5)
+
 (defun hour-zone ()
   (clim3-layout:sponge))
 
@@ -22,7 +30,7 @@
      (clim3-layout:hbrick 5)
      (clim3-text:text
       name
-      (clim3-text-style:text-style :free :sans :bold 16)
+      *dayname-text-style*
       (clim3-color:make-color 0.0d0 0.0d0 0.0d0 ))
      (clim3-layout:sponge))
     (clim3-layout:vbrick 2))))
@@ -48,18 +56,17 @@
 	       collect (day-zone)))))
 
 (defun hours ()
-  (let ((style (clim3-text-style:text-style :free :fixed :roman 13))
-	(color (clim3-color:make-color 0.0d0 0.0d0 0.0d0 )))
+  (let ((color (clim3-color:make-color 0.0d0 0.0d0 0.0d0 )))
     (clim3-layout:vbox
-     (cons (clim3-text:text "00:00" style color)
+     (cons (clim3-text:text "00:00" *hour-text-style* color)
 	   (loop for hour from 1 to 24
 		 collect (clim3-layout:sponge)
 		 collect (clim3-text:text (format nil "~2,'0d:00" (mod hour 24))
-					  style color))))))
+					  *hour-text-style* color))))))
 (defun time-plane ()
   (clim3-layout:hbox*
    (hours)
-   (clim3-layout:hbrick 5)
+   (clim3-layout:hbrick *follow-hour-space*)
    (clim3-layout:vbox*
     (clim3-layout:vbrick 10)
     (grid-zones)
