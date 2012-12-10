@@ -47,13 +47,33 @@
 	 (loop repeat 7
 	       collect (day-zone)))))
 
+(defun hours ()
+  (let ((style (clim3-text-style:text-style :free :fixed :roman 13))
+	(color (clim3-color:make-color 0.0d0 0.0d0 0.0d0 )))
+    (clim3-layout:vbox
+     (cons (clim3-text:text "00:00" style color)
+	   (loop for hour from 1 to 24
+		 collect (clim3-layout:sponge)
+		 collect (clim3-text:text (format nil "~2,'0d:00" (mod hour 24))
+					  style color))))))
+(defun time-plane ()
+  (clim3-layout:hbox*
+   (hours)
+   (clim3-layout:hbrick 5)
+   (clim3-layout:vbox*
+    (clim3-layout:vbrick 10)
+    (grid-zones)
+    (clim3-layout:vbrick 10))))
+
 (defun calendar-zones ()
   (clim3-layout:pile*
    (clim3-layout:brick
     1000 700
     (clim3-layout:vbox*
-     (day-names)
-     (grid-zones)))
+     (clim3-layout:hbox*
+      (clim3-layout:hbrick 60)
+      (day-names))
+     (time-plane)))
    (clim3-graphics:opaque (clim3-color:make-color 0.95d0 0.95d0 0.95d0))))
 
 (defun calendar ()
