@@ -3,10 +3,15 @@
 (defparameter *dayname-text-style*
   (clim3-text-style:text-style :free :sans :roman 14))
 
+(defparameter *day-number-text-style*
+  (clim3-text-style:text-style :free :sans :bold 20))
+
 (defparameter *hour-text-style*
   (clim3-text-style:text-style :free :fixed :roman 14))
 
 (defparameter *follow-hour-space* 5)
+
+(defparameter *black* (clim3-color:make-color 0.0d0 0.0d0 0.0d0))
 
 (defun hour-zone ()
   (clim3-layout:sponge))
@@ -28,10 +33,16 @@
     (clim3-layout:sponge)
     (clim3-layout:hbox*
      (clim3-layout:hbrick 5)
-     (clim3-text:text
-      (format nil "~2,'0d_~a" number name)
-      *dayname-text-style*
-      (clim3-color:make-color 0.0d0 0.0d0 0.0d0 ))
+     (clim3-layout:hbrick
+      40
+      (clim3-text:text (format nil "~2,'0d" number)
+		       *day-number-text-style*
+		       *black*))
+     (clim3-layout:hbrick
+      40
+      (clim3-text:text name
+		       *dayname-text-style*
+		       *black*))
      (clim3-layout:sponge))
     (clim3-layout:vbrick 2))))
 
