@@ -1,10 +1,10 @@
 (cl:in-package #:clim3-calendar)
 
 (defparameter *dayname-text-style*
-  (clim3-text-style:text-style :free :sans :bold 16))
+  (clim3-text-style:text-style :free :sans :roman 14))
 
 (defparameter *hour-text-style*
-  (clim3-text-style:text-style :free :fixed :roman 13))
+  (clim3-text-style:text-style :free :fixed :roman 14))
 
 (defparameter *follow-hour-space* 5)
 
@@ -21,7 +21,7 @@
    1
    (clim3-graphics:opaque (clim3-color:make-color 0.3d0 0d0 0d0))))
 
-(defun dayname-zone (name)
+(defun dayname-zone (name number)
   (clim3-layout:vbrick
    40
    (clim3-layout:vbox*
@@ -29,16 +29,17 @@
     (clim3-layout:hbox*
      (clim3-layout:hbrick 5)
      (clim3-text:text
-      name
+      (format nil "~2,'0d_~a" number name)
       *dayname-text-style*
       (clim3-color:make-color 0.0d0 0.0d0 0.0d0 ))
      (clim3-layout:sponge))
     (clim3-layout:vbrick 2))))
 
-(defun day-names ()
+(defun day-names (days)
   (clim3-layout:hbox 
    (loop for name in '("Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun")
-	 collect (dayname-zone name))))
+	 for number in days
+	 collect (dayname-zone name number))))
 
 (defun day-zone ()
   (clim3-layout:hbox*
@@ -72,20 +73,22 @@
     (grid-zones)
     (clim3-layout:vbrick 10))))
 
-(defun calendar-zones ()
+(defun calendar-zones (days)
   (clim3-layout:pile*
    (clim3-layout:brick
     1000 700
-    (clim3-layout:vbox*
-     (clim3-layout:hbox*
-      (clim3-layout:hbrick 60)
-      (day-names))
-     (time-plane)))
+    (clim3-layout:hbox*
+     (clim3-layout:vbox*
+      (clim3-layout:hbox*
+       (clim3-layout:hbrick 60)
+       (day-names days))
+      (time-plane))
+     (clim3-layout:hbrick 10)))
    (clim3-graphics:opaque (clim3-color:make-color 0.95d0 0.95d0 0.95d0))))
 
 (defun calendar ()
   (let ((port (clim3-port:make-port :clx-framebuffer))
-	(root (calendar-zones)))
+	(root (calendar-zones '(28 29 30 31 1 2 3))))
     (clim3-port:connect root port)
     (let ((clim3-port:*new-port* port))
       (loop for keystroke = (clim3-port:read-keystroke)
