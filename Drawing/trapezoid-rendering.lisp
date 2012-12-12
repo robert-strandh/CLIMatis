@@ -193,5 +193,10 @@
     (loop for trapezoid in trapezoids
 	  do (apply #'big-trapezoid opacities
 		    (translate-trapezoid trapezoid (- (floor min-x)) (- (floor min-y)))))
+    ;; Make sure no value is outside the range
+    (loop for r from 0 below (array-dimension opacities 0)
+	  do (loop for c from 0 below (array-dimension opacities 1)
+		   do (setf (aref opacities r c)
+			    (min 1d0 (max 0d0 (aref opacities r c))))))
     (values opacities (floor min-x) (floor min-y))))
 
