@@ -1,13 +1,13 @@
 (cl:in-package #:clim3-calendar)
 
 (defparameter *dayname-text-style*
-  (clim3-text-style:text-style :free :sans :roman 14))
+  (clim3-text-style:text-style :free :sans :roman 10))
 
 (defparameter *day-number-text-style*
   (clim3-text-style:text-style :free :sans :bold 20))
 
 (defparameter *hour-text-style*
-  (clim3-text-style:text-style :free :fixed :roman 14))
+  (clim3-text-style:text-style :free :fixed :roman 10))
 
 (defparameter *follow-hour-space* 5)
 
