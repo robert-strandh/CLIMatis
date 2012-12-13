@@ -35,14 +35,19 @@
      (clim3-layout:hbrick 5)
      (clim3-layout:hbrick
       40
-      (clim3-text:text (format nil "~2,'0d" number)
-		       *day-number-text-style*
-		       *black*))
+      (clim3-layout:vbox*
+       (clim3-layout:sponge)
+       (clim3-text:text (format nil "~2,'0d" number)
+			*day-number-text-style*
+			*black*)))
      (clim3-layout:hbrick
       40
-      (clim3-text:text name
-		       *dayname-text-style*
-		       *black*))
+      (clim3-layout:vbox*
+       (clim3-layout:sponge)
+       (clim3-text:text name
+			*dayname-text-style*
+			*black*)
+       (clim3-layout:sponge)))
      (clim3-layout:sponge))
     (clim3-layout:vbrick 2))))
 
