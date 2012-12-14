@@ -9,7 +9,12 @@
 (defparameter *hour-text-style*
   (clim3-text-style:text-style :free :fixed :roman 10))
 
+(defparameter *toolbar-text-style*
+  (clim3-text-style:text-style :free :fixed :roman 20))
+
 (defparameter *follow-hour-space* 5)
+
+(defparameter *background* (clim3-color:make-color 0.95d0 0.95d0 0.95d0))
 
 (defparameter *black* (clim3-color:make-color 0.0d0 0.0d0 0.0d0))
 
@@ -100,11 +105,36 @@
        (day-names days))
       (time-plane))
      (clim3-layout:hbrick 10)))
-   (clim3-graphics:opaque (clim3-color:make-color 0.95d0 0.95d0 0.95d0))))
+   (clim3-graphics:opaque *background*)))
+
+(defun butcon (label)
+  (let* ((normal (clim3-graphics:opaque *background*))
+	 (darker (clim3-graphics:opaque (clim3-color:make-color 0.8d0 0.8d0 0.8d0)))
+	 (wrap (clim3-layout:wrap normal)))
+    (clim3-layout:pile*
+     (clim3-input:visit
+      (lambda (zone)
+	(declare (ignore zone))
+	(setf (clim3-zone:children wrap) darker))
+      (lambda (zone)
+	(declare (ignore zone))
+	(setf (clim3-zone:children wrap) normal)))
+     (clim3-text:text label *toolbar-text-style* *black*)
+     wrap)))
+
+(defun toolbar ()
+  (clim3-layout:hbox*
+   (clim3-layout:sponge)
+   (butcon "<")
+   (clim3-layout:hbrick 20)
+   (butcon ">")
+   (clim3-layout:sponge)))
 
 (defun calendar ()
   (let ((port (clim3-port:make-port :clx-framebuffer))
-	(root (calendar-zones '(28 29 30 31 1 2 3))))
+	(root (clim3-layout:vbox*
+	       (toolbar)
+	       (calendar-zones '(28 29 30 31 1 2 3)))))
     (clim3-port:connect root port)
     (let ((clim3-port:*new-port* port))
       (loop for keystroke = (clim3-port:read-keystroke)
