@@ -123,12 +123,14 @@
      wrap)))
 
 (defun toolbar ()
-  (clim3-layout:hbox*
-   (clim3-layout:sponge)
-   (butcon "<")
-   (clim3-layout:hbrick 20)
-   (butcon ">")
-   (clim3-layout:sponge)))
+  (clim3-layout:pile*
+   (clim3-layout:hbox*
+    (clim3-layout:sponge)
+    (butcon "<")
+    (clim3-layout:hbrick 20)
+    (butcon ">")
+    (clim3-layout:sponge))
+   (clim3-graphics:opaque *background*)))
 
 (defun calendar ()
   (let ((port (clim3-port:make-port :clx-framebuffer))
