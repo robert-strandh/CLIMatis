@@ -15,25 +15,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class BUTTON
-;;;
-;;; The handlers are called with the following arguments:
-;;;
-;;;   the zone
-;;;   button-code   
-;;;   modifiers
-
-(defclass button (input)
-  ((%press-handler :initarg :press-handler :reader press-handler)
-   (%release-handler :initarg :release-handler :reader release-handler)))
-
-(defun button (press-handler release-handler)
-  (make-instance 'button
-		 :press-handler press-handler
-		 :release-handler release-handler))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Class VISIT
 ;;;
 ;;; The handlers are called with the following arguments:
