@@ -1,5 +1,22 @@
 (cl:in-package #:clim3-calendar)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Date manipulation.
+
+(defun dut (universal-time)
+  (multiple-value-bind (ss mm hh d m y dow)
+      (decode-universal-time universal-time 0)
+    (declare (ignore ss mm))
+    (values hh d m y dow)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; GUI.
+
+(defparameter *current-week* 0)
+
 (defparameter *dayname-text-style*
   (clim3-text-style:text-style :free :sans :roman 10))
 
@@ -31,6 +48,22 @@
    1
    (clim3-graphics:opaque (clim3-color:make-color 0.3d0 0d0 0d0))))
 
+(defparameter *day-numbers-of-week*
+  (loop repeat 7
+	collect (clim3-layout:wrap)))
+
+(defun set-day-numbers ()
+  (let ((utime (* *current-week* #.(* 7 24 60 60))))
+    (loop for i from 0 below 7
+	  for dno = (second (multiple-value-list
+			     (dut (+ utime (* i #.(* 24 60 60))))))
+	  for wrap in *day-numbers-of-week*
+	  do (setf (clim3-zone:children wrap)
+		   (clim3-text:text
+		    (format nil "~2,'0d" dno)
+		    *day-number-text-style*
+		    *black*)))))
+
 (defun dayname-zone (name number)
   (clim3-layout:vbrick
    40
@@ -42,9 +75,7 @@
       40
       (clim3-layout:vbox*
        (clim3-layout:sponge)
-       (clim3-text:text (format nil "~2,'0d" number)
-			*day-number-text-style*
-			*black*)))
+       number))
      (clim3-layout:hbrick
       40
       (clim3-layout:vbox*
@@ -56,10 +87,10 @@
      (clim3-layout:sponge))
     (clim3-layout:vbrick 2))))
 
-(defun day-names (days)
+(defun day-names ()
   (clim3-layout:hbox 
    (loop for name in '("Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun")
-	 for number in days
+	 for number in *day-numbers-of-week*
 	 collect (dayname-zone name number))))
 
 (defun day-zone ()
@@ -94,7 +125,7 @@
     (grid-zones)
     (clim3-layout:vbrick 10))))
 
-(defun calendar-zones (days)
+(defun calendar-zones ()
   (clim3-layout:pile*
    (clim3-layout:brick
     1000 700
@@ -102,7 +133,7 @@
      (clim3-layout:vbox*
       (clim3-layout:hbox*
        (clim3-layout:hbrick 60)
-       (day-names days))
+       (day-names))
       (time-plane))
      (clim3-layout:hbrick 10)))
    (clim3-graphics:opaque *background*)))
@@ -113,12 +144,13 @@
 (defmethod clim3-port:handle-button-press
     ((handler next-week-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
-  (format t "next week press~%"))
+  (incf *current-week*)
+  (set-day-numbers))
 
 (defmethod clim3-port:handle-button-release
     ((handler next-week-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
-  (format t "next week release~%"))
+  nil)
 
 (defclass previous-week-button-handler (clim3-port:button-handler)
   ())
@@ -126,12 +158,13 @@
 (defmethod clim3-port:handle-button-press
     ((handler previous-week-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
-  (format t "previous week press~%"))
+  (decf *current-week*)
+  (set-day-numbers))
 
 (defmethod clim3-port:handle-button-release
     ((handler previous-week-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
-  (format t "previous release~%"))
+  nil)
 
 (defun butcon (label handler)
   (let* ((normal (clim3-graphics:opaque *background*))
@@ -161,10 +194,12 @@
    (clim3-graphics:opaque *background*)))
 
 (defun calendar ()
+  (setf *current-week* (floor (get-universal-time) #.(* 7 24 60 60)))
+  (set-day-numbers)
   (let ((port (clim3-port:make-port :clx-framebuffer))
 	(root (clim3-layout:vbox*
 	       (toolbar)
-	       (calendar-zones '(28 29 30 31 1 2 3)))))
+	       (calendar-zones))))
     (clim3-port:connect root port)
     (let ((clim3-port:*new-port* port))
       (loop for keystroke = (clim3-port:read-keystroke)
