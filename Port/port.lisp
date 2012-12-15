@@ -155,7 +155,9 @@
   (declare (ignore key-code modifiers))
   nil)
 
-(defparameter *key-handler* (make-instance 'null-key-handler))
+(defparameter *null-key-handler* (make-instance 'null-key-handler))
+
+(defparameter *key-handler* *null-key-handler*)
 
 (defclass read-keystroke-key-handler (key-handler)
   ((%receiver :initarg :receiver :reader receiver)))
@@ -176,3 +178,29 @@
 	     :receiver (lambda (keystroke)
 			 (return-from read-keystroke keystroke)))))
     (event-loop *new-port*)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Button handler
+
+(defgeneric handle-button-press (button-handler button-code modifiers))
+(defgeneric handle-button-release (button-handler button-code modifiers))
+
+(defclass button-handler () ())
+
+(defclass null-button-handler (button-handler) ())
+
+(defmethod handle-button-press
+    ((button-handler null-button-handler) button-code modifiers)
+  (declare (ignore button-code modifiers))
+  nil)
+
+(defmethod handle-button-release
+    ((button-handler null-button-handler) button-code modifiers)
+  (declare (ignore button-code modifiers))
+  nil)
+
+(defparameter *null-button-handler* (make-instance 'null-button-handler))
+
+(defparameter *button-handler* *null-button-handler*)
+

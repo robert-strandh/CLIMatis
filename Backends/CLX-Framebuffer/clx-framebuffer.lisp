@@ -528,29 +528,6 @@
 ;;;
 ;;; Handling events.
 
-(defun handle-button-press (zone-entry code state hpos vpos)
-  (labels ((traverse (zone hpos vpos)
-	     (unless (or (< hpos 0)
-			 (< vpos 0)
-			 (> hpos (clim3-zone:width zone))
-			 (> vpos (clim3-zone:height zone)))
-	       (when (typep zone 'clim3-input:button)
-		 (funcall (clim3-input:press-handler zone) zone code state)
-		 (setf (button-press-zone zone-entry) zone)
-		 (return-from handle-button-press nil))
-	       (clim3-zone:map-over-children-top-to-bottom
-		(lambda (child)
-		  (traverse child
-			    (- hpos (clim3-zone:hpos child))
-			    (- vpos (clim3-zone:vpos child))))
-		zone))))
-	(traverse (zone zone-entry) hpos vpos)))
-  
-(defun handle-button-release (zone-entry code state)
-  (let ((zone (button-press-zone zone-entry)))
-    (unless (null zone)
-      (funcall (clim3-input:release-handler zone) zone code state))))
-
 (defmethod clim3-port:event-loop ((port clx-framebuffer-port))
   (let ((clim3-port:*new-port* port))
     (loop do (let ((event (xlib:event-case ((display port))
@@ -561,8 +538,8 @@
 			     (window code state)
 			     `(:key-release ,window ,code ,state))
 			    (:button-press
-			     (window code state x y)
-			     `(:button-press ,window ,code ,state ,x ,y))
+			     (window code state)
+			     `(:button-press ,window ,code ,state))
 			    (:button-release
 			     (window code state)
 			     `(:button-release ,window ,code ,state))
@@ -611,11 +588,13 @@
 				(clim3-port:handle-key-release
 				 clim3-port:*key-handler* code state)))
 			     (:button-press 
-			      (destructuring-bind (code state x y) (cddr event)
-				(handle-button-press entry code state x y)))
+			      (destructuring-bind (code state) (cddr event)
+				(clim3-port:handle-button-press
+				 clim3-port:*button-handler* code state)))
 			     (:button-release 
 			      (destructuring-bind (code state) (cddr event)
-				(handle-button-release entry code state)))
+				(clim3-port:handle-button-release
+				 clim3-port:*button-handler* code state)))
 			     ((:exposure :enter-notify :leave-notify)
 			      nil))
 			   (update entry)))))))))

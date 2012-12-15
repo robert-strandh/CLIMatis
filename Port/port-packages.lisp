@@ -16,8 +16,16 @@
    #:*key-handler*
    #:handle-key-press
    #:handle-key-release
+   #:null-key-handler
+   #:*null-key-handler*
    #:read-keystroke
    #:standard-key-processor
+   #:button-handler
+   #:*button-handler*
+   #:handle-button-press
+   #:handle-button-release
+   #:null-button-handler
+   #:*null-button-handler*
    #:paint-pixel
    #:with-zone #:call-with-zone
    #:with-area #:call-with-area
