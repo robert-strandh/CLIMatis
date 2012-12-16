@@ -6,6 +6,8 @@
 
 (defgeneric new-port-paint-opaque (port color))
 
+(defgeneric new-port-paint-translucent (port color opacity))
+
 (defgeneric new-port-paint-text (port text text-style color))
 
 (defgeneric new-port-paint-trapezoids (port trapezoids color))
@@ -18,6 +20,9 @@
 
 (defun new-paint-opaque (color)
   (new-port-paint-opaque *new-port* color))
+
+(defun new-paint-translucent (color opacity)
+  (new-port-paint-translucent *new-port* color opacity))
 
 (defun new-paint-text (text text-style color)
   (new-port-paint-text *new-port* text text-style color))

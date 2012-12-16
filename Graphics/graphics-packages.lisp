@@ -8,4 +8,6 @@
    #:opaque
    #:masked
    #:opacities
+   #:translucent
+   #:opacity
    ))

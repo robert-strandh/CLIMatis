@@ -65,3 +65,25 @@
 
 (defmethod clim3-paint:new-paint ((zone masked))
   (clim3-port:new-paint-mask (opacities zone) (color zone)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Translucent zone.
+;;; 
+;;; A translucent zone is a monochrome zone with an opacity value that
+;;; is uniform across the zone.
+
+(defclass translucent (monochrome)
+  ((%opacity :initarg :opacity :reader opacity))
+  (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
+		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
+
+(defun translucent (color opacity)
+  (make-instance 'translucent
+		 :color color
+		 :opacity opacity))
+
+(defmethod clim3-paint:new-paint ((zone translucent))
+  (clim3-port:new-paint-translucent (color zone) (opacity zone)))
+
+

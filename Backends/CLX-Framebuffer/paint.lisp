@@ -85,6 +85,30 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Paint a uniformly translucent area. 
+
+(defmethod clim3-port:new-port-paint-translucent
+    ((port clx-framebuffer-port) color opacity)
+  (let ((r (clim3-color:red color))
+	(g (clim3-color:green color))
+	(b (clim3-color:blue color)))
+    (loop for vpos from (max *vstart* *vpos*) below *vend*
+	  do (loop for hpos from (max *hstart* *hpos*) below *hend*
+		   do (let* ((pa *pixel-array*)
+			     (pixel (aref pa vpos hpos))
+			     (old-r (/ (logand 255 (ash pixel -16)) 255d0))
+			     (old-g (/ (logand 255 (ash pixel -8)) 255d0))
+			     (old-b (/ (logand 255 pixel) 255d0))
+			     (new-r (+ (* r opacity) (* old-r (- 1d0 opacity))))
+			     (new-g (+ (* g opacity) (* old-g (- 1d0 opacity))))
+			     (new-b (+ (* b opacity) (* old-b (- 1d0 opacity))))
+			     (new-pixel (+ (ash (round (* 255 new-r)) 16)
+					   (ash (round (* 255 new-g)) 8)
+					   (ash (round (* 255 new-b)) 0))))
+			(setf (aref pa vpos hpos) new-pixel))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Paint text
 
 (defgeneric font-instance-paint-text (port font-instance text color))

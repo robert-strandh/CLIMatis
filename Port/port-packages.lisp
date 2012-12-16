@@ -40,6 +40,8 @@
    #:new-port-paint-text
    #:new-paint-opaque
    #:new-port-paint-opaque
+   #:new-paint-translucent
+   #:new-port-paint-translucent
    #:new-paint-trapezoids
    #:new-port-paint-trapezoids
    ))
