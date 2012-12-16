@@ -26,10 +26,6 @@
 ;;; leaves the zone, so that leaving the zone while the button is
 ;;; pressed prevents the action from being executed when the button is
 ;;; released.
-;;;
-;;; Improvements to be made: Replace the normal background by nothing,
-;;; and replace the darker background by a zone that just makes things
-;;; darker, no matter what color.
 
 (defclass action-button-handler (clim3-port:button-handler)
   ((%armedp :initform nil :accessor armedp)
@@ -48,8 +44,8 @@
     (funcall (action handler))))
 
 (defun butcon (label action)
-  (let* ((normal (clim3-graphics:opaque *background*))
-	 (darker (clim3-graphics:opaque (clim3-color:make-color 0.8d0 0.8d0 0.8d0)))
+  (let* ((normal (clim3-layout:sponge))
+	 (darker (clim3-graphics:translucent *black* 0.2d0))
 	 (wrap (clim3-layout:wrap normal))
 	 (handler (make-instance 'action-button-handler :action action)))
     (clim3-layout:pile*
