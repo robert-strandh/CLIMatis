@@ -9,6 +9,14 @@
 \def\zone{zone}
 \def\code#1{\texttt{#1}}
 
+\def\inputfig#1{\input #1}
+\def\inputtex#1{\input #1}
+\def\inputal#1{\input #1}
+
+\inputtex{logos.tex}
+\inputtex{refmacros.tex}
+\inputtex{other-macros.tex}
+
 \setlength{\parskip}{0.3cm}
 \setlength{\parindent}{0cm}
 
@@ -119,19 +127,152 @@ ways:
   time around the command loop.  In this case, \clim{} will have to
   redraw the entire contents of the zone.
 
-\item An application may produce a new sequence of children for each
-  iteration of the command loop such that some or all of the new zones
-  are \emph{the same} as the existing ones.  \clim{} may compare the
-  new sequence to the old one, and again minimize redrawing.
+\item An application may produce a new collection of children for some
+  compound zone each iteration of the command loop such that some or
+  all of the new zones are \emph{the same} as the existing ones.
+  \clim{} may compare the new collection to the old one, and again
+  minimize redrawing.
 
 \item An application may \emph{move} a zone.  Since the canvas uses
   integer coordinates, \clim{} might then be able to move the pixels
   without requiring the application to generate new output.  This is a
   particularly important optimization when \emph{scrolling} is
-  required.  Moving a zone may have no visible effect, if that zone is
-  the child of a layout zone that imposes the position of its
-  children.
+  required.  Moving a zone is allowed only when the zone does not have
+  a parent, or when the parent is a layout zone that allows its
+  children to determine their own positions. 
 \end{itemize}
+
+\section{Graphic zones}
+\label{sec-zones-graphic}
+
+A \emph{graphic zone} is an atomic zone.  When such a zone is
+\emph{painted}, some subset of the pixels inside it may have their
+color values altered.
+
+Graphic zones are \emph{immutable}, so as to guarantee that the result
+of painting one is the same each time it is painted.  If an
+application wants to alter the behavior of some graphics zone, say its
+color, then the only way is to stick it inside a compound zone (the
+simplest one is the \code{wrap} zone \seesec{sec-zones-layout-wrap})
+and replace it with a new one with the altered behavior.%
+\footnote{The reason for graphic zone to be immutable is so that
+  \clim{} can detect a change by comparing two such zones using
+  \code{eq}.  When such a comparison yields \emph{true} and if the
+  zone has the same size as before, then \clim{} uses this information
+  to decide that the result of painting the zone will be the same as
+  last before.}
+
+\subsection{Opaque}
+\label{sec-zones-graphic-opaque}
+
+The simplest graphic zone is the \code{opaque} zone.  It ignores the
+color values of the existing pixels and paints the entire zone with
+some fixed color value that was given when the zone was created.
+Since graphic zones are immutable, it is not possible to change this
+color value.  The \emph{sprawls} of an opaque zone are the same as
+those of a \code{sponge} \seesec{sec-zones-layout-sponge}, i.e., it
+is very elastic so that it can take on any size. 
+
+\subsection{Masked}
+\label{sec-zones-graphic-masked}
+
+The \code{masked} zone uses a \emph{color} and a \emph{mask} to alter
+the pixels inside it when painted.  A mask is a 2-dimensional array of
+opacity values (also known as \emph{alpha} values).  The zone is
+painted using the \emph{compose over} color composition operation.
+The minimum, preferred, and maximum sizes for a masked zone are the
+same as the sizes for the mask.
+
+\subsection{Image}
+\label{sec-zones-graphic-image}
+
+The \code{image} zone uses an \emph{image} to alter the pixels inside
+it when painted.  An image is a 2-dimensional array of \emph{pixels}.
+A pixel is a color and an opacity value.  The zone is painted using
+the \emph{compose over} color composition operation.  The minimum,
+preferred, and maximum sizes for a masked zone are the same as the
+sizes for the mask.
+
+\section{Layout zones}
+\label{sec-zones-layout}
+
+\subsection{Wrap}
+\label{sec-zones-layout-wrap}
+
+The \code{wrap} zone is a zone that has either no children or a single
+child.  If it has no child, it behaves in the same way as the
+\code{sponge} zone. \seesec{sec-zones-layout-sponge}  If it has a
+child, then it takes on the sprawls of that child. 
+
+The wrap zone is useful as a place holder in the zone hierarchy for
+places that are altered in some way by an application.  For example,
+if an application wants to change the background color of a gadget,
+perhaps as a result of some pointer motion, then the background color
+of the gadget would typically be an \code{opaque} zone
+\seesec{sec-zones-graphic-opaque} contained inside a \code{wrap}
+zone.  To alter the color, the application would then replace the
+child of the \code{wrap} zone by a different \code{opaque} zone having
+the desired color.
+
+\subsection{Sponge}
+\label{sec-zones-layout-sponge}
+
+The \code{sponge} zone is a zone that has either no children or a
+single child.  It ignores the sprawls of its child (if any) and
+imposes its own.  Each imposed sprawl has zero minimum and preferred
+size and infinite maximum size.
+
+\subsection{Vsponge}
+\label{sec-zones-layout-vsponge}
+
+The \code{vsponge} zone is a zone that has either no children or a
+single child.  If it has no child, it behaves the same way as the
+\code{sponge} zone. \seesec{sec-zone-layout-sponge}
+
+\subsection{Hsponge}
+\label{sec-zones-layout-hsponge}
+
+The \code{hsponge} zone is a zone that has either no children or a single
+child.  If it has no child, it behaves the same way as the
+\code{sponge} zone. \seesec{sec-zone-layout-sponge}
+
+\subsection{Brick}
+\label{sec-zones-layout-brick}
+
+The \code{brick} zone is a zone that has either no children or a
+single child.  
+
+\subsection{Vbrick}
+\label{sec-zones-layout-vbrick}
+
+The \code{vbrick} zone is a zone that has either no children or a
+single child.  If it has no child, it behaves the same way as the
+\code{brick} zone. \seesec{sec-zone-layout-brick}
+
+\subsection{Hbrick}
+\label{sec-zones-layout-hbrick}
+
+The \code{hbrick} zone is a zone that has either no children or a
+single child.  If it has no child, it behaves the same way as the
+\code{brick} zone. \seesec{sec-zone-layout-brick}
+
+\subsection{Vbox}
+\label{sec-zones-layout-vbox}
+
+\subsection{Hbox}
+\label{sec-zones-layout-hbox}
+
+\subsection{Grid}
+\label{sec-zones-layout-grid}
+
+\subsection{Pile}
+\label{sec-zones-layout-pile}
+
+\section{Input zones}
+\label{sec-zones-input}
+
+\subsection{Visit}
+\label{sec-zones-input-visit}
 
 \chapter{Command loop}
 
