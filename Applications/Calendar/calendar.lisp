@@ -4,6 +4,9 @@
 ;;;
 ;;; Date manipulation.
 
+;;; This function is similar to DECODE-UNIVERSAL-TIME, except that it
+;;; does not return seconds and minutes; only hour, day, month, year,
+;;; and day-of-week. 
 (defun dut (universal-time)
   (multiple-value-bind (ss mm hh d m y dow)
       (decode-universal-time universal-time 0)
@@ -15,6 +18,10 @@
 ;;;
 ;;; GUI.
 
+;;; The value is the current absolute week number, where the first
+;;; week of year 1900 is considered to be absolute week number 0.
+;;; Lucky for us, the first week of 1900 started on a Monday, and that
+;;; is also how ISO 8601 defines the week. 
 (defparameter *current-week* 0)
 
 (defparameter *dayname-text-style*
@@ -48,6 +55,8 @@
    1
    (clim3-graphics:opaque (clim3-color:make-color 0.3d0 0d0 0d0))))
 
+;;; The day numbers are wrap zones, and the child of each such wrap
+;;; zone will be modified to reflect what is currently on display. 
 (defparameter *day-numbers-of-week*
   (loop repeat 7
 	collect (clim3-layout:wrap)))
@@ -139,32 +148,36 @@
    (clim3-graphics:opaque *background*)))
 
 (defclass next-week-button-handler (clim3-port:button-handler)
-  ())
+  ((%armedp :initform nil :accessor armedp)))
 
 (defmethod clim3-port:handle-button-press
     ((handler next-week-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
-  (incf *current-week*)
-  (set-day-numbers))
+  (setf (armedp handler) t))
 
 (defmethod clim3-port:handle-button-release
     ((handler next-week-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
-  nil)
+  (when (armedp handler)
+    (setf (armedp handler) nil)
+    (incf *current-week*)
+    (set-day-numbers)))
 
 (defclass previous-week-button-handler (clim3-port:button-handler)
-  ())
+  ((%armedp :initform nil :accessor armedp)))
 
 (defmethod clim3-port:handle-button-press
     ((handler previous-week-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
-  (decf *current-week*)
-  (set-day-numbers))
+  (setf (armedp handler) t))
 
 (defmethod clim3-port:handle-button-release
     ((handler previous-week-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
-  nil)
+  (when (armedp handler)
+    (setf (armedp handler) nil)
+    (decf *current-week*)
+    (set-day-numbers)))
 
 (defun butcon (label handler)
   (let* ((normal (clim3-graphics:opaque *background*))
@@ -178,6 +191,7 @@
 	(setf (clim3-zone:children wrap) darker))
       (lambda (zone)
 	(declare (ignore zone))
+	(setf (armedp handler) nil)
 	(setf clim3-port:*button-handler* clim3-port:*null-button-handler*)
 	(setf (clim3-zone:children wrap) normal)))
      (clim3-text:text label *toolbar-text-style* *black*)
