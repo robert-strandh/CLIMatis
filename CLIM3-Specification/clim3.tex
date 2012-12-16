@@ -183,6 +183,17 @@ painted using the \emph{compose over} color composition operation.
 The minimum, preferred, and maximum sizes for a masked zone are the
 same as the sizes for the mask.
 
+\subsection{Translucent}
+\label{sec-zones-graphic-translucent}
+
+The \code{translucent} zone uses a \emph{color} and an \emph{opacity}
+value (also known as an \emph{alpha} value) to alter the pixels inside
+it when painted.  Since graphic zones are immutable, it is not
+possible to change the color or the opacity value.  The \emph{sprawls}
+of a translucent zone are the same as those of a \code{sponge}
+\seesec{sec-zones-layout-sponge}, i.e., it is very elastic so that it
+can take on any size.
+
 \subsection{Image}
 \label{sec-zones-graphic-image}
 
