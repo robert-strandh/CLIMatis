@@ -16,6 +16,58 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Butcon (name taken from the book by Alan Cooper).
+;;;
+;;; It is a combination of a button and an icon.  When the pointer
+;;; enters the zone, then it becomes darker.  When the button is
+;;; pressed when the pointer is in the zone, the buton becomes aremed.
+;;; When the button is released and the butcon is armed, then the
+;;; action is executed.  The butcon becomes disarmed if the pointer
+;;; leaves the zone, so that leaving the zone while the button is
+;;; pressed prevents the action from being executed when the button is
+;;; released.
+;;;
+;;; Improvements to be made: Replace the normal background by nothing,
+;;; and replace the darker background by a zone that just makes things
+;;; darker, no matter what color.
+
+(defclass action-button-handler (clim3-port:button-handler)
+  ((%armedp :initform nil :accessor armedp)
+   (%action :initarg :action :reader action)))
+
+(defmethod clim3-port:handle-button-press
+    ((handler action-button-handler) button-code modifiers)
+  (declare (ignore button-code modifiers))
+  (setf (armedp handler) t))
+
+(defmethod clim3-port:handle-button-release
+    ((handler action-button-handler) button-code modifiers)
+  (declare (ignore button-code modifiers))
+  (when (armedp handler)
+    (setf (armedp handler) nil)
+    (funcall (action handler))))
+
+(defun butcon (label action)
+  (let* ((normal (clim3-graphics:opaque *background*))
+	 (darker (clim3-graphics:opaque (clim3-color:make-color 0.8d0 0.8d0 0.8d0)))
+	 (wrap (clim3-layout:wrap normal))
+	 (handler (make-instance 'action-button-handler :action action)))
+    (clim3-layout:pile*
+     (clim3-input:visit
+      (lambda (zone)
+	(declare (ignore zone))
+	(setf clim3-port:*button-handler* handler)
+	(setf (clim3-zone:children wrap) darker))
+      (lambda (zone)
+	(declare (ignore zone))
+	(setf (armedp handler) nil)
+	(setf clim3-port:*button-handler* clim3-port:*null-button-handler*)
+	(setf (clim3-zone:children wrap) normal)))
+     (clim3-text:text label *toolbar-text-style* *black*)
+     wrap)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; GUI.
 
 ;;; The value is the current absolute week number, where the first
@@ -147,63 +199,21 @@
      (clim3-layout:hbrick 10)))
    (clim3-graphics:opaque *background*)))
 
-(defclass next-week-button-handler (clim3-port:button-handler)
-  ((%armedp :initform nil :accessor armedp)))
+(defun previous-week ()
+  (decf *current-week*)
+  (set-day-numbers))
 
-(defmethod clim3-port:handle-button-press
-    ((handler next-week-button-handler) button-code modifiers)
-  (declare (ignore button-code modifiers))
-  (setf (armedp handler) t))
-
-(defmethod clim3-port:handle-button-release
-    ((handler next-week-button-handler) button-code modifiers)
-  (declare (ignore button-code modifiers))
-  (when (armedp handler)
-    (setf (armedp handler) nil)
-    (incf *current-week*)
-    (set-day-numbers)))
-
-(defclass previous-week-button-handler (clim3-port:button-handler)
-  ((%armedp :initform nil :accessor armedp)))
-
-(defmethod clim3-port:handle-button-press
-    ((handler previous-week-button-handler) button-code modifiers)
-  (declare (ignore button-code modifiers))
-  (setf (armedp handler) t))
-
-(defmethod clim3-port:handle-button-release
-    ((handler previous-week-button-handler) button-code modifiers)
-  (declare (ignore button-code modifiers))
-  (when (armedp handler)
-    (setf (armedp handler) nil)
-    (decf *current-week*)
-    (set-day-numbers)))
-
-(defun butcon (label handler)
-  (let* ((normal (clim3-graphics:opaque *background*))
-	 (darker (clim3-graphics:opaque (clim3-color:make-color 0.8d0 0.8d0 0.8d0)))
-	 (wrap (clim3-layout:wrap normal)))
-    (clim3-layout:pile*
-     (clim3-input:visit
-      (lambda (zone)
-	(declare (ignore zone))
-	(setf clim3-port:*button-handler* handler)
-	(setf (clim3-zone:children wrap) darker))
-      (lambda (zone)
-	(declare (ignore zone))
-	(setf (armedp handler) nil)
-	(setf clim3-port:*button-handler* clim3-port:*null-button-handler*)
-	(setf (clim3-zone:children wrap) normal)))
-     (clim3-text:text label *toolbar-text-style* *black*)
-     wrap)))
+(defun next-week ()
+  (incf *current-week*)
+  (set-day-numbers))
 
 (defun toolbar ()
   (clim3-layout:pile*
    (clim3-layout:hbox*
     (clim3-layout:sponge)
-    (butcon "<" (make-instance 'previous-week-button-handler))
+    (butcon "<" #'previous-week)
     (clim3-layout:hbrick 20)
-    (butcon ">"(make-instance 'next-week-button-handler))
+    (butcon ">" #'next-week)
     (clim3-layout:sponge))
    (clim3-graphics:opaque *background*)))
 
