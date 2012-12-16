@@ -259,8 +259,44 @@ single child.  If it has no child, it behaves the same way as the
 \subsection{Vbox}
 \label{sec-zones-layout-vbox}
 
+The \code{vbox} zone is a zone that arranges its children in a
+vertical box.  It can have an arbitrary number of children.
+
+The vertical sprawl of the resulting box is the sum of the individual
+components of each child.  If any such component is infinite, then the
+corresponding component of the \code{vbox} is also infinite.
+
+The components of the horizontal sprawl of the resulting box are
+computed as follows: The desired minimum size is the maximum of the
+desired minimum sizes of the children.  The desired preferred size is
+the average of the desired preferred sizes of the
+children.\footnote{Check this.}  The desired maximum size is the
+minimum of the desired maximum sizes of the children.  There are
+several exceptions to this rule, though.  For instance, it is possible
+that the rule above yields inconsistent sizes (where the smallest size
+is greater than the preferred size, for instance).  In those cases, a
+reasonable compromise is computed. 
+
 \subsection{Hbox}
 \label{sec-zones-layout-hbox}
+
+The \code{hbox} zone is a zone that arranges its children in a
+vertical box.  It can have an arbitrary number of children.
+
+The horizontal sprawl of the resulting box is the sum of the individual
+components of each child.  If any such component is infinite, then the
+corresponding component of the \code{hbox} is also infinite.
+
+The components of the vertical sprawl of the resulting box are
+computed as follows: The desired minimum size is the maximum of the
+desired minimum sizes of the children.  The desired preferred size is
+the average of the desired preferred sizes of the
+children.\footnote{Check this.}  The desired maximum size is the
+minimum of the desired maximum sizes of the children.  There are
+several exceptions to this rule, though.  For instance, it is possible
+that the rule above yields inconsistent sizes (where the smallest size
+is greater than the preferred size, for instance).  In those cases, a
+reasonable compromise is computed. 
 
 \subsection{Grid}
 \label{sec-zones-layout-grid}
