@@ -43,9 +43,10 @@
     (setf (armedp handler) nil)
     (funcall (action handler))))
 
-(defun butcon (label action)
+(defun butcon (label-zone action)
   (let* ((normal (clim3-layout:sponge))
-	 (darker (clim3-graphics:translucent *black* 0.2d0))
+	 (black (clim3-color:make-color 0d0 0d0 0d0))
+	 (darker (clim3-graphics:translucent black 0.2d0))
 	 (wrap (clim3-layout:wrap normal))
 	 (handler (make-instance 'action-button-handler :action action)))
     (clim3-layout:pile*
@@ -59,7 +60,7 @@
 	(setf (armedp handler) nil)
 	(setf clim3-port:*button-handler* clim3-port:*null-button-handler*)
 	(setf (clim3-zone:children wrap) normal)))
-     (clim3-text:text label *toolbar-text-style* *black*)
+     label-zone
      wrap)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -203,13 +204,19 @@
   (incf *current-week*)
   (set-day-numbers))
 
+(defparameter *icons* (clim3-icons:make-icons 20))
+
 (defun toolbar ()
   (clim3-layout:pile*
    (clim3-layout:hbox*
     (clim3-layout:sponge)
-    (butcon "<" #'previous-week)
+    (butcon (clim3-graphics:masked
+	     *black* (clim3-icons:find-icon *icons* :left))
+	    #'previous-week)
     (clim3-layout:hbrick 20)
-    (butcon ">" #'next-week)
+    (butcon (clim3-graphics:masked
+	     *black* (clim3-icons:find-icon *icons* :right))
+	    #'next-week)
     (clim3-layout:sponge))
    (clim3-graphics:opaque *background*)))
 
