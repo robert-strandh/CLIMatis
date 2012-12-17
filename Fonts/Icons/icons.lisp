@@ -106,21 +106,44 @@
 		 (list (mf p0 -- p1 -- p2 -- p3 -- p4 -- p5 -- cycle))))))
 
 ;;;  
-;;;  
-;;;                            
-;;;           ****         **
-;;;         ******     **   **
-;;;       ********      **   **
-;;;  *************  **   **   **
-;;;  *************   **   **  **
-;;;  *************    **  **  **
-;;;  *************   **   **  **
-;;;  *************  **   **  **
-;;;       ********      **  **
-;;;         ******     **  **
-;;;           ****        ** 
-;;;                            
-;;;  
+;;;                          2
+;;;                         /    
+;;;  -                     *
+;;; |                    ***         **
+;;; |        0     1   *****     **   **
+;;; |         \     \*******      **   **
+;;; |       -  *************  **   **   **
+;;; |      |   *************   **   **  **
+;;; |h2    |h1 *************    **  **  **
+;;; |      |   *************   **   **  **
+;;; |       -  *************  **   **  **
+;;; |         /     /*******      **  **
+;;; |        5     4   *****     **  **
+;;; |                    ***        ** 
+;;;  -                     *
+;;;            |_w1_|       \             
+;;;                          3  
+;;;            |_____w2_____|
+;;;       
+
+;;; FIXME: do the sound waves.
+(defun make-mask-speaker (font)
+  (with-accessors ((size size)
+		   (stroke-width stroke-width))
+      font
+    (let*  ((left-margin (round (* 0.2 size)))
+	    (w2 (round (* 0.4 size)))
+	    (w1 (* 0.5 w2))
+	    (h1/2 (round (* 0.15 size)))
+	    (h2/2 (* 0.4 size))
+	    (p0 (complex left-margin (+ (/ size 2) h1/2)))
+	    (p1 (+ p0 w1))
+	    (p5 (complex left-margin (- (/ size 2) h1/2)))
+	    (p4 (+ p5 w1))
+	    (p2 (complex (+ left-margin w2) (+ (/ size 2) h2/2)))
+	    (p3 (complex (+ left-margin w2) (- (/ size 2) h2/2))))
+      (make-mask size
+		 (list (mf p0 -- p1 -- p2 -- p3 -- p4 -- p5 -- cycle))))))
 
 (defun add-mask (name masks mask)
   (setf (gethash name masks) mask))
@@ -134,6 +157,7 @@
 	 (masks (masks font)))
     (add-mask :right masks (make-mask-right font))
     (add-mask :left masks (make-mask-left font))
+    (add-mask :speaker masks (make-mask-speaker font))
     font))
 
 (defun find-icon (font name)
