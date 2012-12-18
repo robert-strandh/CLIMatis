@@ -126,24 +126,54 @@
 ;;;            |_____w2_____|
 ;;;       
 
-;;; FIXME: do the sound waves.
 (defun make-mask-speaker (font)
   (with-accessors ((size size)
 		   (stroke-width stroke-width))
       font
-    (let*  ((left-margin (round (* 0.2 size)))
-	    (w2 (round (* 0.4 size)))
-	    (w1 (* 0.5 w2))
-	    (h1/2 (round (* 0.15 size)))
-	    (h2/2 (* 0.4 size))
-	    (p0 (complex left-margin (+ (/ size 2) h1/2)))
-	    (p1 (+ p0 w1))
-	    (p5 (complex left-margin (- (/ size 2) h1/2)))
-	    (p4 (+ p5 w1))
-	    (p2 (complex (+ left-margin w2) (+ (/ size 2) h2/2)))
-	    (p3 (complex (+ left-margin w2) (- (/ size 2) h2/2))))
-      (make-mask size
-		 (list (mf p0 -- p1 -- p2 -- p3 -- p4 -- p5 -- cycle))))))
+    (make-mask
+     size
+     (cons (let*  ((left-margin (round (* 0.1 size)))
+		   (w2 (round (* 0.3 size)))
+		   (w1 (* 0.4 w2))
+		   (h1/2 (round (* 0.15 size)))
+		   (h2/2 (* 0.4 size))
+		   (p0 (complex left-margin (+ (/ size 2) h1/2)))
+		   (p1 (+ p0 w1))
+		   (p5 (complex left-margin (- (/ size 2) h1/2)))
+		   (p4 (+ p5 w1))
+		   (p2 (complex (+ left-margin w2) (+ (/ size 2) h2/2)))
+		   (p3 (complex (+ left-margin w2) (- (/ size 2) h2/2))))
+	     (mf p0 -- p1 -- p2 -- p3 -- p4 -- p5 -- cycle))
+	   (let ((center (complex (round (* size 0.2)) (round (/ size 2))))
+		 (thickness (max 1 (round (/ stroke-width 2))))
+		 (angle (* pi 0.2))
+		 (min-radius (round (* size 0.3))))
+	     (flet ((wave (radius)
+		      (format t "~a ~a ~a ~a~%"
+			      center
+			      (* radius (exp (* #c(0 -1) angle)))
+			      (* radius (exp (* #c(0 1) angle)))
+			      thickness)
+		      (mf
+			(+ center (* radius (exp (* #c(0 -1) angle))))
+			++
+			(+ center radius)
+			++
+			(+ center (* radius (exp (* #c(0 1) angle))))
+			--
+			(+ center (* (+ radius thickness) (exp (* #c(0 1) angle))))
+			++
+			(+ center (+ radius thickness))
+			++
+			(+ center (* (+ radius thickness) (exp (* #c(0 -1) angle))))
+			--
+			cycle)))
+	       (loop for radius from min-radius by (* 2 thickness)
+		     while (< (+ (realpart center)
+				 radius
+				 (* 2 thickness))
+			      size)
+		     collect (wave radius))))))))
 
 (defun add-mask (name masks mask)
   (setf (gethash name masks) mask))
