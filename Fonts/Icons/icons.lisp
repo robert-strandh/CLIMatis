@@ -33,7 +33,7 @@
 			      :initial-element 0d0)))
 	(aa:cells-sweep state (lambda (x y alpha)
 				(setf alpha (min 256 (max 0 alpha)))
-				(setf (aref mask y x)
+				(setf (aref mask (- size y) x)
 				      (/ alpha 256d0))))
 	mask))))
 
@@ -105,6 +105,73 @@
       (make-mask size
 		 (list (mf p0 -- p1 -- p2 -- p3 -- p4 -- p5 -- cycle))))))
 
+;;;                              5
+;;;                              |
+;;;                             ***
+;;;                           *******
+;;;                         **** | ****
+;;;                       ****   2   ****
+;;;                     ****           ****
+;;;              4    ****               ****     0
+;;;              \  ****                   ****  /
+;;;               ****                       ****
+;;;               **                           **
+;;;               *                             *
+;;;              /                               \
+;;;             3                                 1
+;;;     
+
+
+(defun make-mask-up (font)
+  (with-accessors ((size size)
+		   (stroke-width stroke-width))
+      font
+    (let* ((hmargin (round (* 0.2 size)))
+	   (vmargin (round (* 0.2 size)))
+	   (vdelta (* stroke-width 2.0))
+	   (p5 (complex (/ size 2) (- size vmargin)))
+	   (p2 (- p5 (complex 0 vdelta)))
+	   (p3 (complex hmargin vmargin))
+	   (p4 (+ p3 (complex 0 vdelta)))
+	   (p1 (complex (- size hmargin) vmargin))
+	   (p0 (+ p1 (complex 0 vdelta))))
+      (make-mask size
+		 (list (mf p0 -- p1 -- p2 -- p3 -- p4 -- p5 -- cycle))))))
+
+;;;
+;;;             1                                 3
+;;;              \                               /
+;;;               *                             *
+;;;               **                           **
+;;;               ****                       ****
+;;;              /  ****                   ****  \
+;;;             0    ****               ****      4
+;;;                     ****           ****
+;;;                       ****   2   ****
+;;;                         **** | ****
+;;;                           *******
+;;;                             ***
+;;;                              |
+;;;                              5
+;;;     
+
+
+(defun make-mask-down (font)
+  (with-accessors ((size size)
+		   (stroke-width stroke-width))
+      font
+    (let* ((hmargin (round (* 0.2 size)))
+	   (vmargin (round (* 0.2 size)))
+	   (vdelta (* stroke-width 2.0))
+	   (p5 (complex (/ size 2) vmargin))
+	   (p2 (+ p5 (complex 0 vdelta)))
+	   (p1 (complex hmargin (- size vmargin)))
+	   (p0 (- p1 (complex 0 vdelta)))
+	   (p3 (complex (- size hmargin) (- size vmargin)))
+	   (p4 (- p3 (complex 0 vdelta))))
+      (make-mask size
+		 (list (mf p0 -- p1 -- p2 -- p3 -- p4 -- p5 -- cycle))))))
+
 ;;;  
 ;;;                          2
 ;;;                         /    
@@ -149,11 +216,6 @@
 		 (angle (* pi 0.2))
 		 (min-radius (round (* size 0.3))))
 	     (flet ((wave (radius)
-		      (format t "~a ~a ~a ~a~%"
-			      center
-			      (* radius (exp (* #c(0 -1) angle)))
-			      (* radius (exp (* #c(0 1) angle)))
-			      thickness)
 		      (mf
 			(+ center (* radius (exp (* #c(0 -1) angle))))
 			++
@@ -187,6 +249,8 @@
 	 (masks (masks font)))
     (add-mask :right masks (make-mask-right font))
     (add-mask :left masks (make-mask-left font))
+    (add-mask :up masks (make-mask-up font))
+    (add-mask :down masks (make-mask-down font))
     (add-mask :speaker masks (make-mask-speaker font))
     font))
 
