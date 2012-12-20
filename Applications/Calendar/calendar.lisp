@@ -230,4 +230,5 @@
     (clim3-port:connect root port)
     (let ((clim3-port:*new-port* port))
       (loop for keystroke = (clim3-port:read-keystroke)
-	    until (eql (car keystroke) #\q)))))
+	    until (eql (car keystroke) #\q)
+	    do (clim3-port:repaint port)))))
