@@ -277,8 +277,12 @@
 (defclass scroller (standard-zone
 		    at-most-one-child-mixin
 		    changing-child-position-not-allowed-mixin
+		    changing-child-hsprawl-changes-nothing-mixin
+		    changing-child-vsprawl-changes-nothing-mixin
 		    child-depth-insignificant-mixin)
-  ())
+  ()
+  (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
+		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
 (defmethod compute-hsprawl ((zone scroller))
   (error "attempt to combine hsprawls of children of a scroller zone"))
