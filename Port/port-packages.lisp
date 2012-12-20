@@ -44,5 +44,6 @@
    #:new-port-paint-translucent
    #:new-paint-trapezoids
    #:new-port-paint-trapezoids
+   #:repaint
    ))
   

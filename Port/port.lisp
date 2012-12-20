@@ -47,6 +47,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function REDISPLAY. 
+
+(defgeneric repaint (port))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic function TEXT-ASCENT.
 ;;;
 ;;; Take a port, a text style and a string, and return the ascent of
@@ -203,4 +209,3 @@
 (defparameter *null-button-handler* (make-instance 'null-button-handler))
 
 (defparameter *button-handler* *null-button-handler*)
-
