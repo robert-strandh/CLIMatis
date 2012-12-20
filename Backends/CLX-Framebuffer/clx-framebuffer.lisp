@@ -210,7 +210,153 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Experiment: build a skeleton zone hierarchy. 
+
+(defclass skeleton ()
+  ((%zone :initarg :zone :reader zone)
+   (%hpos :initarg :hpos :reader hpos)
+   (%vpos :initarg :vpos :reader vpos)
+   (%width :initarg :width :reader width)
+   (%height :initarg :height :reader height)
+   (%children :initform '() :initarg :children :accessor children)))
+
+(defmethod print-object ((object skeleton) stream)
+  (print-unreadable-object (object stream :type t :identity t)
+    (format stream
+	    "zone: ~s hpos: ~s :vpos ~s :width ~s :height ~s"
+	    (zone object)
+	    (hpos object)
+	    (vpos object)
+	    (width object)
+	    (height object))))	    
+
+;;; The purpose of this function is to build a skeletal version of the
+;;; visible zone hierarchy, so that this hierarchy can be compared to
+;;; what was there last time around the event loop.  
+;;;
+;;; The parameters HMIN, VMIN, HMAX, and VMAX are in the coordinate
+;;; system of ZONE, and they are inside ZONE.  In other words, HMIN
+;;; and VMIN are non-negative, HMAX is less than or equal to the width
+;;; of ZONE, and VMAX is less than or equal to the height of ZONE.
+(defun build-visible-hierarchy (zone hmin vmin hmax vmax)
+  (let ((children '()))
+    (clim3-zone:map-over-children-top-to-bottom
+     (lambda (child)
+       (let ((chpos (clim3-zone:hpos child))
+	     (cvpos (clim3-zone:vpos child))
+	     (cwidth (clim3-zone:width child))
+	     (cheight (clim3-zone:height child)))
+	 (when (and (< chpos hmax)
+		    (< cvpos vmax)
+		    (> (+ chpos cwidth) hmin)
+		    (> (+ cvpos cheight) vmin))
+	   ;; The child is at least partially inside the area. 
+	   (let ((new-hmin (max 0 (- hmin chpos)))
+		 (new-vmin (max 0 (- vmin cvpos)))
+		 (new-hmax (min cwidth (- hmax chpos)))
+		 (new-vmax (min cheight (- vmax cvpos))))
+	     (push (build-visible-hierarchy
+		    child new-hmin new-vmin new-hmax new-vmax)
+		   children)))))
+     zone)
+    (make-instance 'skeleton
+		   :zone zone
+		   :hpos (clim3-zone:hpos zone)
+		   :vpos (clim3-zone:vpos zone)
+		   :width (clim3-zone:width zone)
+		   :height (clim3-zone:height zone)
+		   :children (nreverse children))))
+
+(defparameter *hierarchy* nil)
+
+(defun build-top-level-hierarchy (zone)
+  (setf *hierarchy*
+	(let ((width (clim3-zone:width zone))
+	      (height (clim3-zone:height zone)))
+	  (build-visible-hierarchy zone 0 0 width height))))
+
+;;; The purpose of this function is to scan the visible zone hierarchy
+;;; and compare it to what was painted last time around the event
+;;; loop.  This information is then used to determine whether we need
+;;; to paint anything at all.  
+;;;
+(defun visible-hierarchy-unchanged-p (hierarchy zone hmin vmin hmax vmax)
+  (and (eq (zone hierarchy) zone)
+       (= (hpos hierarchy) (clim3-zone:hpos zone))
+       (= (vpos hierarchy) (clim3-zone:vpos zone))
+       (= (width hierarchy) (clim3-zone:width zone))
+       (= (height hierarchy) (clim3-zone:height zone))
+       (let ((children (children hierarchy)))
+	 (clim3-zone:map-over-children-top-to-bottom
+	  (lambda (child)
+	    (if (or (null children)
+		    (not (eq (zone (car children)) child))
+		    (let ((chpos (clim3-zone:hpos child))
+			  (cvpos (clim3-zone:vpos child))
+			  (cwidth (clim3-zone:width child))
+			  (cheight (clim3-zone:height child)))
+		      (when (and (< chpos hmax)
+				 (< cvpos vmax)
+				 (> (+ chpos cwidth) hmin)
+				 (> (+ cvpos cheight) vmin))
+			;; The child is at least partially inside the
+			;; area.
+			(let ((new-hmin (max 0 (- hmin chpos)))
+			      (new-vmin (max 0 (- vmin cvpos)))
+			      (new-hmax (min cwidth (- hmax chpos)))
+			      (new-vmax (min cheight (- vmax cvpos))))
+			  (not (visible-hierarchy-unchanged-p
+				(car children) child
+				new-hmin new-vmin new-hmax new-vmax))))))
+		(return-from visible-hierarchy-unchanged-p nil)
+		(pop children)))
+	  zone)
+	 ;; If there are any children left in the hierarchy, then
+	 ;; something has changed. 
+	 (null children))))
+
+(defun top-level-hierarchy-unchanged-p (zone)
+  (and (not (null *hierarchy*))
+       (let ((width (clim3-zone:width zone))
+	     (height (clim3-zone:height zone)))
+	 (visible-hierarchy-unchanged-p
+	  *hierarchy* zone 0 0 width height))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Update zones.
+
+(defun layout-visible-zones (zone width height)
+  (labels ((aux (zone)
+	     (when (typep zone 'clim3-zone:compound-mixin)
+	       (clim3-zone:impose-child-layouts zone)
+	       (clim3-zone:map-over-children
+		(lambda (child)
+		  (clim3-port:with-zone child
+		    (aux child)))
+		zone))))
+    (let ((*hpos* 0)
+	  (*vpos* 0)
+	  (*hstart* 0)
+	  (*vstart* 0)
+	  (*hend* width)
+	  (*vend* height))
+      (aux zone))))
+    
+(defun paint-visible-area (zone width height pixel-array)
+  (let ((*hpos* 0)
+	(*vpos* 0)
+	(*hstart* 0)
+	(*vstart* 0)
+	(*hend* width)
+	(*vend* height)
+	(*pixel-array* pixel-array))
+    (clim3-paint:new-paint zone)))
+
+(defun draw-default-background (pixel-array)
+  (loop for r from 0 below (array-dimension pixel-array 0)
+	do (loop for c from 0 below (array-dimension pixel-array 1)
+		 do (setf (aref pixel-array r c) #xeeeeeeee))))
 
 (defun update (zone-entry)
   (with-accessors ((zone zone)
@@ -224,38 +370,33 @@
       (clim3-zone:impose-size zone width height)
       ;; Make sure the pixmap and the image object have the same
       ;; dimensions as the window.
-      (if (and (= width (array-dimension pixel-array 1))
-	       (= height (array-dimension pixel-array 0)))
-	  (loop for r from 0 below (array-dimension pixel-array 0)
-		do (loop for c from 0 below (array-dimension pixel-array 1)
-			 do (setf (aref pixel-array r c) #xeeeeeeee)))
-	  (progn
-	    ;; FIXME: give the right pixel values
-	    (setf pixel-array
-		  (make-array (list height width)
-			      :element-type '(unsigned-byte 32)
-			      :initial-element #xeeeeeeee))	  
-	    (setf (image zone-entry)
-		  (xlib:create-image :bits-per-pixel 32
-				     :data (pixel-array zone-entry)
-				     :depth 24
-				     :width width :height height
-				     :format :z-pixmap))))
-      ;; Paint.
-      (let ((*hpos* 0)
-	    (*vpos* 0)
-	    (*hstart* 0)
-	    (*vstart* 0)
-	    (*hend* width)
-	    (*vend* height)
-	    (*pixel-array* pixel-array))
-	(clim3-paint:new-paint zone))
+      (when (or (/= width (array-dimension pixel-array 1))
+		(/= height (array-dimension pixel-array 0)))
+	(setf *hierarchy* nil)
+	(setf pixel-array
+	      (make-array (list height width)
+			  :element-type '(unsigned-byte 32)))
+	(setf image
+	      (xlib:create-image :bits-per-pixel 32
+				 :data pixel-array
+				 :depth 24
+				 :width width :height height
+				 :format :z-pixmap)))
+      (layout-visible-zones zone width height)
+      (unless (top-level-hierarchy-unchanged-p zone)
+	(build-top-level-hierarchy zone)
+	(draw-default-background pixel-array)
+	(paint-visible-area zone width height pixel-array))
       ;; Transfer the image. 
       (xlib::put-image window
 		       gcontext
 		       image
 		       :x 0 :y 0
 		       :width width :height height))))
+
+(defmethod clim3-port:repaint ((port clx-framebuffer-port))
+  (loop for zone-entry in (zone-entries port)
+	do (update zone-entry)))
 
 (defmethod clim3-port:connect ((zone clim3-zone:zone)
 			       (port clx-framebuffer-port))
@@ -307,6 +448,7 @@
 			     :depth 24
 			     :width 0 :height 0
 			     :format :z-pixmap))
+    (setf *hierarchy* nil)
     ;; Make sure the window has the right contents.
     (update zone-entry)))
 
