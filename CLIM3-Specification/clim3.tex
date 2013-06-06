@@ -160,7 +160,7 @@ and replace it with a new one with the altered behavior.%
   \code{eq}.  When such a comparison yields \emph{true} and if the
   zone has the same size as before, then \clim{} uses this information
   to decide that the result of painting the zone will be the same as
-  last before.}
+  last time.}
 
 \subsection{Opaque}
 \label{sec-zones-graphic-opaque}
@@ -181,7 +181,12 @@ the pixels inside it when painted.  A mask is a 2-dimensional array of
 opacity values (also known as \emph{alpha} values).  The zone is
 painted using the \emph{compose over} color composition operation.
 The minimum, preferred, and maximum sizes for a masked zone are the
-same as the sizes for the mask.
+same as the sizes for the mask.  The mask is considered to be
+positioned so that the upper-left corner of the mask coincides with
+the upper-left corner of the zone.  If the zone is smaller than the
+mask in some dimension, then the output is clipped by the zone as
+usual.  If the zone is larger than the mask in some dimension, the
+pixels outside the mask are considered completely transparent. 
 
 \subsection{Translucent}
 \label{sec-zones-graphic-translucent}
@@ -201,8 +206,13 @@ The \code{image} zone uses an \emph{image} to alter the pixels inside
 it when painted.  An image is a 2-dimensional array of \emph{pixels}.
 A pixel is a color and an opacity value.  The zone is painted using
 the \emph{compose over} color composition operation.  The minimum,
-preferred, and maximum sizes for a masked zone are the same as the
-sizes for the mask.
+preferred, and maximum sizes for an image zone are the same as the
+sizes for the image.  The image is considered to be positioned so that
+the upper-left corner of the image coincides with the upper-left
+corner of the zone.  If the zone is smaller than the image in some
+dimension, then the output is clipped by the zone as usual.  If the
+zone is larger than the image in some dimension, the pixels outside
+the image are considered completely transparent.
 
 \section{Layout zones}
 \label{sec-zones-layout}
@@ -238,34 +248,49 @@ size and infinite maximum size.
 
 The \code{vsponge} zone is a zone that has either no children or a
 single child.  If it has no child, it behaves the same way as the
-\code{sponge} zone. \seesec{sec-zone-layout-sponge}
+\code{sponge} zone. \seesec{sec-zones-layout-sponge}  If it has a
+child, it copies the horizontal sprawl of the child, and it ignores
+the vertical sprawl of its child and imposes its own with zero minimum
+and preferred size and infinite maximum size.
 
 \subsection{Hsponge}
 \label{sec-zones-layout-hsponge}
 
 The \code{hsponge} zone is a zone that has either no children or a single
 child.  If it has no child, it behaves the same way as the
-\code{sponge} zone. \seesec{sec-zone-layout-sponge}
+\code{sponge} zone. \seesec{sec-zones-layout-sponge}  If it has a
+child, it copies the vertical sprawl of the child, and it ignores
+the horizontal sprawl of its child and imposes its own with zero minimum
+and preferred size and infinite maximum size.
 
 \subsection{Brick}
 \label{sec-zones-layout-brick}
 
 The \code{brick} zone is a zone that has either no children or a
-single child.  
+single child.  It ignores the sprawls of its child (if it has one) and
+imposes its own.  The minimum, preferred, and maximum sizes are all
+the same for the vertical sprawl, and all the same for the horizontal
+sprawl.  Those sizes are determined when the brick is created.
 
 \subsection{Vbrick}
 \label{sec-zones-layout-vbrick}
 
 The \code{vbrick} zone is a zone that has either no children or a
 single child.  If it has no child, it behaves the same way as the
-\code{brick} zone. \seesec{sec-zone-layout-brick}
+\code{brick} zone. \seesec{sec-zones-layout-brick}  If it has a
+child, it copies the horizontal sprawl of the child, and it ignores
+the vertical sprawl of its child and imposes its own with identical
+minimum, preferred, and maximum sizes, determined at creation time.
 
 \subsection{Hbrick}
 \label{sec-zones-layout-hbrick}
 
 The \code{hbrick} zone is a zone that has either no children or a
 single child.  If it has no child, it behaves the same way as the
-\code{brick} zone. \seesec{sec-zone-layout-brick}
+\code{brick} zone. \seesec{sec-zones-layout-brick}  If it has a
+child, it copies the vertical sprawl of the child, and it ignores
+the horizontal sprawl of its child and imposes its own with identical
+minimum, preferred, and maximum sizes, determined at creation time.
 
 \subsection{Vbox}
 \label{sec-zones-layout-vbox}
@@ -292,7 +317,7 @@ reasonable compromise is computed.
 \label{sec-zones-layout-hbox}
 
 The \code{hbox} zone is a zone that arranges its children in a
-vertical box.  It can have an arbitrary number of children.
+horizontal box.  It can have an arbitrary number of children.
 
 The horizontal sprawl of the resulting box is the sum of the individual
 components of each child.  If any such component is infinite, then the
@@ -311,6 +336,9 @@ reasonable compromise is computed.
 
 \subsection{Grid}
 \label{sec-zones-layout-grid}
+
+The \code{grid} zone is a zone that arranges its children in a
+two-dimensional grid.  
 
 \subsection{Pile}
 \label{sec-zones-layout-pile}
