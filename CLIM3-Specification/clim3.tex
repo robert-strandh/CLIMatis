@@ -425,6 +425,11 @@ particular size, the input zone must be combined with one or more
 All input zones are \emph{atomic} in that they can not have any child
 zones.
 
+At the moment, only two types of input zone exists, namely the
+\code{visit} zone and the \code{motion} zone.  Input from the keyboard
+and from pointer button is not treated by any zone, but is handled
+globally for the application.  \seechap{chap-input-events}
+
 \subsection{Visit}
 \label{sec-zones-input-visit}
 
@@ -440,6 +445,30 @@ vertical position of the pointer, and returns a generalized Boolean.
 When the value is \emph{true}, the pointer is considered to be
 inside.  By default, this function returns \texttt{true} for all
 arguments. 
+
+\subsection{Motion}
+\label{sec-zones-input-motion}
+
+The \code{motion} zone is used to track the position of the pointer,
+expressed in coordinates relative to the motion zone.  A
+\emph{handler} is given when the motion zone is created, and that
+handler is called whenever the position of the pointer changes,
+whether it is outside or inside the zone.  The handler is called with
+three arguments: the zone, the relative horizontal position, and the
+relative vertical position. 
+
+\chapter{Input events}
+\label{chap-input-events}
+
+Input events are handled in two different ways; either globally for
+the application or by some zone.  
+
+Currently, two types of input processing are done by zones, namely
+detecting when the pointer enters or leaves some zone
+\seesec{sec-zones-input-visit} and determining the position of the
+pointer. \seesec{sec-zones-input-motion}
+
+Keyboard events and pointer button events are handled globally.
 
 \chapter{Command loop}
 
