@@ -217,13 +217,29 @@ the image are considered completely transparent.
 \section{Layout zones}
 \label{sec-zones-layout}
 
+A \emph{layout zone} is a zone that may have some \emph{children} that
+are also zones.  Each type of layout zone is characterized by:
+
+\begin{itemize}
+\item the method it uses for combining the sprawls of its children
+  into its own vertical and horizontal sprawls, and
+\item the method it uses for determining the size and relative
+  position of each child, given the size that is imposed on it. 
+\end{itemize}
+
 \subsection{Wrap}
 \label{sec-zones-layout-wrap}
 
 The \code{wrap} zone is a zone that has either no children or a single
-child.  If it has no child, it behaves in the same way as the
-\code{sponge} zone. \seesec{sec-zones-layout-sponge}  If it has a
-child, then it takes on the sprawls of that child. 
+child.  
+
+If the \code{wrap} zone has no child, it behaves in the same way as
+the \code{sponge} zone. \seesec{sec-zones-layout-sponge} If it has a
+child, then it takes on the sprawls of that child.
+
+If the \code{wrap} zone has a child, then it positions that child at
+its own upper-left corner, and it imposes its own vertical and
+horizontal size on the child.
 
 The wrap zone is useful as a place holder in the zone hierarchy for
 places that are altered in some way by an application.  For example,
@@ -239,9 +255,15 @@ the desired color.
 \label{sec-zones-layout-sponge}
 
 The \code{sponge} zone is a zone that has either no children or a
-single child.  It ignores the sprawls of its child (if any) and
-imposes its own.  Each imposed sprawl has zero minimum and preferred
-size and infinite maximum size.
+single child.  
+
+It ignores the sprawls of its child (if any) and imposes its own.
+Each imposed sprawl has zero minimum and preferred size and infinite
+maximum size.
+
+If the \code{sponge} zone has a child, then it positions that child at
+its own upper-left corner, and it imposes its own vertical and
+horizontal size on the child.
 
 \subsection{Vsponge}
 \label{sec-zones-layout-vsponge}
@@ -253,6 +275,10 @@ child, it copies the horizontal sprawl of the child, and it ignores
 the vertical sprawl of its child and imposes its own with zero minimum
 and preferred size and infinite maximum size.
 
+If the \code{vsponge} zone has a child, then it positions that child
+at its own upper-left corner, and it imposes its own vertical and
+horizontal size on the child.
+
 \subsection{Hsponge}
 \label{sec-zones-layout-hsponge}
 
@@ -263,6 +289,10 @@ child, it copies the vertical sprawl of the child, and it ignores
 the horizontal sprawl of its child and imposes its own with zero minimum
 and preferred size and infinite maximum size.
 
+If the \code{hsponge} zone has a child, then it positions that child
+at its own upper-left corner, and it imposes its own vertical and
+horizontal size on the child.
+
 \subsection{Brick}
 \label{sec-zones-layout-brick}
 
@@ -271,6 +301,10 @@ single child.  It ignores the sprawls of its child (if it has one) and
 imposes its own.  The minimum, preferred, and maximum sizes are all
 the same for the vertical sprawl, and all the same for the horizontal
 sprawl.  Those sizes are determined when the brick is created.
+
+If the \code{brick} zone has a child, then it positions that child at
+its own upper-left corner, and it imposes its own vertical and
+horizontal size on the child.
 
 \subsection{Vbrick}
 \label{sec-zones-layout-vbrick}
@@ -282,6 +316,10 @@ child, it copies the horizontal sprawl of the child, and it ignores
 the vertical sprawl of its child and imposes its own with identical
 minimum, preferred, and maximum sizes, determined at creation time.
 
+If the \code{vbrick} zone has a child, then it positions that child at
+its own upper-left corner, and it imposes its own vertical and
+horizontal size on the child.
+
 \subsection{Hbrick}
 \label{sec-zones-layout-hbrick}
 
@@ -292,26 +330,26 @@ child, it copies the vertical sprawl of the child, and it ignores
 the horizontal sprawl of its child and imposes its own with identical
 minimum, preferred, and maximum sizes, determined at creation time.
 
+If the \code{hbrick} zone has a child, then it positions that child at
+its own upper-left corner, and it imposes its own vertical and
+horizontal size on the child.
+
 \subsection{Vbox}
 \label{sec-zones-layout-vbox}
 
 The \code{vbox} zone is a zone that arranges its children in a
 vertical box.  It can have an arbitrary number of children.
 
-The vertical sprawl of the resulting box is the sum of the individual
-components of each child.  If any such component is infinite, then the
-corresponding component of the \code{vbox} is also infinite.
+The vertical sprawl of the \code{vbox} is computed by combining the
+vertical sprawls of its children in \emph{series} and the horizontal
+sprawl of the \code{vbox} is computed by combining the horizontal
+sprawls of its children in \emph{parallel}.
+\seesec{sec-zone-protocols-geometry-sprawl}
 
-The components of the horizontal sprawl of the resulting box are
-computed as follows: The desired minimum size is the maximum of the
-desired minimum sizes of the children.  The desired preferred size is
-the average of the desired preferred sizes of the
-children.\footnote{Check this.}  The desired maximum size is the
-minimum of the desired maximum sizes of the children.  There are
-several exceptions to this rule, though.  For instance, it is possible
-that the rule above yields inconsistent sizes (where the smallest size
-is greater than the preferred size, for instance).  In those cases, a
-reasonable compromise is computed. 
+The vertical size imposed on the \code{vbox} is distributed according
+to the method described in \refSec{sec-zone-protocols-geometry-sprawl}
+for children combined in series.  The horizontal size imposed on the
+\code{vbox} is imposed as is on each child. 
 
 \subsection{Hbox}
 \label{sec-zones-layout-hbox}
@@ -319,20 +357,16 @@ reasonable compromise is computed.
 The \code{hbox} zone is a zone that arranges its children in a
 horizontal box.  It can have an arbitrary number of children.
 
-The horizontal sprawl of the resulting box is the sum of the individual
-components of each child.  If any such component is infinite, then the
-corresponding component of the \code{hbox} is also infinite.
+The horizontal sprawl of the \code{hbox} is computed by combining the
+horizontal sprawls of its children in \emph{series} and the vertical
+sprawl of the \code{hbox} is computed by combining the vertical
+sprawls of its children in \emph{parallel}.
+\seesec{sec-zone-protocols-geometry-sprawl}
 
-The components of the vertical sprawl of the resulting box are
-computed as follows: The desired minimum size is the maximum of the
-desired minimum sizes of the children.  The desired preferred size is
-the average of the desired preferred sizes of the
-children.\footnote{Check this.}  The desired maximum size is the
-minimum of the desired maximum sizes of the children.  There are
-several exceptions to this rule, though.  For instance, it is possible
-that the rule above yields inconsistent sizes (where the smallest size
-is greater than the preferred size, for instance).  In those cases, a
-reasonable compromise is computed. 
+The horizontal size imposed on the \code{hbox} is distributed according
+to the method described in \refSec{sec-zone-protocols-geometry-sprawl}
+for children combined in series.  The vertical size imposed on the
+\code{hbox} is imposed as is on each child. 
 
 \subsection{Grid}
 \label{sec-zones-layout-grid}
@@ -340,8 +374,43 @@ reasonable compromise is computed.
 The \code{grid} zone is a zone that arranges its children in a
 two-dimensional grid.  
 
+To compute the vertical sprawl of the \code{grid}, the vertical
+sprawls of the children of each \emph{row} are first combined in
+\emph{parallel}, and the resulting sprawls for each row are then
+combined in \emph{series}.  
+
+To compute the horizontal sprawl of the \code{grid}, the horizontal
+sprawls of the children of each \emph{column} are first combined in
+\emph{parallel}, and the resulting sprawls for each column are then
+combined in \emph{series}.
+\seesec{sec-zone-protocols-geometry-sprawl}
+
+The vertical size imposed on the \code{grid} is distributed to its
+rows according to the method described in
+\refSec{sec-zone-protocols-geometry-sprawl} for children combined in
+series, and the resulting vertical size for each row is imposed as is
+on each child of the row.
+
+The horizontal size imposed on the \code{grid} is distributed to its
+columns according to the method described in
+\refSec{sec-zone-protocols-geometry-sprawl} for children combined in
+series, and the resulting horizontal size for each column is imposed
+as is on each child of the row.
+
 \subsection{Pile}
 \label{sec-zones-layout-pile}
+
+The \code{pile} zone is a zone that arranges its children on top of
+each other.
+
+To compute the vertical sprawl of the \code{pile}, the vertical
+sprawls of its children are combined in \emph{parallel}, and to
+compute the horizontal sprawl of the \code{pile}, the horizontal
+sprawls of its children are also combined in \emph{parallel}. 
+
+
+The vertical and the horizontal sizes imposed on the \code{pile}
+are imposed as is on each child.
 
 \section{Input zones}
 \label{sec-zones-input}
@@ -446,6 +515,7 @@ reached that does not take child sprawls into account.
 \section{Zone geometry protocol}
 
 \subsection{Sprawl}
+\label{sec-zone-protocols-geometry-sprawl}
 
 The desired dimensions of a zone are expressed in the form of objects
 of type \emph{sprawl}.  A sprawl is an object with three components:
@@ -495,13 +565,21 @@ like that though.
 
 \subsubsection{Distributing space among combined sprawls}
 
-When some parent zone imposes the size of a zone where sprawls have
-been combined in series, the imposed size must be distributed among
-the individual sprawls.  In some situations, this is easy, such as
-when the imposed size is greater than the sum of the preferred sizes,
-and some maximum size is \texttt{NIL}.  
+When some parent zone imposes the size of child zones whose sprawls
+have been combined in series, the imposed size of the parent must be
+distributed among the individual child zones.  In some situations,
+this is easy, such as when the imposed size of the parent is greater
+than the sum of the preferred sizes of its children, and some maximum
+child size is \texttt{NIL}.  In that case, the difference between the
+imposed size of the parent and the sum of the preferred sizes of the
+children is distributed evenly among the children having a
+\texttt{NIL} maximum size.
 
 FIXME: say more....
+
+When some parent zone imposes the size of child zones whose sprawls
+have been combined in parallel, the same size is imposed on each child
+zone.
 
 \subsection{Generic functions}
 
