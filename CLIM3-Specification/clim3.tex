@@ -415,8 +415,31 @@ are imposed as is on each child.
 \section{Input zones}
 \label{sec-zones-input}
 
+An \emph{input zone} is a zone that reacts to input from the user.
+All input zones behave like the \code{sponge} zone when it comes to
+the vertical and horizontal sprawl.  To obtain an input area of a
+particular size, the input zone must be combined with one or more
+\emph{layout zones} that will have the desired size.
+\seesec{sec-zones-layout} 
+
+All input zones are \emph{atomic} in that they can not have any child
+zones.
+
 \subsection{Visit}
 \label{sec-zones-input-visit}
+
+The \code{visit} zone is an input zone that contains two
+\emph{handlers}, one that is called whenever the pointer enters the
+zone, and another that is called whenever the pointer leaves the zone.
+The handlers are called with the zone as an argument.
+
+The \code{visit} zone also contains a function that is used to
+determine more precisely whether the pointer is considered to be
+inside the zone.  This function is given the relative horizontal and
+vertical position of the pointer, and returns a generalized Boolean.
+When the value is \emph{true}, the pointer is considered to be
+inside.  By default, this function returns \texttt{true} for all
+arguments. 
 
 \chapter{Command loop}
 
