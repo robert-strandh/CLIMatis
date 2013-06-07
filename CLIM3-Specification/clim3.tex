@@ -469,29 +469,34 @@ detecting when the pointer enters or leaves some zone
 pointer. \seesec{sec-zones-input-motion}
 
 Keyboard events and pointer button events are handled globally.
-Four generic functions are involved in input processing:
+
+\section{Handling keyboard events}
+
+Two generic functions are involved in handling keyboard events:
 
 \begin{itemize}
 \item \code{handle-key-press}
 \item \code{handle-key-release}
-\item \code{handle-button-press}
-\item \code{handle-button-release}
 \end{itemize}
 
-These four generic functions are called whenever the corresponding
+These two generic functions are called whenever the corresponding
 input event is detected.  These functions take tree arguments:
 
 \begin{itemize}
-\item A \emph{handler}.
-\item The \emph{code} of the key or button involved.
+\item A \emph{handler} object.
+\item The \emph{key code} of the key involved.
 \item The \emph{modifier state} at the time the event happened.
 \end{itemize}
 
-The handler should be an instance of the class \code{key-handler} for
-handling keyboard events and an instance of the class
-\code{button-handler} for handling pointer button events.  The user
-may create subclasses of these classes, and add methods on these
-generic functions specialized for those subclasses. 
+The handler object should be an instance of the class
+\code{key-handler}.  The user may create subclasses of this classes,
+and add methods on these generic functions specialized for those
+subclasses.
+
+The \emph{key code} and the \emph{modifier state} are backend specific
+values.  Users can write backend-specific handlers, but \clim{}
+provides functionality for turning these values into
+backend-independent objects.
 
 Whenever the backend detects a key-press event, it calls the function
 \code{handle-key-press} passing it the value of the special variable
@@ -502,6 +507,61 @@ the function \code{handle-key-release}, again passing it the value of
 the special variable \code{*key-handler*}, the key code, and the
 modifier state.
 
+The global value of the variable \code{*key-handler*} is the global
+value of another variable named \code{*null-key-handler*} which
+contains an instance of the class \code{null-key-handler}.  A default
+method on \code{handle-key-press} specialized for the
+\code{null-key-handler} class exists, and it does nothing.  Similarly,
+a default method on \code{handle-key-release} specialized for the
+\code{null-key-handler} class exists, and it does nothing.
+
+As mentioned above, \clim{} provides functionality for turning the
+\emph{key code} and the \emph{modifier state} into backend-independent
+objects.  For this purpose, \clim{} provides a function
+\code{standard-key-processor}.  This function calls the generic
+function \code{port-standard-key-processor} which has methods for each
+backend.  The function \code{standard-key-processor} takes a \emph{key
+  code} and a \emph{modifier} and returns a \cl{} \emph{character}
+corresponding to the two backend-specific arguments. 
+
+A class \code{read-keystroke-handler} exists, and it takes a
+\code{:receiver} initarg.  This initarg should be a function of one
+argument, a \emph{character}.  A method exists on
+\code{handle-key-press} specialized for \code{read-keystroke-handler}
+which calls the receiver function with a character that corresponds to
+the key that was pressed.  The corresponding method on
+\code{handle-key-press} does nothing.  To transform the key-press
+event into a character, the method on \code{handle-key-press} calls
+the function \code{standard-key-processor} discussed above.
+
+\section{Handling pointer button events}
+
+Two generic functions are involved in handling pointer button events:
+
+\begin{itemize}
+\item \code{handle-button-press}
+\item \code{handle-button-release}
+\end{itemize}
+
+These two generic functions are called whenever the corresponding
+input event is detected.  These functions take tree arguments:
+
+\begin{itemize}
+\item A \emph{handler} object.
+\item The \emph{button code} of the button involved.
+\item The \emph{modifier state} at the time the event happened.
+\end{itemize}
+
+The handler object should be an instance of the class
+\code{button-handler}.  The user may create subclasses of this class,
+and add methods on these generic functions specialized for those
+subclasses.
+
+The \emph{button code} and the \emph{modifier state} are backend
+specific values.  Users can write backend-specific handlers, but
+\clim{} provides functionality for turning these values into
+backend-independent objects. 
+
 Whenever the backend detects a button-press event, it calls the function
 \code{handle-button-press} passing it the value of the special variable
 \code{*button-handler*}, the button code, and the modifier state. 
@@ -510,6 +570,14 @@ Similarly, whenever the backend detects a button-release event, it calls
 the function \code{handle-button-release}, again passing it the value of
 the special variable \code{*button-handler*}, the button code, and the
 modifier state.
+
+The global value of the variable \code{*button-handler*} is the global
+value of another variable named \code{*null-button-handler*} which
+contains an instance of the class \code{null-button-handler}.  A
+default method on \code{handle-button-press} specialized for the
+\code{null-button-handler} class exists, and it does nothing.  Similarly,
+a default method on \code{handle-button-release} specialized for the
+\code{null-button-handler} class exists, and it does nothing.
 
 \chapter{Command loop}
 
