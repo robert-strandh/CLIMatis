@@ -469,6 +469,47 @@ detecting when the pointer enters or leaves some zone
 pointer. \seesec{sec-zones-input-motion}
 
 Keyboard events and pointer button events are handled globally.
+Four generic functions are involved in input processing:
+
+\begin{itemize}
+\item \code{handle-key-press}
+\item \code{handle-key-release}
+\item \code{handle-button-press}
+\item \code{handle-button-release}
+\end{itemize}
+
+These four generic functions are called whenever the corresponding
+input event is detected.  These functions take tree arguments:
+
+\begin{itemize}
+\item A \emph{handler}.
+\item The \emph{code} of the key or button involved.
+\item The \emph{modifier state} at the time the event happened.
+\end{itemize}
+
+The handler should be an instance of the class \code{key-handler} for
+handling keyboard events and an instance of the class
+\code{button-handler} for handling pointer button events.  The user
+may create subclasses of these classes, and add methods on these
+generic functions specialized for those subclasses. 
+
+Whenever the backend detects a key-press event, it calls the function
+\code{handle-key-press} passing it the value of the special variable
+\code{*key-handler*}, the key code, and the modifier state. 
+
+Similarly, whenever the backend detects a key-release event, it calls
+the function \code{handle-key-release}, again passing it the value of
+the special variable \code{*key-handler*}, the key code, and the
+modifier state.
+
+Whenever the backend detects a button-press event, it calls the function
+\code{handle-button-press} passing it the value of the special variable
+\code{*button-handler*}, the button code, and the modifier state. 
+
+Similarly, whenever the backend detects a button-release event, it calls
+the function \code{handle-button-release}, again passing it the value of
+the special variable \code{*button-handler*}, the button code, and the
+modifier state.
 
 \chapter{Command loop}
 
