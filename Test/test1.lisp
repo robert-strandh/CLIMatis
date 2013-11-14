@@ -30,40 +30,6 @@
 			      (float (* (/ r (1- h)) (/ c (1- w))))))))
     (clim3-graphics:masked (clim3-color:make-color 1.0 0.5 0.5) a)))
 	    
-(defparameter *za4*
-  (let* ((color (clim3-color:make-color 1.0 0.0 0.0))
-	 (str "hello")
-	 (text (clim3-text:text
-		str
-		(clim3-text-style:text-style :camfer :sans :roman 12)
-		color))
-	 (hbox (clim3-layout:hbox*
-		text
-		(clim3-layout:hframe
-		 20 20 20
-		 (clim3-layout:vframe
-		  10 10 10
-		  (clim3-graphics:opaque (clim3-color:make-color 0.0 0.0 1.0))))
-		(clim3-layout:hframe 0 0 nil))))
-    (clim3-layout:pile*
-     (clim3-input:button
-      (lambda (zone button modifiers)
-	(declare (ignore zone button modifiers))
-	(setf str (concatenate 'string str "a"))
-	(let ((new-text (clim3-text:text
-			 str
-			 (clim3-text-style:text-style :camfer :sans :roman 12)
-			 color)))
-	  (setf (clim3-zone:children hbox)
-		(substitute new-text text (clim3-zone:children hbox)))
-	  (setf text new-text)))
-      (lambda (zone button modifiers)
-	(declare (ignore zone button modifiers))
-	nil))
-     (clim3-layout:hframe
-      500 500 500
-      hbox))))
-
 (defparameter *za5*
   (let* ((text-color (clim3-color:make-color 0.1 0.4 0.1))
 	 (background-color (clim3-color:make-color 0.9 0.7 0.7)))
