@@ -3,8 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Text zone.
-;;;
-;;; For now, the text style is a dummy, because we have only one. 
 
 (defclass text (clim3-graphics:monochrome)
   ((%style :initarg :style :reader style)
