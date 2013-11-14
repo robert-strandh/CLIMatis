@@ -1,0 +1,17 @@
+\chapter{Comparing two sequences of child zones}
+
+Initialize \code{before} and \code{after} to the beginning of the
+sequence of children \emph{before} and \emph{after} redisplay
+respectively.  If \code{before} is empty, then all remaining children
+on \code{after} are inserted.  If \code{after} is empty, then all
+remaining children on \code{before} are deleted.  Otherwise (neither
+\code{before} nor \code{after} is empty), if the first zone on
+\code{after} is new, then it has been inserted; advance \code{after}.
+If not, the first zone  on \code{after} is also in the \code{before}
+sequence.  In that case, if it is also the first element of
+\code{before}, then it is either modified or unchanged according to
+the flag; advance both \code{before} and \code{after}.  The last case
+is when the first element of \code{after} is not the same as the first
+element of \code{before}.  Then the first element of \code{before} has
+been deleted; advance \code{before}. 
+

@@ -1,0 +1,223 @@
+\chapter{Optimal redrawing}
+
+\section{Introduction}
+
+The purpose of optimal redrawing is not mainly to touch as few pixels
+as possible in the visible area of the screen, even though it can do
+that as well.  Instead, the purpose is to simplify applications by
+having \clim{} manage a very large number of zones, most of which
+are invisible at any point in time.  Imagine for instance a word
+processor or an editor for music scores.  Such an application might
+produce hundreds of pages of output.  Instead of leaving the burden to
+the application writer to determine what part is visible, and how
+large the scroll bar should be, it would be good if the application
+can produce the entire output, and let \clim{} deal with scrolling and
+incremental modifications to the output.  
+
+Such an application might be written to produce a hierarchy of
+zones.  At a high level, each page might be a zone.  Each such
+page can contain paragraphs or, in the case of a score editor,
+\emph{systems}, then lines, words, and perhaps individual characters.
+This output is visible through a small viewport that might cover a
+single page, or at most a few pages.  The main purpose of the
+algorithm presented here is to avoid invoking code to draw parts of
+the output that are currently invisible and parts that have not changed
+since the previous time.  For instance, after a single modification of
+a page of text, most paragraphs might be intact.  The algorithm
+described here is able to avoid redrawing such paragraphs. 
+
+In other words, the application writer does not explicitly manage
+visibility, and can write the application as if every part of the
+output is visible.
+
+The algorithm makes two passes over a hierarchy of zones, the first
+one from top to bottom, and the second one from bottom to top.  For
+this reason the sequence of zones is probably best represented as a
+doubly-linked list.
+
+In the first pass, a region to be redrawn is computed.  This region
+starts out as empty and is potentially added to for each zone in a
+sequence.  
+
+In the following algorithm, the region is clipped by zones that are
+not visible after the redraw.  A zone can be in one of six states:
+
+\begin{itemize}
+\item Unchanged.  This means that the zone has already been drawn in
+  the past, and that it hasn't been moved or altered since the last
+  time it was drawn.
+\item Deleted.  This means that the zone has already been drawn in
+  the past, but is no longer supposed to be.  A deleted zone
+  might also be marked as moved and/or modified, but ``Deleted'' takes
+  precedence.  The region that is needed by the redraw algorithm is
+  the region the zone had last time it was drawn, i.e., before
+  it was moved or modified.
+\item Inserted.  This means that the zone has not been drawn in the
+  past, but is supposed to be now.  An inserted zone might also be
+  marked as moved and/or modified, but ``Inserted'' takes precedence.
+  The region that is needed by the redraw algorithm is the region that
+  the zone has after having been moved or modified.
+\item Moved and not modified.  This means that the zone has already
+  been drawn in the past, but that it has simply changed positions
+  since the last time it was drawn.
+\item Modified but not moved.  Only a compound zone can be marked as
+  modified, indicating that a child zone has been
+  inserted, deleted, moved, or modified.
+\item Moved and modified.  In this case the zone is treated as
+  deleted from its position when last drawn, and inserted at its
+  final position. 
+\end{itemize}
+
+Applications are responsible for:
+
+\begin{itemize}
+\item Marking a zone as ``Modified'' when any of its children is
+  either inserted, deleted, moved, or modified.
+\item Marking a zone as ``Moved'', whenever it is moved. 
+\end{itemize}
+
+The \clim{} redraw algorithm provides the following services, so the
+application need not do so:
+
+\begin{itemize}
+\item Marking a newly created zone as ``Inserted''. 
+\item Automatically detecting that a zone has been deleted, and
+  marking it as ``Deleted''. 
+\end{itemize}
+
+Only newly created zones can be inserted into a higher-level
+zone.  In particular, applications are not allowed to change the
+stacking order of zones. 
+
+In the first pass, the redraw algorithm computes the region to be
+redrawn.  This is done from the top zone to the bottom zone.  In
+each iteration, it modifies the region to be drawn and passes it on to
+the next iteration, according to the following cases:
+
+\begin{itemize}
+\item If a zone is unchanged, then pass on the region without any
+  modification. 
+\item If a zone has been deleted, then add its area (i.e, the area
+  it occupied when it was last drawn) to the region.
+\item If a zone is new (has been inserted since the last redraw),
+  then if it is covered by some other visible zone, then add the
+  area that is covered to the region.  This is an important
+  optimization, because when a new zone is drawn on top, what is
+  underneath does not need to be redrawn. 
+\item If a zone has been moved (whether also modified or not), then
+  in the most general case, treat it as one deleted and one inserted
+  zone.
+\item If a zone has been modified but not moved, recursively
+  traverse the children.
+\end{itemize}
+
+In the second pass, the region that has been computed in the first
+pass is used to draw the zones from bottom to top.
+
+\begin{itemize}
+\item If a zone does not overlap the region, then do nothing
+\item If it does overlap the region, and it is an atomic zone,
+  request an \emph{redisplay} of the relevant region from the
+  application. 
+\item If it does overlap the region and it is a compound zone,
+  recursively traverse its children.
+\end{itemize}
+
+\section{Details of algorithm}
+
+The algorithm for optimal redrawing is divided into two parts.  The
+first part computes the region to be redrawn, and the second part
+redraws that region.
+
+To compute the region to redraw, the algorithm manages three regions:
+
+\begin{itemize}
+\item A region called \texttt{region-to-redraw}, which is the region
+  that ultimately becomes the final result of the algorithm.  This
+  region grows as the algorithm traverses zones from top to bottom.
+  The initial value for this region is \texttt{+nowhere+}.
+\item A region called \texttt{visible-region-after} which is the
+  region that is visible after the redraw.  This region starts off as
+  \texttt{+everywhere+} and may decrease in size as a result of opaque
+  zones.
+\item A region called
+  \texttt{visible-translucent-covering-region-after}, which is a
+  region containing potentially translucent zones \emph{after}
+  redraw.  This region allows for an important optimization in that
+  when a region needs to be redrawn and it is not covered by any
+  translucent zones, it can be drawn on top of what is already
+  there.  If, however, it has translucent zones on top, the region
+  needs to be ``erases'', meaning all zones in that region need to
+  be redrawn from bottom to top. 
+\end{itemize}
+
+The algorithm to compute the region to redraw thus takes four
+arguments: a zone and the three regions indicated above.  It
+traverses the zones from top to bottom, and in each step, it
+modifies the three regions, and passes on the modified regions to the
+next iteration.  A complete description of the algorithm must specify
+for each type of zone how the regions are modified. 
+
+For an \emph{opaque} zone, the regions are modified as follows:
+
+\begin{itemize}
+\item \texttt{region-to-redraw}.  If the zone has been deleted, then
+  add its visible subregion to \texttt{region-to-redraw}.  Otherwise,
+  this region stays the same.
+\item \texttt{visible-region-after}.  Of the zone has been inserted,
+  or is the same, from this region we subtract the region of the
+  zone, because of the opacity of the zone.
+\item \texttt{visible-translucent-covering-region-after}.  This region
+  is treated the same way as the previous one.
+\end{itemize}
+
+For a \emph{atomic translucent zone}, the regions are modified as
+follows:
+
+\begin{itemize}
+\item \texttt{region-to-redraw}.  This is an atomic zone, so it is
+  either inserted, deleted, or unchanged.  If it is unchanged,
+  this region is not modified.  If it is deleted, the
+  visible part of the region of the zone is added to this region.
+  If it is inserted, the visible part of the region of the zone that
+  is also covered by translucent zones.  The part that is not
+  covered by translucent zones can be drawn on top of existing
+  pixels without the need to redraw.  Thus,
+  we first compute the intersection of the inserted region of the zone
+  with \texttt{visible-translucent-covering-region-after}.
+\item \texttt{visible-region-after}.  This region does not change for
+  translucent zones. 
+\item \texttt{visible-translucent-covering-region-after}.  If the
+  zone has been inserted or is unchanged, then the visible
+  part of the zone is added to this region.  This region does not
+  change for a deleted zone.
+\end{itemize}
+
+Finally, the complicated case is for a \emph{compound translucent
+  zone}.  We would like to avoid scanning the children if possible,
+  at the risk of having more zones redrawn at the end.  Individual
+  zones will indicate that a minor change has been made to its
+  children by marking it modified and that a major change has been
+  made by replacing the old zone by a new one, in effect deleting
+  the old one and inserting a new one.  We consider a compound zone
+  to be relatively densely covered by translucent children, so that
+  the entire region of the zone can be passed on as being a
+  translucent covering region.
+
+\begin{itemize}
+\item \texttt{region-to-redraw}.  If the zone is unchanged, we pass
+  this region on unchanged.  If the zone has been inserted or
+  deleted, we treat this region in the same way as for an atomic
+  translucent zone.  Finally, if zone has been modified, we
+  recursively consider the children of this zone.  The initial value
+  of this region for the children is the region of the zone after
+  redraw intersected with the union of the region of the zone
+  before and after redraw.  The result is added to
+  \texttt{region-to-redraw} and passed on.
+\item \texttt{visible-region-after}.  This region is always passed on
+  unchanged as with translucent atomic zones. 
+\item \texttt{visible-translucent-covering-region-after}.  Unless the
+  zone has been deleted, the visible part of the zone is added to
+  this region.
+\end{itemize}
+

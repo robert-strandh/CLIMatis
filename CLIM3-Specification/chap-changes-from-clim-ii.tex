@@ -1,0 +1,77 @@
+\chapter{Changes from previous version}
+
+\section{General}
+
+This section explains the general changes that we consider for \clim{}
+compared to \climtwo{}.  Following sections will contain specific changes
+with respect to particular features of \climtwo{}.
+
+We intend to act upon one of the ``major issues'' indicated in the
+\climtwo{} specification, namely a suggested merge of the \emph{sheet} and
+\emph{output record} concepts.  This will greatly simplify the design
+of \clim{}.
+
+There are many issues with the \climtwo{} specification.  For
+instance, what happens to an output record (which is rectangular
+according to the specification) when it is in a pane that has an
+arbitrary sheet transformation that does not preserve this shape?  For
+\clim{} we want to clarify what happens in such situations, and
+eliminate it as a part of the specification if the concept is hard or
+impossible to implement. 
+
+Several aspects of the \climtwo{} specification make it hard to
+localize applications.  One such aspect is the fact that command-line
+names are part of the command table, requiring a different command
+table for each language.  We want to clean up such aspects so as to
+prepare \clim{} for the possibility of writing applications using
+different languages. 
+
+By clarifying the semantics of \emph{zones} (which replace \climtwo{}
+\emph{output records}), especially with respect to the exact time when
+the effect of manipulating the hierarchy of these objects is visible,
+we avoid the almost inevitably quadratic algorithms involved in
+manipulating \climtwo{} output records. 
+
+We keep the layout protocol, but clarify when it is invoked.  We
+replace space requirements by vertical and horizontal elasticity
+functions. 
+
+We eliminate mirrored sheets as an explicit abstraction of \clim{} and
+let each backend decide on a case-by-case basis whether a zones should
+have a mirror or not.
+
+We eliminate alignment and spacing options to the layout panes and
+instead provide a zone type that is very rigid (for spacing) and a
+zone type that is very elastic (for alignment).
+
+\section{Regions and Transformations}
+
+In \climtwo{} this is a very general concept.  We will probably keep
+these, but the \clim{} equivalent of a \climtwo{} sheet (called a
+\emph{zone}) will not admit arbitrary regions and transformations. 
+
+\section{Sheets}
+
+\section{Commands and command tables}
+
+\section{Internationalization}
+
+Define a classes for country, language, printing of numbers, units,
+etc, and locale classes that inherit from subclasses of those.
+
+\section{Text styles}
+
+We keep the concept of text styles, but we may remove the concept of
+merging text styles.  We add the possibility of naming font families. 
+We will specify that text-style-ascent, text-style-descent,
+text-style-height, and text-style-width may only be called as part of
+the layout protocol, because they are only defined when the zone is
+attached to a port. 
+
+\section{Layout protocol}
+
+We guarantee that the layout protocol will only be run when the zone
+hierarchy is attached to a port.  Thus, when a text zone is asked to
+provide space requirements, then it is safe for it to ask the size of
+the text, because the text style then has a mapping to a device font. 
+

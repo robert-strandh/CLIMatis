@@ -1,0 +1,16 @@
+\chapter{Command loop}
+
+\clim{} maintains a \emph{command loop} as follows:
+
+\begin{itemize}
+\item Acquire a \emph{command object}.
+\item Acquire the arguments of the command object.
+\item Execute the command object on the arguments.
+\item Call \code{redisplay} on the top zone.  The result of calling
+  \code{redisplay} might be a new zone or the same zone, modified
+  or unchanged.  The behavior of redisplay on a particular zone
+  depends on the exact subclass of the zone.
+\item Update the visible area of the screen according to the new
+  zone hierarchy.
+\end{itemize}
+
