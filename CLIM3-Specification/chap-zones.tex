@@ -90,6 +90,42 @@ ways:
   children to determine their own positions. 
 \end{itemize}
 
+\section{Zone mixin classes}
+
+\Defclass{horizontally-very-elastic-mixin}
+
+This class supplies a \texttt{:default-initarg} for \texttt{:hsprawl}
+with a sprawl that is infinitely elastic.
+
+\Defclass{vertically-very-elastic-mixin}
+
+This class supplies a \texttt{:default-initarg} for \texttt{:vsprawl}
+with a sprawl that is infinitely elastic.
+
+\Defclass{changing-child-hsprawl-changes-hsprawl-mixin}
+
+\Defclass{changing-child-vsprawl-changes-vsprawl-mixin}
+
+\Defclass{changing-child-hsprawl-changes-nothing-mixin}
+
+\Defclass{changing-child-vsprawl-changes-nothing-mixin}
+
+\Defclass{changing-children-changes-hsprawl-mixin}
+
+\Defclass{changing-children-changes-vsprawl-mixin}
+
+\Defclass{changing-children-changes-both-sprawls-mixin}
+
+\Defclass{changing-children-changes-nothing-mixin}
+
+\Defclass{changing-child-position-not-allowed-mixin}
+
+\Defclass{changing-child-position-changes-hsprawl-mixin}
+
+\Defclass{changing-child-position-changes-vsprawl-mixin}
+
+\Defclass{changing-child-position-changes-both-sprawls-mixin}
+
 \section{Graphic zones}
 \label{sec-zones-graphic}
 
@@ -110,6 +146,11 @@ and replace it with a new one with the altered behavior.%
   to decide that the result of painting the zone will be the same as
   last time.}
 
+\subsection{Monochrome}
+\label{sec-zones-graphic-monocrome}
+
+\Defclass{monochrome}
+
 \subsection{Opaque}
 \label{sec-zones-graphic-opaque}
 
@@ -120,6 +161,10 @@ Since graphic zones are immutable, it is not possible to change this
 color value.  The \emph{sprawls} of an opaque zone are the same as
 those of a \code{sponge} \seesec{sec-zones-layout-sponge}, i.e., it
 is very elastic so that it can take on any size. 
+
+\Defclass{opaque}
+
+\Defun {opaque} {color}
 
 \subsection{Masked}
 \label{sec-zones-graphic-masked}
@@ -136,6 +181,10 @@ mask in some dimension, then the output is clipped by the zone as
 usual.  If the zone is larger than the mask in some dimension, the
 pixels outside the mask are considered completely transparent. 
 
+\Defclass{masked}
+
+\Defun {masked} {color opacities}
+
 \subsection{Translucent}
 \label{sec-zones-graphic-translucent}
 
@@ -146,6 +195,10 @@ possible to change the color or the opacity value.  The \emph{sprawls}
 of a translucent zone are the same as those of a \code{sponge}
 \seesec{sec-zones-layout-sponge}, i.e., it is very elastic so that it
 can take on any size.
+
+\Defclass{translucent}
+
+\Defun {translucent} {color opacity}
 
 \subsection{Image}
 \label{sec-zones-graphic-image}
@@ -161,6 +214,10 @@ corner of the zone.  If the zone is smaller than the image in some
 dimension, then the output is clipped by the zone as usual.  If the
 zone is larger than the image in some dimension, the pixels outside
 the image are considered completely transparent.
+
+\Defclass{image}
+
+\Defun {image} {pixels}
 
 \section{Layout zones}
 \label{sec-zones-layout}
@@ -199,6 +256,10 @@ zone.  To alter the color, the application would then replace the
 child of the \code{wrap} zone by a different \code{opaque} zone having
 the desired color.
 
+\Defclass {wrap}
+
+\Defun {wrap} {\optional child}
+
 \subsection{Sponge}
 \label{sec-zones-layout-sponge}
 
@@ -212,6 +273,10 @@ maximum size.
 If the \code{sponge} zone has a child, then it positions that child at
 its own upper-left corner, and it imposes its own vertical and
 horizontal size on the child.
+
+\Defclass {sponge}
+
+\Defun {sponge} {\optional child}
 
 \subsection{Vsponge}
 \label{sec-zones-layout-vsponge}
@@ -227,6 +292,10 @@ If the \code{vsponge} zone has a child, then it positions that child
 at its own upper-left corner, and it imposes its own vertical and
 horizontal size on the child.
 
+\Defclass {vsponge}
+
+\Defun {vsponge} {\optional child}
+
 \subsection{Hsponge}
 \label{sec-zones-layout-hsponge}
 
@@ -241,6 +310,10 @@ If the \code{hsponge} zone has a child, then it positions that child
 at its own upper-left corner, and it imposes its own vertical and
 horizontal size on the child.
 
+\Defclass {hsponge}
+
+\Defun {hsponge} {\optional child}
+
 \subsection{Brick}
 \label{sec-zones-layout-brick}
 
@@ -253,6 +326,10 @@ sprawl.  Those sizes are determined when the brick is created.
 If the \code{brick} zone has a child, then it positions that child at
 its own upper-left corner, and it imposes its own vertical and
 horizontal size on the child.
+
+\Defclass {brick}
+
+\Defun {brick} {width height \optional child}
 
 \subsection{Vbrick}
 \label{sec-zones-layout-vbrick}
@@ -268,6 +345,10 @@ If the \code{vbrick} zone has a child, then it positions that child at
 its own upper-left corner, and it imposes its own vertical and
 horizontal size on the child.
 
+\Defclass {vbrick}
+
+\Defun {vbrick} {height \optional child}
+
 \subsection{Hbrick}
 \label{sec-zones-layout-hbrick}
 
@@ -281,6 +362,10 @@ minimum, preferred, and maximum sizes, determined at creation time.
 If the \code{hbrick} zone has a child, then it positions that child at
 its own upper-left corner, and it imposes its own vertical and
 horizontal size on the child.
+
+\Defclass {hbrick}
+
+\Defun {hbrick} {width \optional child}
 
 \subsection{Vbox}
 \label{sec-zones-layout-vbox}
@@ -299,6 +384,12 @@ to the method described in \refSec{sec-zone-protocols-geometry-sprawl}
 for children combined in series.  The horizontal size imposed on the
 \code{vbox} is imposed as is on each child. 
 
+\Defclass {vbox}
+
+\Defun {vbox} {children}
+
+\Defun {vbox*} {\rest children}
+
 \subsection{Hbox}
 \label{sec-zones-layout-hbox}
 
@@ -315,6 +406,12 @@ The horizontal size imposed on the \code{hbox} is distributed according
 to the method described in \refSec{sec-zone-protocols-geometry-sprawl}
 for children combined in series.  The vertical size imposed on the
 \code{hbox} is imposed as is on each child. 
+
+\Defclass {hbox}
+
+\Defun {hbox} {children}
+
+\Defun {hbox*} {\rest children}
 
 \subsection{Grid}
 \label{sec-zones-layout-grid}
@@ -359,6 +456,12 @@ sprawls of its children are also combined in \emph{parallel}.
 
 The vertical and the horizontal sizes imposed on the \code{pile}
 are imposed as is on each child.
+
+\Defclass {pile}
+
+\Defun {pile} {children}
+
+\Defun {pile*} {\rest children}
 
 \section{Input zones}
 \label{sec-zones-input}
