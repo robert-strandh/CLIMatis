@@ -645,7 +645,7 @@ server to move the corresponding window.
 If the zone is the child of bboard zone, then we need to render it in
 a different place next time. 
 
-If the zone is the child of a scroller zone, the scrollbar will have
+If the zone is the child of a scroll zone, the scrollbar will have
 to be rendered differently next time. 
 
 If the zone if part of a layout zone that imposes positions of the
@@ -664,7 +664,7 @@ next time.
 If the zone is a bboard zone, new children must have valid sprawls so
 that we can compute their natural sizes before rendering
 
-If the zone is a scroller zone, we must make sure the child has a
+If the zone is a scroll zone, we must make sure the child has a
 valid sprawl so that we can compute its natural size before rendering.
 
 If the zone is the child of a layout zone that computes its sprawls from
@@ -761,7 +761,7 @@ parent.
 
 Calling this function is the normal way of setting the position of
 a zone that is the child of a layout zone that does not impose the
-position of its children, such as a bboard zone or a scroller
+position of its children, such as a bboard zone or a scroll
 zone.
 
 Setting the position of a zone may not have the effect that an
@@ -806,7 +806,7 @@ parent.
 
 Calling this function is the normal way of setting the position of
 a zone that is the child of a layout zone that does not impose the
-position of its children, such as a bboard zone or a scroller
+position of its children, such as a bboard zone or a scroll
 zone.
 
 Setting the position of a zone may not have the effect that an
@@ -848,7 +848,7 @@ Set the current width of the zone.
 
 Calling this function is the normal way of setting the width of a
 zone that is the child of a layout zone that does not impose the
-size of its children, such as a bboard zone or a scroller zone.
+size of its children, such as a bboard zone or a scroll zone.
 
 Setting the position of a zone may not have the effect that an
 application expects.  If the zone is the child of a layout zone
@@ -889,7 +889,7 @@ Set the current height of the zone.
 
 Calling this function is the normal way of setting the height of a
 zone that is the child of a layout zone that does not impose the
-size of its children, such as a bboard zone or a scroller zone.
+size of its children, such as a bboard zone or a scroll zone.
 
 Setting the position of a zone may not have the effect that an
 application expects.  If the zone is the child of a layout zone
@@ -1037,7 +1037,7 @@ This function returns true if and only if the sprawls of the zone are
 valid.  
 
 For zones with sprawls that can not be invalidated, such as bboard
-zones, scroller zones, and atomic zones with sprawls that do not depend
+zones, scroll zones, and atomic zones with sprawls that do not depend
 on a client, this function always returns \emph{true}.
 
 The methods of this function are paired up with methods for
@@ -1068,7 +1068,7 @@ that always returns \emph{true}.
 This function marks the zone as having invalid sprawls.  
 
 For zones with sprawls that can not be invalidated, such as bboard
-zones, scroller zones, and atomic zones with sprawls that do not depend
+zones, scroll zones, and atomic zones with sprawls that do not depend
 on a client, this function signals an error.
 
 Different subclasses of \texttt{zone} do this differently.  Some set
@@ -1148,7 +1148,7 @@ maintain this invariant by using the sprawls change protocol.  Thus, the
 only case where a (compound) zone can have valid sprawls even though
 some child has invalid sprawls is when that zone is such that its sprawls
 are independent of the sprawls of the children.  In particular, this is
-the case for scroller zones and bboard zones.
+the case for scroll zones and bboard zones.
 
 When a zone is rendered, its position and size must be known.  In
 addition, we require that a zone that is rendered also have valid
