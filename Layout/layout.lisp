@@ -272,25 +272,24 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class SCROLLER.
+;;; Class SCROLL.
 
-(defclass scroller (standard-zone
-		    at-most-one-child-mixin
-		    changing-child-position-not-allowed-mixin
-		    changing-child-hsprawl-changes-nothing-mixin
-		    changing-child-vsprawl-changes-nothing-mixin
-		    child-depth-insignificant-mixin)
+(defclass scroll (standard-zone
+		  at-most-one-child-mixin
+		  changing-child-hsprawl-changes-nothing-mixin
+		  changing-child-vsprawl-changes-nothing-mixin
+		  child-depth-insignificant-mixin)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod compute-hsprawl ((zone scroller))
-  (error "attempt to combine hsprawls of children of a scroller zone"))
+(defmethod compute-hsprawl ((zone scroll))
+  (error "attempt to combine hsprawls of children of a scroll zone"))
 
-(defmethod compute-vsprawl ((zone scroller))
-  (error "attempt to combine vsprawls of children of a scroller zone"))
+(defmethod compute-vsprawl ((zone scroll))
+  (error "attempt to combine vsprawls of children of a scroll zone"))
 
-(defmethod impose-child-layouts ((zone scroller))
+(defmethod impose-child-layouts ((zone scroll))
   ;; There is either no child or one child, but this is convenient.
   (map-over-children
    (lambda (child)
@@ -301,8 +300,16 @@
        (impose-size child width height)))
    zone))
 
-(defun scroller (&optional child)
-  (make-instance 'scroller :children child))
+(defun scroll (&optional child)
+  (make-instance 'scroll :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class HSCROLL.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VSCROLL.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -551,7 +558,7 @@
 ;;;
 ;;; A vbrick is a zone that can have at most one child.  It ignores
 ;;; the vertical sprawl of its child, and imposes its own, which makes
-;;; it very elastic vertically.  It copies the horizontal sprawl of its
+;;; it very rigid vertically.  It copies the horizontal sprawl of its
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
 (defclass vbrick (standard-zone

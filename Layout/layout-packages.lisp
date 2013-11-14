@@ -1,11 +1,10 @@
 (defpackage #:clim3-layout
   (:use #:common-lisp #:clim3-zone)
   (:export
-   #:vbox #:vbox*
-   #:hbox #:hbox*
+   #:hbox #:hbox* #:vbox #:vbox*
    #:pile #:pile*
    #:grid
-   #:scroller #:scroller*
+   #:scroll #:scroll* #:hscroll #:hscroll* #:vscroll #:vscroll*
    #:wrap #:wrap*
    #:bboard #:bboard*
    #:sponge #:sponge* #:hsponge #:hsponge* #:vsponge  #:vsponge*
