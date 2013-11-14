@@ -158,7 +158,9 @@
 	 (polygons (mapcar #'interpolate-contour scaled-contours))
 	 (advance-width (ceiling (* scale-factor (zpb-ttf:advance-width glyph)))))
     (multiple-value-bind (mask min-x min-y)
-	(clim3-rendering:render-polygons polygons)
+	(if (null polygons)
+	    (values (make-array '(0 0)) 0 0)
+	    (clim3-rendering:render-polygons polygons))
       (make-instance 'glyph-instance
 		     :x-offset min-x
 		     :y-offset min-y
