@@ -2,6 +2,22 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Class HORIZONTALLY-VERY-ELASTIC-MIXIN.
+
+(defclass HORIZONTALLY-VERY-ELASTIC-MIXIN ()
+  ()
+  (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class VERTICALLY-VERY-ELASTIC-MIXIN.
+
+(defclass VERTICALLY-VERY-ELASTIC-MIXIN ()
+  ()
+  (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Class CHANGING-CHILD-HSPRAWL-CHANGES-HSPRAWL-MIXIN
 
 (defclass changing-child-hsprawl-changes-hsprawl-mixin () ())
@@ -79,13 +95,13 @@
 (defclass changing-children-changes-both-sprawls-mixin () ())
 
 (defmethod (setf children) :after
-  (new-children (zone changing-children-changes-vsprawl-mixin))
+  (new-children (zone changing-children-changes-both-sprawls-mixin))
   (declare (ignore new-children))
   (setf (hsprawl zone) nil)
   (setf (vsprawl zone) nil))
   
 (defmethod (setf child) :after
-  (new-child (zone changing-children-changes-vsprawl-mixin))
+  (new-child (zone changing-children-changes-both-sprawls-mixin))
   (declare (ignore new-child))
   (setf (hsprawl zone) nil)
   (setf (vsprawl zone) nil))
