@@ -35,6 +35,8 @@
    #:list-children-mixin
    #:vector-children-mixin
    #:matrix-children-mixin
+   #:horizontally-very-elastic-mixin
+   #:vertically-very-elastic-mixin
    #:any-number-of-children-mixin
    #:changing-child-hsprawl-changes-hsprawl-mixin
    #:changing-child-hsprawl-changes-nothing-mixin
