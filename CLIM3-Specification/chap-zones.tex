@@ -113,7 +113,13 @@ and replace it with a new one with the altered behavior.%
 \subsection{Monochrome}
 \label{sec-zones-graphic-monocrome}
 
+The \code{monochrome} zone is not intended to be instantiated
+directly.  Instead it is meant to be a superclass of other zones that
+use a single color.  
+
 \Defclass{monochrome}
+
+\Definitarg{:color}
 
 \subsection{Opaque}
 \label{sec-zones-graphic-opaque}
@@ -123,10 +129,17 @@ color values of the existing pixels and paints the entire zone with
 some fixed color value that was given when the zone was created.
 Since graphic zones are immutable, it is not possible to change this
 color value.  The \emph{sprawls} of an opaque zone are the same as
-those of a \code{sponge} \seesec{sec-zones-layout-sponge}, i.e., it
-is very elastic so that it can take on any size. 
+those of a \code{sponge} \seesec{sec-zones-layout-sponge}, i.e., it is
+very elastic, both vertically and horizontally, so that it can take on
+any size.
 
 \Defclass{opaque}
+
+\Definitarg{:color}
+
+This class is a subclass of \code{monochrome}
+\seesec{sec-zones-graphic-monocrome}  As such, it admits the
+\texttt{:color} initarg. 
 
 \Defun {opaque} {color}
 
@@ -147,6 +160,14 @@ pixels outside the mask are considered completely transparent.
 
 \Defclass{masked}
 
+\Definitarg{:color}
+
+This class is a subclass of \code{monochrome}
+\seesec{sec-zones-graphic-monocrome}  As such, it admits the
+\texttt{:color} initarg. 
+
+\Definitarg {:opacities}
+
 \Defun {masked} {color opacities}
 
 \subsection{Translucent}
@@ -161,6 +182,14 @@ of a translucent zone are the same as those of a \code{sponge}
 can take on any size.
 
 \Defclass{translucent}
+
+\Definitarg{:color}
+
+This class is a subclass of \code{monochrome}
+\seesec{sec-zones-graphic-monocrome}  As such, it admits the
+\texttt{:color} initarg. 
+
+\Definitarg {:opacity}
 
 \Defun {translucent} {color opacity}
 
@@ -427,6 +456,66 @@ are imposed as is on each child.
 
 \Defun {pile*} {\rest children}
 
+\subsection{Border}
+\label{sec-zones-layout-border}
+
+The \code{border} zone is a zone that positions a child so that it is
+surrounded by a an empty space of some thickness which is given at the
+time the instance of the \code{border} class is created.
+
+The \code{border} zone always has a single child.  It computes its
+sprawls by taking the sprawls of the child, and adding twice the border
+thickness to the preferred and minimum size of those sprawls.  If the
+maximum size of any of the sprawls is bounded, then twice the border
+thickness is also added to the maximum size in order to obtain the
+maximum size of the corresponding sprawl of the \code{border} zone.
+If the maximum size of any of the sprawls of the child is unbound,
+then the maximum size of the corresponding sprawl of the \code{border}
+zone is also unbounded.
+
+Notice that the border pixels are completely transparent.  If a
+colored border is desired, this zone should be used together with
+graphics zone providing the border pixels inside a \code{pile} zone
+\seesec{sec-zones-layout-pile}
+
+\Defclass {border}
+
+\Definitarg {:thickness}
+
+The thickness of the border in pixels.  
+
+\Definitarg {:child}
+
+The child zone.
+
+\Defun {border} {thickness child}
+
+Constructor.
+
+\subsection{Scroll}
+
+\Defclass {scroll}
+
+\Definitarg {:child}
+
+\subsection{Vscroll}
+
+\Defclass {vscroll}
+
+\Definitarg {:child}
+
+\subsection{Hscroll}
+
+\Defclass {hscroll}
+
+\Definitarg {:child}
+
+\subsection{Bboard}
+
+\Defclass {bboard}
+
+\Definitarg {:children}
+
 \section{Input zones}
 \label{sec-zones-input}
 
@@ -472,3 +561,5 @@ whether it is outside or inside the zone.  The handler is called with
 three arguments: the zone, the relative horizontal position, and the
 relative vertical position. 
 
+
+%%  LocalWords:  superclass initarg
