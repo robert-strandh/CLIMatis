@@ -365,18 +365,18 @@
 ;;; Class SPONGE.
 ;;;
 ;;; A sponge is a zone that can have at most one child.  It ignores
-;;; the sprawls of its child, and imposes its own, which makes it very
-;;; elastic, both horizontally and vertically.
+;;; the sprawls of its child, and imposes its own so that it becomes
+;;; very elastic, both horizontally and vertically.
 
 (defclass sponge (standard-zone
 		  at-most-one-child-mixin
+		  horizontally-very-elastic-mixin
+		  vertically-very-elastic-mixin
 		  changing-child-hsprawl-changes-nothing-mixin
 		  changing-child-vsprawl-changes-nothing-mixin
 		  changing-child-position-not-allowed-mixin
 		  child-depth-insignificant-mixin)
-  ()
-  (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
-		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
+  ())
 
 (defmethod impose-child-layouts ((zone sponge))
   (map-over-children #'ensure-hsprawl-valid zone)
@@ -397,19 +397,20 @@
 ;;; Class HSPONGE.
 ;;;
 ;;; A hsponge is a zone that can have at most one child.  It ignores
-;;; the horizontal sprawl of its child, and imposes its own, which makes
-;;; it very elastic horizontally.  It copies the vertical sprawl of its
-;;; child, or if it has no child, makes it very elastic vertically.
+;;; the horizontal sprawl of its child, and imposes its own so that it
+;;; becomes very elastic horizontally.  It copies the vertical sprawl
+;;; of its child, or if it has no child, makes it very elastic
+;;; vertically.
 
 (defclass hsponge (standard-zone
 		   at-most-one-child-mixin
+		   horizontally-very-elastic-mixin
 		   changing-child-hsprawl-changes-nothing-mixin
 		   changing-child-vsprawl-changes-vsprawl-mixin
 		   changing-children-changes-vsprawl-mixin
 		   changing-child-position-not-allowed-mixin
 		   child-depth-insignificant-mixin)
-  ()
-  (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
+  ())
 
 (defmethod compute-vsprawl ((zone hsponge))
   (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
@@ -438,19 +439,20 @@
 ;;; Class VSPONGE.
 ;;;
 ;;; A vsponge is a zone that can have at most one child.  It ignores
-;;; the vertical sprawl of its child, and imposes its own, which makes
-;;; it very elastic vertically.  It copies the horizontal sprawl of its
-;;; child, or if it has no child, makes it very elastic horizontally.
+;;; the vertical sprawl of its child, and imposes its own so that it
+;;; becomes very elastic vertically.  It copies the horizontal sprawl
+;;; of its child, or if it has no child, makes it very elastic
+;;; horizontally.
 
 (defclass vsponge (standard-zone
 		   at-most-one-child-mixin
+		   vertically-very-elastic-mixin
 		   changing-child-hsprawl-changes-hsprawl-mixin
 		   changing-child-vsprawl-changes-nothing-mixin
 		   changing-children-changes-hsprawl-mixin
 		   changing-child-position-not-allowed-mixin
 		   child-depth-insignificant-mixin)
-  ()
-  (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
+  ())
 
 (defmethod compute-hsprawl ((zone vsponge))
   (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
