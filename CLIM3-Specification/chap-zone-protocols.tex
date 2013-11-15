@@ -147,7 +147,7 @@ zone.
 
 \subsection{Generic functions}
 
-\subsubsection{Generic function \texttt{hpos}}
+\Defgeneric {hpos} {zone}
 
 Return the current horizontal position of the zone relative to its
 parent.  
@@ -157,7 +157,7 @@ server, then depending on the display server, this value may or
 may not reflect the position of the corresponding top-level
 window on the display. 
 
-\subsubsection{Generic function \texttt{(setf hpos)}}
+\Defgeneric {(setf hpos)} {new-hpos zone}
 
 Set the current horizontal position of the zone relative to its
 parent.  
@@ -181,7 +181,7 @@ on the display.
 Calling this function triggers the geometry-change protocol,
 informing the parent that a change has taken place.  
 
-\subsubsection{Generic function \texttt{set-hpos}}
+\Defgeneric {set-hpos} {new-hpos zone}
 
 Set the current horizontal position of the zone relative to its
 parent, without triggering the geometry-change protocol.
@@ -192,7 +192,7 @@ exclusively by internal protocols to avoid infinite recursions when a
 parent needs to set the position of a child as a result of some
 previous change.
 
-\subsubsection{Generic function \texttt{vpos}}
+\Defgeneric {vpos} {zone}
 
 Return the current vertical position of the zone relative to its
 parent.  
@@ -202,7 +202,7 @@ server, then depending on the display server, this value may or
 may not reflect the position of the corresponding top-level window
 on the display.
 
-\subsubsection{Generic function \texttt{(setf vpos)}}
+\Defgeneric {(setf vpos)} {new-vpos zone}
 
 Set the current vertical position of the zone relative to its
 parent.
@@ -226,7 +226,7 @@ on the display.
 Calling this function triggers the geometry-change protocol,
 informing the parent that a change has taken place.  
 
-\subsubsection{Generic function \texttt{set-vpos}}
+\Defgeneric {set-vpos} {new-vpos zone}
 
 Set the current vertical position of the zone relative to its
 parent, without triggering the geometry-change protocol.
@@ -237,7 +237,7 @@ exclusively by internal protocols to avoid infinite recursions when a
 parent needs to set the position of a child as a result of some
 previous change.
 
-\subsubsection{Generic function \texttt{width}}
+\Defgeneric {width} {zone}
 
 Return the current width of the zone.  
 
@@ -245,7 +245,7 @@ If the zone is the root zone and it is connected to some display
 server, then depending on the display server, this value may or
 may not reflect the width of the corresponding top-level window.
 
-\subsubsection{Generic function \texttt{(setf width)}}
+\Defgeneric {(setf width)} {new-width zone}
 
 Set the current width of the zone.
 
@@ -267,7 +267,7 @@ on the display.
 Calling this function triggers the geometry-change protocol,
 informing the parent that a change has taken place.  
 
-\subsubsection{Generic function \texttt{set-width}}
+\Defgeneric {set-width} {new-width zone}
 
 Set the current width of the zone relative to its parent, without
 triggering the geometry-change protocol.
@@ -278,7 +278,7 @@ exclusively by internal protocols to avoid infinite recursions when a
 parent needs to set the width of a child as a result of some previous
 change.
 
-\subsubsection{Generic function \texttt{height}}
+\Defgeneric {height} {zone}
 
 Return the current height of the zone.
 
@@ -286,7 +286,7 @@ If the zone is the root zone and it is connected to some display
 server, then depending on the display server, this value may or
 may not reflect the height of the corresponding top-level window.
 
-\subsubsection{Generic function \texttt{(setf height)}}
+\Defgeneric {(setf height)} {new-height zone}
 
 Set the current height of the zone.
 
@@ -308,7 +308,7 @@ the display.
 Calling this function triggers the geometry-change protocol,
 informing the parent that a change has taken place.
 
-\subsubsection{Generic function \texttt{set-height}}
+\Defgeneric {set-height} {new-height zone}
 
 Set the current height of the zone relative to its parent, without
 triggering the geometry-change protocol.
@@ -319,23 +319,21 @@ is used exclusively by internal protocols to avoid infinite recursions
 when a parent needs to set the height of a child as a result of some
 previous change.
 
-\subsubsection{Generic function \texttt{depth}}
+\Defgeneric {depth} {zone}
 
-
-\subsubsection{Generic function \texttt{(setf depth)}}
+\Defgeneric {(setf depth)} {new-depth zone}
 
 \subsection{Classes}
 
-\subsubsection{Class \texttt{zone}}
+\Defclass {zone}
 
 The class \texttt{zone} is the base class for all zones. 
-
 
 \section{Zone genealogy protocol}
 
 \subsection{Generic functions}
 
-\subsubsection{Generic function \texttt{parent}}
+\Defgeneric {parent} {zone}
 
 Return the current parent of the zone. 
 
@@ -345,7 +343,7 @@ zone is the root zone of a hierarchy connected to that client, or it
 may be nil, in which case, this zone is the root zone of a hierarchy
 not currently connected to any client.
 
-\subsubsection{Generic function \texttt{(setf parent)}}
+\Defgeneric {(setf parent)} {new-parent zone}
 
 Set the parent of a zone.
 
@@ -355,14 +353,14 @@ as a result of connecting the zone to a client, or as a result of
 adding or removing the zone as a child of some other zone by calling
 \texttt{(setf children)}.
 
-\subsubsection{Generic function \texttt{children}}
+\Defgeneric {children} {zone}
 
 This generic function returns the children of a compound zone.  The
 representation of the return value depends on the subclass of
 \texttt{compound-zone}.  It could be a list, a vector, a 2-D array, or
 something else.
 
-\subsubsection{Generic function \texttt{(setf children)}}
+\Defgeneric {(setf children)} {new-children zone}
 
 This generic function sets the children of a compound zone.  The
 acceptable representation of the children depends on the subclass of
@@ -387,19 +385,19 @@ bound.
 There is one \texttt{:after} method specialized for
 \texttt{compound-zone} that calls
 
-\subsubsection{generic function \texttt{map-over-children}}
+\Defgeneric {map-over-children} {function zone}
 
 the first argument is a function of a single argument.  the second
 argument is a zone.  this function calls the function given as the
 first argument on each child of the zone given as a second argument.  
 
-\subsubsection{generic function \texttt{map-over-children-top-to-bottom}}
+\Defgeneric {map-over-children-top-to-bottom} {function zone}
 
 the first argument is a function of a single argument.  the second
 argument is a zone.  this function calls the function given as the
 first argument on each child of the zone given as a second argument.  
 
-\subsubsection{generic function \texttt{map-over-children-bottom-to-top}}
+\Defgeneric {map-over-children-bottom-to-top} {function zone}
 
 The first argument is a function of a single argument.  The second
 argument is a zone.  This function calls the function given as the
@@ -407,20 +405,19 @@ first argument on each child of the zone given as a second argument.
 
 \subsection{Classes}
 
-\subsubsection{Class \texttt{atomic-zone}}
+\Defclass {atomic-zone}
 
-\subsubsection{Class \texttt{compound-zone}}
+\Defclass {compound-zone}
 
-\subsubsection{Class \texttt{compound-simple-zone}}
+\Defclass {compound-simple-zone}
 
-\subsubsection{Class \texttt{compound-sequence-zone}}
+\Defclass {compound-sequence-zone}
 
-\subsubsection{Class \texttt{compound-matrix-zone}}
+\Defclass {compound-matrix-zone}
 
-\subsubsection{Class \texttt{at-most-one-child-mixin}}
+\Defclass {at-most-one-child-mixin}
 
-\subsubsection{Class \texttt{any-number-of-children-mixin}}
-
+\Defclass {any-number-of-children-mixin}
 
 \section{Sprawls change protocol}
 
@@ -433,8 +430,7 @@ ordinary function.
 
 \subsection{Generic functions and methods}
 
-\subsubsection{Generic function \texttt{sprawls-valid-p}}
-\label{generic-function-sprawls-valid-p}
+\Defgeneric {sprawls-valid-p} {zone}
 
 This function returns true if and only if the sprawls of the zone are
 valid.  
@@ -465,8 +461,7 @@ is \texttt{nil}.
 A method specialized for \texttt{independent-sprawls-mixin} is supplied
 that always returns \emph{true}. 
 
-\subsubsection{Generic function \texttt{mark-sprawls-invalid}}
-\label{generic-function-mark-sprawls-invalid}
+\Defgeneric {mark-sprawls-invalid} {zone}
 
 This function marks the zone as having invalid sprawls.  
 
@@ -494,8 +489,7 @@ that sets the \texttt{vsprawl} of the zone to \texttt{nil}.
 A method specialized for \texttt{independent-sprawls-mixin} is supplied
 that signals an error.
 
-\subsubsection{Generic function \texttt{notify-child-sprawls-invalid}}
-\label{generic-function-notify-child-sprawls-invalid}
+\Defgeneric {notify-child-sprawls-invalid} {child parent}
 
 This function is called on a child and a parent when the sprawls of the
 child are invalidated for some reason (see the function
@@ -520,7 +514,7 @@ parent as an argument, as stipulated above.  For the class
 \texttt{independent-sprawls-mixin}, a method is supplied that does
 nothing.
 
-\subsubsection{Function \texttt{invalidate-sprawls}}
+\Defun {invalidate-sprawls} {zone}
 
 This function is used to indicate that the sprawls of some zone are no
 longer valid.  The reason for that could be that the sprawls depend on
@@ -577,10 +571,13 @@ geometries are valid or not.
 
 \subsection{Classes}
 
-\subsubsection{Class \texttt{dependent-sprawls-mixin}}
-\subsubsection{Class \texttt{hdependent-sprawls-mixin}}
-\subsubsection{Class \texttt{vdependent-sprawls-mixin}}
-\subsubsection{Class \texttt{independent-sprawls-mixin}}
+\Defclass {dependent-sprawls-mixin}
+
+\Defclass {hdependent-sprawls-mixin}
+
+\Defclass {vdependent-sprawls-mixin}
+
+\Defclass {independent-sprawls-mixin}
 
 \section{Application frame}
 
