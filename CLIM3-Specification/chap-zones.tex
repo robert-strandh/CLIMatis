@@ -193,6 +193,74 @@ This class is a subclass of \code{monochrome}
 
 \Defun {translucent} {color opacity}
 
+\subsection{Lighten}
+\label{sec-zones-graphic-lighten}
+
+The \code{lighten} zone is a special case of the \code{translucent}
+zone \seesec{sec-zones-graphic-translucent}  using the completely
+\emph{white} color.  The effect is to make whatever is behind it
+lighter.
+
+This zone works by providing a default \texttt{:color} initarg with
+the completely white color as a value. 
+
+\Defclass {lighten}
+
+\Definitarg {:opacity}
+
+\Defun {lighten} {opacity}
+
+\subsection{Darken}
+\label{sec-zones-graphic-darken}
+
+The \code{darken} zone is a special case of the \code{translucent}
+zone \seesec{sec-zones-graphic-translucent}  using the completely
+\emph{black} color.  The effect is to make whatever is behind it
+darker.
+
+This zone works by providing a default \texttt{:color} initarg with
+the completely black color as a value. 
+
+\Defclass {darken}
+
+\Definitarg {:opacity}
+
+\Defun {darken} {opacity}
+
+\subsection{Raise}
+
+The \code{raise} zone makes a band of pixels in the upper and left
+edges of the zone \emph{lighter} \seesec{sec-zone-graphic-lighten} and
+a band of pixels in the lower and right edges \emph{darker}
+\seesec{sec-zone-graphic-darken}. 
+
+\Defclass {raise}
+
+\Definitarg {:opacity}
+
+\Definitarg {:width}
+
+This initarg provides the width in pixels of the band.
+
+\Defun {raise} {opacity width}
+
+\subsection{Sink}
+
+The \code{sink} zone makes a band of pixels in the lower and right
+edges of the zone \emph{lighter} \seesec{sec-zone-graphic-lighten} and
+a band of pixels in the upper and left edges \emph{darker}
+\seesec{sec-zone-graphic-darken}. 
+
+\Defclass {sink}
+
+\Definitarg {:opacity}
+
+\Definitarg {:width}
+
+This initarg provides the width in pixels of the band.
+
+\Defun {sink} {opacity width}
+
 \subsection{Image}
 \label{sec-zones-graphic-image}
 
