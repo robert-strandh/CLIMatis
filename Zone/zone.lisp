@@ -14,7 +14,7 @@
 ;;; the children.  Setting the position and the dimensions of a child
 ;;; of such a layout zone will move and resize the child. 
 
-(defclass standard-zone (zone
+(defclass clim3:standard-zone (clim3:zone
 			 parent-mixin
 			 position-mixin
 			 size-mixin
@@ -23,20 +23,24 @@
 			 client-mixin)
   ())
 
-(defun zone-p (object)
-  (typep object 'zone))
+(defun clim3:zone-p (object)
+  (typep object 'clim3:zone))
 
-(defgeneric print-components (zone stream)
+(defgeneric clim3-ext:print-components (zone stream)
   (:method-combination progn :most-specific-last))
 
 ;; (defmethod print-object ((object zone) stream)
 ;;   (print-unreadable-object (object stream :type t :identity t)
 ;;     (print-components object stream)))
 
-(defmethod print-components progn ((zone zone) stream)
+(defmethod clim3-ext:print-components progn ((zone clim3:zone) stream)
   nil)
 
-(defmethod print-components progn ((zone standard-zone) stream)
+(defmethod clim3-ext:print-components progn ((zone clim3:standard-zone) stream)
   (format stream
 	  "hp: ~a vp: ~a w: ~a h: ~a d: ~a "
-	  (hpos zone) (vpos zone) (width zone) (height zone) (depth zone)))
+	  (clim3:hpos zone)
+	  (clim3:vpos zone)
+	  (clim3:width zone)
+	  (clim3:height zone)
+	  (clim3:depth zone)))

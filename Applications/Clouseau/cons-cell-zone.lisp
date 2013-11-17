@@ -1,14 +1,14 @@
 (in-package #:clouseau)
 
-(defclass cons-cell-zone (clim3-graphics:monochrome)
+(defclass cons-cell-zone (clim3:monochrome)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 55 65 65)
 		     :vsprawl (clim3-sprawl:sprawl 35 45 45)))
 
 (defmethod clim3-paint:new-paint ((zone cons-cell-zone))
-  (let ((zone-width (clim3-zone:width zone))
-	(zone-height (clim3-zone:height zone))
-	(color (clim3-graphics:color zone)))
+  (let ((zone-width (clim3:width zone))
+	(zone-height (clim3:height zone))
+	(color (clim3:color zone)))
     (clim3-port:with-area (0 0 40 2)
       (clim3-port:new-paint-opaque color))
     (clim3-port:with-area (0 18 40 2)
@@ -26,12 +26,12 @@
     (clim3-port:with-area (7 (- zone-height 10) 6 10)
       (clim3-port:new-paint-trapezoids
        '((00d0 10d0 00d0 03d0 06d0 03d0))
-       (clim3-graphics:color zone)))
+       (clim3:color zone)))
     (clim3-port:with-area ((- zone-width 10) 7 10 6)
       (clim3-port:new-paint-trapezoids
        '((00d0 03d0 00d0 00d0 00d0 10d0)
 	 (03d0 06d0 00d0 00d0 10d0 00d0))
-       (clim3-graphics:color zone)))))
+       (clim3:color zone)))))
 
 
 (defun cons-cell (color)

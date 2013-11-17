@@ -13,7 +13,7 @@
 ;;;
 ;;; Return the depth of a zone.
 
-(defgeneric depth (zone))
+(defgeneric clim3:depth (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -29,7 +29,7 @@
 ;;; notification is done by an :AFTER method on this generic function,
 ;;; specialized for DEPTH-MIXIN. 
 
-(defgeneric (setf depth) (new-depth zone))
+(defgeneric (setf clim3:depth) (new-depth zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -40,7 +40,7 @@
 ;;; used by parents who wish to alter the depth of its children
 ;;; without triggering the depth-notification protocol.
 
-(defgeneric set-depth (new-depth zone))
+(defgeneric clim3-ext:set-depth (new-depth zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -57,7 +57,7 @@
 ;;; for which the depth of the children is are not imporant should
 ;;; include CHILD-DEPTH-INSIGNIFICANT-MIXIN in its superclasses. 
 
-(defgeneric map-over-children-top-to-bottom (function zone))
+(defgeneric clim3-ext:map-over-children-top-to-bottom (function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -74,7 +74,7 @@
 ;;; for which the depth of the children is are not imporant should
 ;;; include CHILD-DEPTH-INSIGNIFICANT-MIXIN in its superclasses. 
 
-(defgeneric map-over-children-bottom-to-top (function zone))
+(defgeneric clim3-ext:map-over-children-bottom-to-top (function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -84,9 +84,9 @@
 ;;; function is called with Z and the parent of Z as arguments, even
 ;;; when the parent of Z is NIL.  
 
-(defgeneric notify-child-depth-changed (child parent))
+(defgeneric clim3-ext:notify-child-depth-changed (child parent))
 
-(defmethod notify-child-depth-changed ((child zone) (parent null))
+(defmethod clim3-ext:notify-child-depth-changed ((child clim3:zone) (parent null))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -99,10 +99,10 @@
 ;;; protocol.
 
 (defclass depth-mixin ()
-  ((%depth :initform 0 :initarg :depth :accessor depth :writer set-depth)))
+  ((%depth :initform 0 :initarg :depth :accessor clim3:depth :writer clim3-ext:set-depth)))
 
-(defmethod (setf depth) :after (new-depth (zone depth-mixin))
-  (notify-child-depth-changed zone (parent zone)))
+(defmethod (setf clim3:depth) :after (new-depth (zone depth-mixin))
+  (clim3-ext:notify-child-depth-changed zone (clim3-ext:parent zone)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -120,19 +120,19 @@
 ;;; MAP-OVER-CHILDREN-TOP-TO-BOTTOM is called with an instance of this
 ;;; zone, the call trampolines to MAP-OVER-CHILDREN.
 
-(defclass child-depth-insignificant-mixin () ())
+(defclass clim3-ext:child-depth-insignificant-mixin () ())
 
-(defmethod notify-child-depth-changed
-    ((child zone) (parent child-depth-insignificant-mixin))
+(defmethod clim3-ext:notify-child-depth-changed
+    ((child clim3:zone) (parent clim3-ext:child-depth-insignificant-mixin))
   nil)
 
-(defmethod map-over-children-top-to-bottom
-    (function (zone child-depth-insignificant-mixin))
-  (map-over-children function zone))
+(defmethod clim3-ext:map-over-children-top-to-bottom
+    (function (zone clim3-ext:child-depth-insignificant-mixin))
+  (clim3-ext:map-over-children function zone))
 
-(defmethod map-over-children-bottom-to-top
-    (function (zone child-depth-insignificant-mixin))
-  (map-over-children function zone))
+(defmethod clim3-ext:map-over-children-bottom-to-top
+    (function (zone clim3-ext:child-depth-insignificant-mixin))
+  (clim3-ext:map-over-children function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -157,41 +157,41 @@
 ;;; MAP-OVER-CHILDREN-BOTTOM-TO-TOP or MAP-OVER-CHILDREN-TOP-TO-BOTTOM
 ;;; is called, the vector is recomputed. 
 
-(defclass child-depth-significant-mixin ()
+(defclass clim3-ext:child-depth-significant-mixin ()
   ((%depth-ordered-children :initform nil :accessor depth-ordered-children)))
 
-(defmethod notify-child-depth-changed
-    ((child zone) (parent child-depth-significant-mixin))
+(defmethod clim3-ext:notify-child-depth-changed
+    ((child clim3:zone) (parent clim3-ext:child-depth-significant-mixin))
   (setf (depth-ordered-children parent) nil))
 
-(defmethod (setf children) :after
-  (new-children (parent child-depth-significant-mixin))
+(defmethod (setf clim3:children) :after
+  (new-children (parent clim3-ext:child-depth-significant-mixin))
   (declare (ignore new-children))
   (setf (depth-ordered-children parent) nil))
 
 (defun ensure-depth-ordered-children (zone)
   (when (null (depth-ordered-children zone))
     (let ((children '()))
-      (map-over-children (lambda (child) (push child children)) zone)
+      (clim3-ext:map-over-children (lambda (child) (push child children)) zone)
       (setf (depth-ordered-children zone)
-	    (sort (coerce children 'vector) #'< :key #'depth)))))
+	    (sort (coerce children 'vector) #'< :key #'clim3:depth)))))
 
-(defmethod map-over-children-top-to-bottom :before
-    (function (zone child-depth-significant-mixin))
+(defmethod clim3-ext:map-over-children-top-to-bottom :before
+    (function (zone clim3-ext:child-depth-significant-mixin))
   (ensure-depth-ordered-children zone))
 
-(defmethod map-over-children-bottom-to-top :before
-    (function (zone child-depth-significant-mixin))
+(defmethod clim3-ext:map-over-children-bottom-to-top :before
+    (function (zone clim3-ext:child-depth-significant-mixin))
   (ensure-depth-ordered-children zone))
 
-(defmethod map-over-children-top-to-bottom
-    (function (zone child-depth-significant-mixin))
+(defmethod clim3-ext:map-over-children-top-to-bottom
+    (function (zone clim3-ext:child-depth-significant-mixin))
   (let ((depth-ordered-children (depth-ordered-children zone)))
     (loop for i from 0 below (length depth-ordered-children)
 	  do (funcall function (aref depth-ordered-children i)))))
 
-(defmethod map-over-children-bottom-to-top
-    (function (zone child-depth-significant-mixin))
+(defmethod clim3-ext:map-over-children-bottom-to-top
+    (function (zone clim3-ext:child-depth-significant-mixin))
   (let ((depth-ordered-children (depth-ordered-children zone)))
     (loop for i downfrom (1- (length depth-ordered-children)) to 0
 	  do (funcall function (aref depth-ordered-children i)))))

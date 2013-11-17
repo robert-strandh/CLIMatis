@@ -1,22 +1,22 @@
 (in-package #:common-lisp-user)
 
 (defparameter *z6a*
-  (let* ((red (clim3-color:make-color 1.0 0.0 0.0))
-	 (blue (clim3-color:make-color 0.0 0.0 1.0))
-	 (red-zone (clim3-graphics:opaque red)))
-    (clim3-layout:hbox*
-     (clim3-layout:brick
+  (let* ((red (clim3:make-color 1.0 0.0 0.0))
+	 (blue (clim3:make-color 0.0 0.0 1.0))
+	 (red-zone (clim3:opaque red)))
+    (clim3:hbox*
+     (clim3:brick
       100 100
-      (clim3-layout:pile*
+      (clim3:pile*
        (clim3-input:visit
-	(lambda (zone) (setf (clim3-graphics:color red-zone) red))
-	(lambda (zone) (setf (clim3-graphics:color red-zone) blue)))
+	(lambda (zone) (setf (clim3:color red-zone) red))
+	(lambda (zone) (setf (clim3:color red-zone) blue)))
        (clim3-input:key-press
 	(clim3-port:standard-key-processor #'print))
        red-zone))
-     (clim3-layout:brick
+     (clim3:brick
       70 100
-      (clim3-graphics:opaque (clim3-color:make-color 0.0 1.0 0.0))))))
+      (clim3:opaque (clim3:make-color 0.0 1.0 0.0))))))
 
 (defun test-zone (zone)
   (let ((port (clim3-port:make-port :clx-framebuffer)))

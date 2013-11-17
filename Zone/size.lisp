@@ -1,7 +1,5 @@
 (in-package #:clim3-zone)
 
-(defgeneric width (zone))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function WIDTH.
@@ -12,7 +10,7 @@
 ;;; server, then this value reflects the width of the corresponding
 ;;; top-level window.
 
-(defgeneric width (zone))
+(defgeneric clim3:width (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -32,7 +30,7 @@
 
 ;;; FIXME: change to set-width
 
-(defgeneric (setf width) (new-width zone))
+(defgeneric (setf clim3:width) (new-width zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -44,7 +42,7 @@
 ;;; server, then this value reflects the height of the corresponding
 ;;; top-level window.
 
-(defgeneric height (zone))
+(defgeneric clim3:height (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -65,7 +63,7 @@
 
 ;;; FIXME: change to set-height
 
-(defgeneric (setf height) (new-height zone))
+(defgeneric (setf clim3:height) (new-height zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -73,11 +71,11 @@
 ;;;
 ;;; This function is called in order to set the size of a zone.  
 
-(defun impose-size (zone width height)
-  (setf (width zone) width)
-  (setf (height zone) height))
+(defun clim3-ext:impose-size (zone width height)
+  (setf (clim3:width zone) width)
+  (setf (clim3:height zone) height))
 
 (defclass size-mixin ()
-  ((%width :initform 0 :accessor width)
-   (%height :initform 0 :accessor height)))
+  ((%width :initform 0 :accessor clim3:width)
+   (%height :initform 0 :accessor clim3:height)))
 

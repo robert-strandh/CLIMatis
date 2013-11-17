@@ -20,7 +20,7 @@
 		 (error "A proper sequence of length at most 1 required ~s"
 			thing)))))
     (unless (null result)
-      (unless (zone-p (car result))
+      (unless (clim3:zone-p (car result))
 	(error "A zone was expected ~s" (car result))))
     result))
 
@@ -44,7 +44,7 @@
 		(t
 		 (error "A proper sequence required ~s" thing)))))
     (loop for element in result
-	  do (unless (zone-p element)
+	  do (unless (clim3:zone-p element)
 	       (error "a zone was expected ~s" element)))
     result))
 
@@ -52,212 +52,216 @@
 ;;;
 ;;; Class VBOX. 
 
-(defclass vbox (standard-zone
-		list-children-mixin
-		changing-child-hsprawl-changes-hsprawl-mixin
-		changing-child-vsprawl-changes-vsprawl-mixin
-		changing-children-changes-both-sprawls-mixin
-		changing-child-position-not-allowed-mixin
-		child-depth-insignificant-mixin)
+(defclass clim3:vbox
+    (clim3:standard-zone
+     clim3-ext:list-children-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-both-sprawls-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod compute-hsprawl ((zone vbox))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (set-hsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:vbox))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-parallel
-	(mapcar #'hsprawl (children zone))))
+	(mapcar #'clim3:hsprawl (clim3:children zone))))
    zone))
   
-(defmethod compute-vsprawl ((zone vbox))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (set-vsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:vbox))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-series
-	(mapcar #'vsprawl (children zone))))
+	(mapcar #'clim3:vsprawl (clim3:children zone))))
    zone))
   
-(defmethod impose-child-layouts ((zone vbox))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (let* ((width (width zone))
-	 (height (height zone))
-	 (children (children zone))
-	 (vertical-sprawls (mapcar #'vsprawl children))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:vbox))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let* ((width (clim3:width zone))
+	 (height (clim3:height zone))
+	 (children (clim3:children zone))
+	 (vertical-sprawls (mapcar #'clim3:vsprawl children))
 	 (heights (clim3-sprawl:sizes-in-series vertical-sprawls height)))
     (loop for vpos = 0 then (+ vpos height)
 	  for height in heights
 	  for child in children
-	  do (set-hpos 0 child)
-	     (set-vpos vpos child)
-	     (impose-size child width height))))
+	  do (clim3-ext:set-hpos 0 child)
+	     (clim3-ext:set-vpos vpos child)
+	     (clim3-ext:impose-size child width height))))
   
-(defun vbox (children)
-  (make-instance 'vbox :children (coerce-to-list-of-zones children)))
+(defun clim3:vbox (children)
+  (make-instance 'clim3:vbox :children (coerce-to-list-of-zones children)))
 
-(defun vbox* (&rest children)
-  (make-instance 'vbox :children (coerce-to-list-of-zones children)))
+(defun clim3:vbox* (&rest children)
+  (make-instance 'clim3:vbox :children (coerce-to-list-of-zones children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class HBOX.
 
-(defclass hbox (standard-zone
-		list-children-mixin
-		changing-child-hsprawl-changes-hsprawl-mixin
-		changing-child-vsprawl-changes-vsprawl-mixin
-		changing-children-changes-both-sprawls-mixin
-		changing-child-position-not-allowed-mixin
-		child-depth-insignificant-mixin)
+(defclass clim3:hbox
+    (clim3:standard-zone
+     clim3-ext:list-children-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-both-sprawls-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod compute-hsprawl ((zone hbox))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (set-hsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:hbox))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-series
-	(mapcar #'hsprawl (children zone))))
+	(mapcar #'clim3:hsprawl (clim3:children zone))))
    zone))
   
-(defmethod compute-vsprawl ((zone hbox))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (set-vsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:hbox))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-parallel
-	(mapcar #'vsprawl (children zone))))
+	(mapcar #'clim3:vsprawl (clim3:children zone))))
    zone))
   
-(defmethod impose-child-layouts ((zone hbox))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let* ((width (width zone))
-	 (height (height zone))
-	 (children (children zone))
-	 (horizontal-sprawls (mapcar #'hsprawl children))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:hbox))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let* ((width (clim3:width zone))
+	 (height (clim3:height zone))
+	 (children (clim3:children zone))
+	 (horizontal-sprawls (mapcar #'clim3:hsprawl children))
 	 (widths (clim3-sprawl:sizes-in-series horizontal-sprawls width)))
     (loop for hpos = 0 then (+ hpos width)
 	  for width in widths
 	  for child in children
-	  do (set-hpos hpos child)
-	     (set-vpos 0 child)
-	     (impose-size child width height))))
+	  do (clim3-ext:set-hpos hpos child)
+	     (clim3-ext:set-vpos 0 child)
+	     (clim3-ext:impose-size child width height))))
 
-(defun hbox (children)
-  (make-instance 'hbox :children (coerce-to-list-of-zones children)))
+(defun clim3:hbox (children)
+  (make-instance 'clim3:hbox :children (coerce-to-list-of-zones children)))
 
-(defun hbox* (&rest children)
-  (make-instance 'hbox :children (coerce-to-list-of-zones children)))
+(defun clim3:hbox* (&rest children)
+  (make-instance 'clim3:hbox :children (coerce-to-list-of-zones children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class PILE.
 
-(defclass pile (standard-zone
-		list-children-mixin
-		changing-child-hsprawl-changes-hsprawl-mixin
-		changing-child-vsprawl-changes-vsprawl-mixin
-		changing-children-changes-both-sprawls-mixin
-		changing-child-position-not-allowed-mixin
-		child-depth-significant-mixin)
+(defclass clim3:pile
+    (clim3:standard-zone
+     clim3-ext:list-children-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-both-sprawls-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-significant-mixin)
   ())
 
-(defmethod compute-hsprawl ((zone pile))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (set-hsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:pile))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-parallel
-	(mapcar #'hsprawl (children zone))))
+	(mapcar #'clim3:hsprawl (clim3:children zone))))
    zone))
   
-(defmethod compute-vsprawl ((zone pile))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (set-vsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:pile))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
        (clim3-sprawl:combine-in-parallel
-	(mapcar #'vsprawl (children zone))))
+	(mapcar #'clim3:vsprawl (clim3:children zone))))
    zone))
   
-(defmethod impose-child-layouts ((zone pile))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let* ((width (width zone))
-	 (height (height zone))
-	 (children (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:pile))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let* ((width (clim3:width zone))
+	 (height (clim3:height zone))
+	 (children (clim3:children zone)))
     (loop for child in children
-	  do (set-hpos 0 child)
-	     (set-vpos 0 child)
-	     (impose-size child width height))))
+	  do (clim3-ext:set-hpos 0 child)
+	     (clim3-ext:set-vpos 0 child)
+	     (clim3-ext:impose-size child width height))))
 
-(defun pile (children)
-  (make-instance 'pile :children (coerce-to-list-of-zones children)))
+(defun clim3:pile (children)
+  (make-instance 'clim3:pile :children (coerce-to-list-of-zones children)))
 
-(defun pile* (&rest children)
-  (make-instance 'pile :children (coerce-to-list-of-zones children)))
+(defun clim3:pile* (&rest children)
+  (make-instance 'clim3:pile :children (coerce-to-list-of-zones children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class GRID.
 
-(defclass grid (standard-zone
-		matrix-children-mixin
-		changing-child-hsprawl-changes-hsprawl-mixin
-		changing-child-vsprawl-changes-vsprawl-mixin
-		changing-children-changes-both-sprawls-mixin
-		changing-child-position-not-allowed-mixin
-		child-depth-insignificant-mixin)
+(defclass clim3:grid
+    (clim3:standard-zone
+     clim3-ext:matrix-children-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-both-sprawls-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ((%combined-rows :initform nil :accessor combined-rows)
    (%combined-cols :initform nil :accessor combined-cols)))
 
-(defmethod compute-hsprawl ((zone grid))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (let* ((children (children zone))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:grid))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (let* ((children (clim3:children zone))
 	 (rows (array-dimension children 0))
 	 (cols (array-dimension children 1)))
     (cond ((= rows 1)
 	   (setf (combined-cols zone)
 		 (loop for col from 0 below cols
-		       collect (hsprawl (aref children 0 col))))
-	   (set-hsprawl
+		       collect (clim3:hsprawl (aref children 0 col))))
+	   (clim3-ext:set-hsprawl
 	    (clim3-sprawl:combine-in-series (combined-cols zone))
 	    zone))
 	  ((= cols 1)
-	   (set-hsprawl
+	   (clim3-ext:set-hsprawl
 	    (clim3-sprawl:combine-in-parallel
 	     (loop for row from 0 below rows
-		   collect (hsprawl (aref children 0 row))))
+		   collect (clim3:hsprawl (aref children 0 row))))
 	    zone))
 	  (t
 	   (setf (combined-cols zone)
 		 (loop for col from 0 below cols
 		       collect (clim3-sprawl:combine-in-parallel
 				(loop for row from 0 below rows
-				      collect (hsprawl (aref children row col))))))
-	   (set-hsprawl
+				      collect (clim3:hsprawl (aref children row col))))))
+	   (clim3-ext:set-hsprawl
 	    (clim3-sprawl:combine-in-series (combined-cols children))
 	    zone)))))
 
-(defmethod compute-vsprawl ((zone grid))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (let* ((children (children zone))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:grid))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let* ((children (clim3:children zone))
 	 (rows (array-dimension children 0))
 	 (cols (array-dimension children 1)))
     (cond ((= rows 1)
-	   (set-vsprawl
+	   (clim3-ext:set-vsprawl
 	    (clim3-sprawl:combine-in-parallel
 	     (loop for col from 0 below cols
-		   collect (vsprawl (aref children 0 col))))
+		   collect (clim3:vsprawl (aref children 0 col))))
 	    zone))
 	  ((= cols 1)
 	   (setf (combined-rows zone)
 		 (loop for row from 0 below rows
-		       collect (vsprawl (aref children 0 row))))
-	   (set-vsprawl
+		       collect (clim3:vsprawl (aref children 0 row))))
+	   (clim3-ext:set-vsprawl
 	    (clim3-sprawl:combine-in-series (combined-rows zone))
 	    zone))
 	  (t
@@ -265,8 +269,8 @@
 		 (loop for row from 0 below rows
 		       collect (clim3-sprawl:combine-in-parallel
 				(loop for col from 0 below cols
-				      collect (vsprawl (aref children row col))))))
-	   (set-vsprawl
+				      collect (clim3:vsprawl (aref children row col))))))
+	   (clim3-ext:set-vsprawl
 	    (clim3-sprawl:combine-in-series (combined-rows children))
 	    zone)))))
 
@@ -274,34 +278,35 @@
 ;;;
 ;;; Class SCROLL.
 
-(defclass scroll (standard-zone
-		  at-most-one-child-mixin
-		  changing-child-hsprawl-changes-nothing-mixin
-		  changing-child-vsprawl-changes-nothing-mixin
-		  child-depth-insignificant-mixin)
+(defclass clim3:scroll
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-nothing-mixin
+     clim3-ext:changing-child-vsprawl-changes-nothing-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod compute-hsprawl ((zone scroll))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:scroll))
   (error "attempt to combine hsprawls of children of a scroll zone"))
 
-(defmethod compute-vsprawl ((zone scroll))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:scroll))
   (error "attempt to combine vsprawls of children of a scroll zone"))
 
-(defmethod impose-child-layouts ((zone scroll))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:scroll))
   ;; There is either no child or one child, but this is convenient.
-  (map-over-children
+  (clim3-ext:map-over-children
    (lambda (child)
-     (ensure-hsprawl-valid child)
-     (ensure-vsprawl-valid child)
+     (clim3-ext:ensure-hsprawl-valid child)
+     (clim3-ext:ensure-vsprawl-valid child)
      (multiple-value-bind (width height)
-	 (natural-size child)
-       (impose-size child width height)))
+	 (clim3:natural-size child)
+       (clim3-ext:impose-size child width height)))
    zone))
 
-(defun scroll (&optional child)
-  (make-instance 'scroll :children child))
+(defun clim3:scroll (&optional child)
+  (make-instance 'clim3:scroll :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -315,50 +320,51 @@
 ;;;
 ;;; Class BBOARD.
 
-(defclass bboard (standard-zone
-		  list-children-mixin
-		  changing-child-hsprawl-changes-hsprawl-mixin
-		  changing-child-vsprawl-changes-vsprawl-mixin
-		  changing-children-changes-both-sprawls-mixin
-		  changing-child-position-changes-both-sprawls-mixin
-		  child-depth-significant-mixin)
+(defclass clim3:bboard
+    (clim3:standard-zone
+     clim3-ext:list-children-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-both-sprawls-mixin
+     clim3-ext:changing-child-position-changes-both-sprawls-mixin
+     clim3-ext:child-depth-significant-mixin)
   ()
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))
 
-(defmethod compute-hsprawl ((zone bboard))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (impose-child-layouts zone)
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:bboard))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:impose-child-layouts zone)
   (let ((max-hpos 0))
-    (map-over-children
+    (clim3-ext:map-over-children
      (lambda (child)
-       (setf max-hpos (max max-hpos (+ (hpos child) (width child)))))
+       (setf max-hpos (max max-hpos (+ (clim3:hpos child) (clim3:width child)))))
      zone)
-    (set-hsprawl (clim3-sprawl:sprawl max-hpos max-hpos nil) zone)))
+    (clim3-ext:set-hsprawl (clim3-sprawl:sprawl max-hpos max-hpos nil) zone)))
 
-(defmethod compute-vsprawl ((zone bboard))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (impose-child-layouts zone)
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:bboard))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:impose-child-layouts zone)
   (let ((max-vpos 0))
-    (map-over-children
+    (clim3-ext:map-over-children
      (lambda (child)
-       (setf max-vpos (max max-vpos (+ (vpos child) (height child)))))
+       (setf max-vpos (max max-vpos (+ (clim3:vpos child) (clim3:height child)))))
      zone)
-    (set-vsprawl (clim3-sprawl:sprawl max-vpos max-vpos nil) zone)))
+    (clim3-ext:set-vsprawl (clim3-sprawl:sprawl max-vpos max-vpos nil) zone)))
 
-(defmethod impose-child-layouts ((zone bboard))
-  (loop for child in (children zone)
-	do (ensure-hsprawl-valid child)
-	   (ensure-vsprawl-valid child)
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:bboard))
+  (loop for child in (clim3:children zone)
+	do (clim3-ext:ensure-hsprawl-valid child)
+	   (clim3-ext:ensure-vsprawl-valid child)
 	   (multiple-value-bind (width height)
-	       (natural-size child)
-	     (impose-size child width height))))
+	       (clim3:natural-size child)
+	     (clim3-ext:impose-size child width height))))
 
-(defun bboard (children)
-  (make-instance 'bboard :children (coerce-to-list-of-zones children)))
+(defun clim3:bboard (children)
+  (make-instance 'clim3:bboard :children (coerce-to-list-of-zones children)))
 
-(defun bboard* (&rest children)
-  (make-instance 'bboard :children (coerce-to-list-of-zones children)))
+(defun clim3:bboard* (&rest children)
+  (make-instance 'clim3:bboard :children (coerce-to-list-of-zones children)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -368,29 +374,30 @@
 ;;; the sprawls of its child, and imposes its own so that it becomes
 ;;; very elastic, both horizontally and vertically.
 
-(defclass sponge (standard-zone
-		  at-most-one-child-mixin
-		  horizontally-very-elastic-mixin
-		  vertically-very-elastic-mixin
-		  changing-child-hsprawl-changes-nothing-mixin
-		  changing-child-vsprawl-changes-nothing-mixin
-		  changing-child-position-not-allowed-mixin
-		  child-depth-insignificant-mixin)
+(defclass clim3:sponge
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:horizontally-very-elastic-mixin
+     clim3-ext:vertically-very-elastic-mixin
+     clim3-ext:changing-child-hsprawl-changes-nothing-mixin
+     clim3-ext:changing-child-vsprawl-changes-nothing-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod impose-child-layouts ((zone sponge))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:sponge))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
-(defun sponge (&optional child)
-  (make-instance 'sponge :children child))
+(defun clim3:sponge (&optional child)
+  (make-instance 'clim3:sponge :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -402,37 +409,38 @@
 ;;; of its child, or if it has no child, makes it very elastic
 ;;; vertically.
 
-(defclass hsponge (standard-zone
-		   at-most-one-child-mixin
-		   horizontally-very-elastic-mixin
-		   changing-child-hsprawl-changes-nothing-mixin
-		   changing-child-vsprawl-changes-vsprawl-mixin
-		   changing-children-changes-vsprawl-mixin
-		   changing-child-position-not-allowed-mixin
-		   child-depth-insignificant-mixin)
+(defclass clim3:hsponge
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:horizontally-very-elastic-mixin
+     clim3-ext:changing-child-hsprawl-changes-nothing-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-vsprawl-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod compute-vsprawl ((zone hsponge))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (set-vsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:hsponge))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (vsprawl (car (children zone))))
+       (clim3:vsprawl (car (clim3:children zone))))
    zone))
 
-(defmethod impose-child-layouts ((zone hsponge))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:hsponge))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
-(defun hsponge (&optional child)
-  (make-instance 'hsponge :children child))
+(defun clim3:hsponge (&optional child)
+  (make-instance 'clim3:hsponge :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -444,37 +452,38 @@
 ;;; of its child, or if it has no child, makes it very elastic
 ;;; horizontally.
 
-(defclass vsponge (standard-zone
-		   at-most-one-child-mixin
-		   vertically-very-elastic-mixin
-		   changing-child-hsprawl-changes-hsprawl-mixin
-		   changing-child-vsprawl-changes-nothing-mixin
-		   changing-children-changes-hsprawl-mixin
-		   changing-child-position-not-allowed-mixin
-		   child-depth-insignificant-mixin)
+(defclass clim3:vsponge
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:vertically-very-elastic-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-nothing-mixin
+     clim3-ext:changing-children-changes-hsprawl-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod compute-hsprawl ((zone vsponge))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (set-hsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:vsponge))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (hsprawl (car (children zone))))
+       (clim3:hsprawl (car (clim3:children zone))))
    zone))
 
-(defmethod impose-child-layouts ((zone vsponge))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:vsponge))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
-(defun vsponge (&optional child)
-  (make-instance 'vsponge :children child))
+(defun clim3:vsponge (&optional child)
+  (make-instance 'clim3:vsponge :children child))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -484,29 +493,30 @@
 ;;; the sprawls of its child, and imposes its own, which makes it very
 ;;; rigid, both horizontally and vertically.
 
-(defclass brick (standard-zone
-		 at-most-one-child-mixin
-		 changing-child-hsprawl-changes-nothing-mixin
-		 changing-child-vsprawl-changes-nothing-mixin
-		 changing-children-changes-nothing-mixin
-		 changing-child-position-not-allowed-mixin
-		 child-depth-insignificant-mixin)
+(defclass clim3:brick
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-nothing-mixin
+     clim3-ext:changing-child-vsprawl-changes-nothing-mixin
+     clim3-ext:changing-children-changes-nothing-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod impose-child-layouts ((zone brick))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:brick))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
-(defun brick (width height &optional child)
+(defun clim3:brick (width height &optional child)
   (make-instance
-   'brick
+   'clim3:brick
    :hsprawl (clim3-sprawl:sprawl width width width)
    :vsprawl (clim3-sprawl:sprawl height height height)
    :children child))
@@ -520,37 +530,38 @@
 ;;; it very rigid horizontally.  It copies the vertical sprawl of its
 ;;; child, or if it has no child, makes it very elastic vertically.
 
-(defclass hbrick (standard-zone
-		  at-most-one-child-mixin
-		  changing-child-hsprawl-changes-nothing-mixin
-		  changing-child-vsprawl-changes-vsprawl-mixin
-		  changing-children-changes-vsprawl-mixin
-		  changing-child-position-not-allowed-mixin
-		  child-depth-insignificant-mixin)
+(defclass clim3:hbrick
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-nothing-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-vsprawl-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod compute-vsprawl ((zone hbrick))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (set-vsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:hbrick))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (vsprawl (children zone)))
+       (clim3:vsprawl (clim3:children zone)))
    zone))
 
-(defmethod impose-child-layouts ((zone hbrick))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:hbrick))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
-(defun hbrick (width &optional child)
+(defun clim3:hbrick (width &optional child)
   (make-instance
-   'hbrick
+   'clim3:hbrick
    :hsprawl (clim3-sprawl:sprawl width width width)
    :children child))
 
@@ -563,37 +574,38 @@
 ;;; it very rigid vertically.  It copies the horizontal sprawl of its
 ;;; child, or if it has no child, makes it very elastic horizontally.
 
-(defclass vbrick (standard-zone
-		  at-most-one-child-mixin
-		  changing-child-hsprawl-changes-hsprawl-mixin
-		  changing-child-vsprawl-changes-nothing-mixin
-		  changing-children-changes-hsprawl-mixin
-		  changing-child-position-not-allowed-mixin
-		  child-depth-insignificant-mixin)
+(defclass clim3:vbrick
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-nothing-mixin
+     clim3-ext:changing-children-changes-hsprawl-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod compute-hsprawl ((zone vbrick))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (set-hsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:vbrick))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (hsprawl (children zone)))
+       (clim3:hsprawl (clim3:children zone)))
    zone))
 
-(defmethod impose-child-layouts ((zone vbrick))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:vbrick))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
-(defun vbrick (height &optional child)
+(defun clim3:vbrick (height &optional child)
   (make-instance
-   'vbrick
+   'clim3:vbrick
    :vsprawl (clim3-sprawl:sprawl height height height)
    :children child))
 
@@ -606,37 +618,38 @@
 ;;; copies the vertical sprawl of its child, or if it has no child,
 ;;; makes it very elastic vertically.
 
-(defclass hframe (standard-zone
-		  at-most-one-child-mixin
-		  changing-child-hsprawl-changes-nothing-mixin
-		  changing-child-vsprawl-changes-vsprawl-mixin
-		  changing-children-changes-vsprawl-mixin
-		  changing-child-position-not-allowed-mixin
-		  child-depth-insignificant-mixin)
+(defclass clim3:hframe
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-nothing-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-vsprawl-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod compute-vsprawl ((zone hframe))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (set-vsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:hframe))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (vsprawl (children zone)))
+       (clim3:vsprawl (clim3:children zone)))
    zone))
 
-(defmethod impose-child-layouts ((zone hframe))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:hframe))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
-(defun hframe (min-width width max-width &optional child)
+(defun clim3:hframe (min-width width max-width &optional child)
   (make-instance
-   'hframe
+   'clim3:hframe
    :hsprawl (clim3-sprawl:sprawl min-width width max-width)
    :children child))
 
@@ -649,37 +662,38 @@
 ;;; the horizontal sprawl of its child, or if it has no child, makes
 ;;; it very elastic horizontally.
 
-(defclass vframe (standard-zone
-		  at-most-one-child-mixin
-		  changing-child-hsprawl-changes-hsprawl-mixin
-		  changing-child-vsprawl-changes-nothing-mixin
-		  changing-children-changes-hsprawl-mixin
-		  changing-child-position-not-allowed-mixin
-		  child-depth-insignificant-mixin)
+(defclass clim3:vframe
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-nothing-mixin
+     clim3-ext:changing-children-changes-hsprawl-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ())
 
-(defmethod compute-hsprawl ((zone vframe))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (set-hsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:vframe))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (hsprawl (children zone)))
+       (clim3:hsprawl (clim3:children zone)))
    zone))
 
-(defmethod impose-child-layouts ((zone vframe))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:vframe))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
-(defun vframe (min-height height max-height &optional child)
+(defun clim3:vframe (min-height height max-height &optional child)
   (make-instance
-   'vframe
+   'clim3:vframe
    :vsprawl (clim3-sprawl:sprawl min-height height max-height)
    :children child))
 
@@ -693,45 +707,46 @@
 ;;;
 ;;; This class can be subclassed for convenience
 
-(defclass wrap (standard-zone
-		at-most-one-child-mixin
-		changing-child-hsprawl-changes-hsprawl-mixin
-		changing-child-vsprawl-changes-vsprawl-mixin
-		changing-children-changes-both-sprawls-mixin
-		changing-child-position-not-allowed-mixin
-		child-depth-insignificant-mixin)
+(defclass clim3:wrap
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-both-sprawls-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
   ()
   (:default-initargs :children '()))
 
-(defmethod compute-hsprawl ((zone wrap))
-  (map-over-children #'clim3-zone:ensure-hsprawl-valid zone)
-  (set-hsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:wrap))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (hsprawl (children zone)))
+       (clim3:hsprawl (clim3:children zone)))
    zone))
 
-(defmethod compute-vsprawl ((zone wrap))
-  (map-over-children #'clim3-zone:ensure-vsprawl-valid zone)
-  (set-vsprawl
-   (if (null (children zone))
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:wrap))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
        (clim3-sprawl:sprawl 0 0 nil)
-       (vsprawl (children zone)))
+       (clim3:vsprawl (clim3:children zone)))
    zone))
 
-(defmethod impose-child-layouts ((zone wrap))
-  (map-over-children #'ensure-hsprawl-valid zone)
-  (map-over-children #'ensure-vsprawl-valid zone)
-  (let ((width (width zone))
-	(height (height zone))
-	(child (children zone)))
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:wrap))
+  (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
     (unless (null child)
-      (set-hpos 0 child)
-      (set-vpos 0 child)
-      (impose-size child width height))))
+      (clim3-ext:set-hpos 0 child)
+      (clim3-ext:set-vpos 0 child)
+      (clim3-ext:impose-size child width height))))
 
 ;;; These constructors would typically not be used.  Instead, client
 ;;; code would use MAKE-INSTANCE on the subclass of the wrap.
 
-(defun wrap (&optional child)
-  (make-instance 'wrap :children child))
+(defun clim3:wrap (&optional child)
+  (make-instance 'clim3:wrap :children child))

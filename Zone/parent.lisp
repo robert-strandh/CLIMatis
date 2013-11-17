@@ -14,7 +14,7 @@
 ;;;
 ;;; Return the current parent of the zone. 
 
-(defgeneric parent (zone))
+(defgeneric clim3-ext:parent (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -30,7 +30,7 @@
 
 ;;; FIXME: change (setf parent) to set-parent.
 
-(defgeneric (setf parent) (new-parent zone))
+(defgeneric (setf clim3-ext:parent) (new-parent zone))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -42,4 +42,4 @@
 ;;; STANDARD-CLASS.
 
 (defclass parent-mixin ()
-  ((%parent :initarg :parent :initform nil :accessor parent)))
+  ((%parent :initarg :parent :initform nil :accessor clim3-ext:parent)))

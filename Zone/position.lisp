@@ -12,7 +12,7 @@
 ;;; may not reflect the position of the corresponding top-level
 ;;; window on the display. 
 
-(defgeneric hpos (zone))
+(defgeneric clim3:hpos (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -38,7 +38,7 @@
 ;;; Calling this function triggers the position-change protocol,
 ;;; informing the parent that a change has taken place.  
 
-(defgeneric (setf hpos) (new-hpos zone))
+(defgeneric (setf clim3:hpos) (new-hpos zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -53,7 +53,7 @@
 ;;; when a parent needs to set the position of a child as a result of
 ;;; some previous change.
 
-(defgeneric set-hpos (new-hpos zone))
+(defgeneric clim3-ext:set-hpos (new-hpos zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -67,7 +67,7 @@
 ;;; may not reflect the position of the corresponding top-level window
 ;;; on the display.
 
-(defgeneric vpos (zone))
+(defgeneric clim3:vpos (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -93,7 +93,7 @@
 ;;; Calling this function triggers the position-change protocol,
 ;;; informing the parent that a change has taken place.  
 
-(defgeneric (setf vpos) (new-vpos zone))
+(defgeneric (setf clim3:vpos) (new-vpos zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -108,13 +108,19 @@
 ;;; when a parent needs to set the position of a child as a result of
 ;;; some previous change.
 
-(defgeneric set-vpos (new-vpos zone))
+(defgeneric clim3-ext:set-vpos (new-vpos zone))
 
 ;;; FIXME make hpos and vpos :reader.
 
 (defclass position-mixin ()
-  ((%hpos :initform 0 :initarg :hpos :accessor hpos :writer set-hpos)
-   (%vpos :initform 0 :initarg :vpos :accessor vpos :writer set-vpos)))
+  ((%hpos :initform 0
+	  :initarg :hpos
+	  :accessor clim3:hpos
+	  :writer clim3-ext:set-hpos)
+   (%vpos :initform 0
+	  :initarg :vpos
+	  :accessor clim3:vpos
+	  :writer clim3-ext:set-vpos)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -143,18 +149,19 @@
 ;;; zone, supply a method on this function that marks the layout zone
 ;;; as having children with invalid positions. 
 
-(defgeneric notify-child-position-changed (child parent))
+(defgeneric clim3-ext:notify-child-position-changed (child parent))
 
-(defmethod notify-child-position-changed ((child zone) (parent null))
+(defmethod clim3-ext:notify-child-position-changed
+    ((child clim3:zone) (parent null))
   nil)
 
 ;;; After the horizontal position of a zone has been explicity
 ;;; modified, we notify the parent.
-(defmethod (setf hpos) :after (new-hpos (zone zone))
-  (notify-child-position-changed zone (parent zone)))
+(defmethod (setf clim3:hpos) :after (new-hpos (zone clim3:zone))
+  (clim3-ext:notify-child-position-changed zone (clim3-ext:parent zone)))
 
 ;;; After the vertical position of a zone has been explicity
 ;;; modified, we notify the parent.
-(defmethod (setf vpos) :after (new-vpos (zone zone))
-  (notify-child-position-changed zone (parent zone)))
+(defmethod (setf clim3:vpos) :after (new-vpos (zone clim3:zone))
+  (clim3-ext:notify-child-position-changed zone (clim3-ext:parent zone)))
 

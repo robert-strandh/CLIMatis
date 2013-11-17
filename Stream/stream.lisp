@@ -19,8 +19,8 @@
 					:text-style (make-text-style :sans :roman 14)
 					;; do this much better
 					:hpos 0 :vpos 0 )))
-	   (setf (children stream)
-		 (append (children stream) (list new-line)))
+	   (setf (clim3:children stream)
+		 (append (clim3:children stream) (list new-line)))
 	   (setf (current-line stream) new-line)))
        (add-text (current-line stream) char))))
 

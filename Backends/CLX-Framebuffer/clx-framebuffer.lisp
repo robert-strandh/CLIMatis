@@ -24,10 +24,10 @@
    (%meter :initform (make-instance 'clim3-meter:meter) :reader meter)))
 
 (defmethod clim3-port:call-with-zone ((port clx-framebuffer-port) function zone)
-  (let ((zone-hpos (clim3-zone:hpos zone))
-	(zone-vpos (clim3-zone:vpos zone))
-	(zone-width (clim3-zone:width zone))
-	(zone-height (clim3-zone:height zone)))
+  (let ((zone-hpos (clim3:hpos zone))
+	(zone-vpos (clim3:vpos zone))
+	(zone-width (clim3:width zone))
+	(zone-height (clim3:height zone)))
     (let ((new-hpos (+ *hpos* zone-hpos))
 	  (new-vpos (+ *vpos* zone-vpos)))
       (let ((new-hstart (max *hstart* new-hpos))
@@ -104,21 +104,21 @@
    (%prev-pointer-hpos :initform 0 :accessor prev-pointer-hpos)
    (%prev-pointer-vpos :initform 0 :accessor prev-pointer-vpos)))
 
-(defmethod clim3-zone:notify-child-hsprawl-changed
+(defmethod clim3-ext:notify-child-hsprawl-changed
     (zone (port clx-framebuffer-port))
   nil)
 
-(defmethod clim3-zone:notify-child-vsprawl-changed
+(defmethod clim3-ext:notify-child-vsprawl-changed
     (zone (port clx-framebuffer-port))
   nil)
 
 ;;; Later, we might try to do something more fancy here, such as
 ;;; attempting to move the window on the screen.
-(defmethod clim3-zone:notify-child-position-changed
+(defmethod clim3-ext:notify-child-position-changed
     (zone (port clx-framebuffer-port))
   nil)
 
-(defmethod clim3-zone:notify-child-depth-changed
+(defmethod clim3-ext:notify-child-depth-changed
     (zone (port clx-framebuffer-port))
   nil)
 
@@ -126,12 +126,12 @@
 ;;;
 ;;; Handle pointer position
 
-(defmethod (setf clim3-zone:client) :after
+(defmethod (setf clim3-ext:client) :after
   ((new-client clx-framebuffer-port) (zone clim3-input:motion))
   ;; Find the root zone of the zone.
   (let ((root zone))
-    (loop while (clim3-zone:zone-p (clim3-zone:parent root))
-	  do (setf root (clim3-zone:parent root)))
+    (loop while (clim3:zone-p (clim3-ext:parent root))
+	  do (setf root (clim3-ext:parent root)))
     ;; Find the zone entry with that root zone.
     (let ((zone-entry (find root
 			    (zone-entries new-client)
@@ -158,7 +158,7 @@
       (setf (motion-zones zone-entry)
 	    (remove (port zone-entry)
 		    (motion-zones zone-entry)
-		    :key #'clim3-zone:client
+		    :key #'clim3-ext:client
 		    :test-not #'eq))
       ;; For the remaining ones, call the handler.
       (loop for zone in (motion-zones zone-entry)
@@ -166,10 +166,10 @@
 		     (absolute-vpos 0)
 		     (parent zone))
 		 ;; Find the absolute position of the zone.
-		 (loop while (clim3-zone:zone-p parent)
-		       do (incf absolute-hpos (clim3-zone:hpos parent))
-			  (incf absolute-vpos (clim3-zone:vpos parent))
-			  (setf parent (clim3-zone:parent parent)))
+		 (loop while (clim3:zone-p parent)
+		       do (incf absolute-hpos (clim3:hpos parent))
+			  (incf absolute-vpos (clim3:vpos parent))
+			  (setf parent (clim3-ext:parent parent)))
 		 (funcall (clim3-input:handler zone)
 			  zone
 			  (- hpos absolute-hpos)
@@ -186,18 +186,18 @@
 		(labels ((traverse (zone hpos vpos)
 			   (unless (or (< hpos 0)
 				       (< vpos 0)
-				       (> hpos (clim3-zone:width zone))
-				       (> vpos (clim3-zone:height zone)))
+				       (> hpos (clim3:width zone))
+				       (> vpos (clim3:height zone)))
 			     (if (and (typep zone 'clim3-input:visit)
 				      (funcall (clim3-input:inside-p zone)
 					       hpos vpos))
 				 (return-from found zone)
 				 (progn 
-				   (clim3-zone:map-over-children-top-to-bottom
+				   (clim3-ext:map-over-children-top-to-bottom
 				    (lambda (child)
 				      (traverse child
-						(- hpos (clim3-zone:hpos child))
-						(- vpos (clim3-zone:vpos child))))
+						(- hpos (clim3:hpos child))
+						(- vpos (clim3:vpos child))))
 				    zone)
 				   nil)))))
 		  (traverse (zone zone-entry) hpos vpos)))))
@@ -240,12 +240,12 @@
 ;;; of ZONE, and VMAX is less than or equal to the height of ZONE.
 (defun build-visible-hierarchy (zone hmin vmin hmax vmax)
   (let ((children '()))
-    (clim3-zone:map-over-children-top-to-bottom
+    (clim3-ext:map-over-children-top-to-bottom
      (lambda (child)
-       (let ((chpos (clim3-zone:hpos child))
-	     (cvpos (clim3-zone:vpos child))
-	     (cwidth (clim3-zone:width child))
-	     (cheight (clim3-zone:height child)))
+       (let ((chpos (clim3:hpos child))
+	     (cvpos (clim3:vpos child))
+	     (cwidth (clim3:width child))
+	     (cheight (clim3:height child)))
 	 (when (and (< chpos hmax)
 		    (< cvpos vmax)
 		    (> (+ chpos cwidth) hmin)
@@ -261,18 +261,18 @@
      zone)
     (make-instance 'skeleton
 		   :zone zone
-		   :hpos (clim3-zone:hpos zone)
-		   :vpos (clim3-zone:vpos zone)
-		   :width (clim3-zone:width zone)
-		   :height (clim3-zone:height zone)
+		   :hpos (clim3:hpos zone)
+		   :vpos (clim3:vpos zone)
+		   :width (clim3:width zone)
+		   :height (clim3:height zone)
 		   :children (nreverse children))))
 
 (defparameter *hierarchy* nil)
 
 (defun build-top-level-hierarchy (zone)
   (setf *hierarchy*
-	(let ((width (clim3-zone:width zone))
-	      (height (clim3-zone:height zone)))
+	(let ((width (clim3:width zone))
+	      (height (clim3:height zone)))
 	  (build-visible-hierarchy zone 0 0 width height))))
 
 ;;; The purpose of this function is to scan the visible zone hierarchy
@@ -282,19 +282,19 @@
 ;;;
 (defun visible-hierarchy-unchanged-p (hierarchy zone hmin vmin hmax vmax)
   (and (eq (zone hierarchy) zone)
-       (= (hpos hierarchy) (clim3-zone:hpos zone))
-       (= (vpos hierarchy) (clim3-zone:vpos zone))
-       (= (width hierarchy) (clim3-zone:width zone))
-       (= (height hierarchy) (clim3-zone:height zone))
+       (= (hpos hierarchy) (clim3:hpos zone))
+       (= (vpos hierarchy) (clim3:vpos zone))
+       (= (width hierarchy) (clim3:width zone))
+       (= (height hierarchy) (clim3:height zone))
        (let ((children (children hierarchy)))
-	 (clim3-zone:map-over-children-top-to-bottom
+	 (clim3-ext:map-over-children-top-to-bottom
 	  (lambda (child)
 	    (if (or (null children)
 		    (not (eq (zone (car children)) child))
-		    (let ((chpos (clim3-zone:hpos child))
-			  (cvpos (clim3-zone:vpos child))
-			  (cwidth (clim3-zone:width child))
-			  (cheight (clim3-zone:height child)))
+		    (let ((chpos (clim3:hpos child))
+			  (cvpos (clim3:vpos child))
+			  (cwidth (clim3:width child))
+			  (cheight (clim3:height child)))
 		      (when (and (< chpos hmax)
 				 (< cvpos vmax)
 				 (> (+ chpos cwidth) hmin)
@@ -317,8 +317,8 @@
 
 (defun top-level-hierarchy-unchanged-p (zone)
   (and (not (null *hierarchy*))
-       (let ((width (clim3-zone:width zone))
-	     (height (clim3-zone:height zone)))
+       (let ((width (clim3:width zone))
+	     (height (clim3:height zone)))
 	 (visible-hierarchy-unchanged-p
 	  *hierarchy* zone 0 0 width height))))
 
@@ -328,9 +328,9 @@
 
 (defun layout-visible-zones (zone width height)
   (labels ((aux (zone)
-	     (when (typep zone 'clim3-zone:compound-mixin)
-	       (clim3-zone:impose-child-layouts zone)
-	       (clim3-zone:map-over-children
+	     (when (typep zone 'clim3-ext:compound-mixin)
+	       (clim3-ext:impose-child-layouts zone)
+	       (clim3-ext:map-over-children
 		(lambda (child)
 		  (clim3-port:with-zone child
 		    (aux child)))
@@ -367,7 +367,7 @@
       zone-entry
     (let ((width (xlib:drawable-width window))
 	  (height (xlib:drawable-height window)))
-      (clim3-zone:impose-size zone width height)
+      (clim3-ext:impose-size zone width height)
       ;; Make sure the pixmap and the image object have the same
       ;; dimensions as the window.
       (when (or (/= width (array-dimension pixel-array 1))
@@ -398,22 +398,22 @@
   (loop for zone-entry in (zone-entries port)
 	do (update zone-entry)))
 
-(defmethod clim3-port:connect ((zone clim3-zone:zone)
+(defmethod clim3-port:connect ((zone clim3:zone)
 			       (port clx-framebuffer-port))
   (let ((zone-entry (make-instance 'zone-entry :port port :zone zone))
 	(clim3-port:*new-port* port))
     ;; Register this zone entry.  We need to do this right away, because 
     ;; it has to exist when we set the parent of the zone. 
     (push zone-entry (zone-entries port))
-    (setf (clim3-zone:parent zone) port)
-    (clim3-zone:ensure-hsprawl-valid zone)
-    (clim3-zone:ensure-vsprawl-valid zone)
+    (setf (clim3-ext:parent zone) port)
+    (clim3-ext:ensure-hsprawl-valid zone)
+    (clim3-ext:ensure-vsprawl-valid zone)
     ;; Ask for a window that has the natural size of the zone.  We may
     ;; not get it, though.
     ;;
     ;; FIXME: take into account the position of the zone
     (setf (window zone-entry)
-	  (multiple-value-bind (width height) (clim3-zone:natural-size zone)
+	  (multiple-value-bind (width height) (clim3:natural-size zone)
 	    (xlib:create-window :parent (root port)
 				:x 0 :y 0 :width width :height height
 				:class :input-output
@@ -459,7 +459,7 @@
     (setf (zone-entries port) (remove zone-entry (zone-entries port)))
     (when (null (zone-entries port))
       (xlib:close-display (display port)))
-    (setf (clim3-zone:parent zone) nil)))
+    (setf (clim3-ext:parent zone) nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

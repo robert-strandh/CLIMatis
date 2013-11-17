@@ -4,37 +4,37 @@
 ;;;
 ;;; Generic function HSPRAWL.
 
-(defgeneric hsprawl (zone))
+(defgeneric clim3:hsprawl (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function (SETF HSPRAWL).
 
-(defgeneric (setf hsprawl) (new-hsprawl zone))
+(defgeneric (setf clim3:hsprawl) (new-hsprawl zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function SET-HSPRAWL.
 
-(defgeneric set-hsprawl (new-hsprawl zone))
+(defgeneric clim3-ext:set-hsprawl (new-hsprawl zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function VSPRAWL.
 
-(defgeneric vsprawl (zone))
+(defgeneric clim3:vsprawl (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function (SETF VSPRAWL).
 
-(defgeneric (setf vsprawl) (new-vsprawl zone))
+(defgeneric (setf clim3:vsprawl) (new-vsprawl zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function SET-VSPRAWL.
 
-(defgeneric set-vsprawl (new-vsprawl zone))
+(defgeneric clim3-ext:set-vsprawl (new-vsprawl zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -47,7 +47,7 @@
 ;;; After a call to this function, the horizontal sprawls of the zone
 ;;; are valid.
 
-(defgeneric compute-hsprawl (zone))
+(defgeneric clim3-ext:compute-hsprawl (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -60,7 +60,7 @@
 ;;; After a call to this function, the vertical sprawls of the zone
 ;;; are valid.
 
-(defgeneric compute-vsprawl (zone))
+(defgeneric clim3-ext:compute-vsprawl (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -70,22 +70,22 @@
 ;;; valid, and if so does nothing.  Otherwise, it calls
 ;;; COMPUTE-HSPRAWL.
 
-(defun ensure-hsprawl-valid (zone)
-  (when (null (hsprawl zone))
-    (compute-hsprawl zone)))
+(defun clim3-ext:ensure-hsprawl-valid (zone)
+  (when (null (clim3:hsprawl zone))
+    (clim3-ext:compute-hsprawl zone)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function NOTIFY-CHILD-HSPRAWL-CHANGED.
 
-(defgeneric notify-child-hsprawl-changed (child parent))
+(defgeneric clim3-ext:notify-child-hsprawl-changed (child parent))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function NOTIFY-CHILD-VSPRAWL-CHANGED.
 
-(defgeneric notify-child-vsprawl-changed (child parent))
+(defgeneric clim3-ext:notify-child-vsprawl-changed (child parent))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -95,121 +95,121 @@
 ;;; valid, and if so does nothing.  Otherwise, it calls
 ;;; COMPUTE-VSPRAWL.
 
-(defun ensure-vsprawl-valid (zone)
-  (when (null (vsprawl zone))
-    (compute-vsprawl zone)))
+(defun clim3-ext:ensure-vsprawl-valid (zone)
+  (when (null (clim3:vsprawl zone))
+    (clim3-ext:compute-vsprawl zone)))
 
 (defclass sprawls-mixin ()
-  ((%hsprawl :initform nil :initarg :hsprawl :accessor hsprawl :writer set-hsprawl)
-   (%vsprawl :initform nil :initarg :vsprawl :accessor vsprawl :writer set-vsprawl)))
+  ((%hsprawl :initform nil :initarg :hsprawl :accessor clim3:hsprawl :writer clim3-ext:set-hsprawl)
+   (%vsprawl :initform nil :initarg :vsprawl :accessor clim3:vsprawl :writer clim3-ext:set-vsprawl)))
 
 ;;; After the hsprawl of a zone has been explicitly modified, we
 ;;; notify the parent.
-(defmethod (setf hsprawl) :after (new-hsprawl (zone zone))
-  (notify-child-hsprawl-changed zone (parent zone)))
+(defmethod (setf clim3:hsprawl) :after (new-hsprawl (zone clim3:zone))
+  (clim3-ext:notify-child-hsprawl-changed zone (clim3-ext:parent zone)))
 
 ;;; After the vsprawl of a zone has been explicitly modified, we
 ;;; notify the parent.
-(defmethod (setf vsprawl) :after (new-vsprawl (zone zone))
-  (notify-child-vsprawl-changed zone (parent zone)))
+(defmethod (setf clim3:vsprawl) :after (new-vsprawl (zone clim3:zone))
+  (clim3-ext:notify-child-vsprawl-changed zone (clim3-ext:parent zone)))
 
 ;;; Return as two values the natural width and the natural height of
 ;;; the zone.  We use this function to determine the size of a zone
 ;;; where the dimensions do not depend on the parent, such as a bboard
 ;;; zone or a scroller zone.
-(defun natural-size (zone)
-  (values (clim3-sprawl:size (hsprawl zone))
-	  (clim3-sprawl:size (vsprawl zone))))
+(defun clim3:natural-size (zone)
+  (values (clim3-sprawl:size (clim3:hsprawl zone))
+	  (clim3-sprawl:size (clim3:vsprawl zone))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class CHANGING-CHILD-HSPRAWL-CHANGES-HSPRAWL-MIXIN
 
-(defclass changing-child-hsprawl-changes-hsprawl-mixin () ())
+(defclass clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin () ())
 
-(defmethod notify-child-hsprawl-changed
-    ((child zone) (parent changing-child-hsprawl-changes-hsprawl-mixin))
-  (setf (hsprawl parent) nil))
+(defmethod clim3-ext:notify-child-hsprawl-changed
+    ((child clim3:zone) (parent clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin))
+  (setf (clim3:hsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class CHANGING-CHILD-VSPRAWL-CHANGES-VSPRAWL-MIXIN
 
-(defclass changing-child-vsprawl-changes-vsprawl-mixin () ())
+(defclass clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin () ())
 
-(defmethod notify-child-vsprawl-changed
-    ((child zone) (parent changing-child-vsprawl-changes-vsprawl-mixin))
-  (setf (vsprawl parent) nil))
+(defmethod clim3-ext:notify-child-vsprawl-changed
+    ((child clim3:zone) (parent clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin))
+  (setf (clim3:vsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class CHANGING-CHILD-HSPRAWL-CHANGES-NOTHING-MIXIN
 
-(defclass changing-child-hsprawl-changes-nothing-mixin () ())
+(defclass clim3-ext:changing-child-hsprawl-changes-nothing-mixin () ())
 
-(defmethod notify-child-hsprawl-changed
-    ((child zone) (parent changing-child-hsprawl-changes-nothing-mixin))
+(defmethod clim3-ext:notify-child-hsprawl-changed
+    ((child clim3:zone) (parent clim3-ext:changing-child-hsprawl-changes-nothing-mixin))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class CHANGING-CHILD-VSPRAWL-CHANGES-NOTHING-MIXIN
 
-(defclass changing-child-vsprawl-changes-nothing-mixin () ())
+(defclass clim3-ext:changing-child-vsprawl-changes-nothing-mixin () ())
 
-(defmethod notify-child-vsprawl-changed
-    ((child zone) (parent changing-child-vsprawl-changes-nothing-mixin))
+(defmethod clim3-ext:notify-child-vsprawl-changed
+    ((child clim3:zone) (parent clim3-ext:changing-child-vsprawl-changes-nothing-mixin))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class CHANGING-CHILDREN-CHANGES-HSPRAWL-MIXIN
 
-(defclass changing-children-changes-hsprawl-mixin () ())
+(defclass clim3-ext:changing-children-changes-hsprawl-mixin () ())
 
-(defmethod (setf children) :after
-  (new-children (zone changing-children-changes-hsprawl-mixin))
+(defmethod (setf clim3:children) :after
+  (new-children (zone clim3-ext:changing-children-changes-hsprawl-mixin))
   (declare (ignore new-children))
-  (setf (hsprawl zone) nil))
+  (setf (clim3:hsprawl zone) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class CHANGING-CHILDREN-CHANGES-VSPRAWL-MIXIN
 
-(defclass changing-children-changes-vsprawl-mixin () ())
+(defclass clim3-ext:changing-children-changes-vsprawl-mixin () ())
 
-(defmethod (setf children) :after
-  (new-children (zone changing-children-changes-vsprawl-mixin))
+(defmethod (setf clim3:children) :after
+  (new-children (zone clim3-ext:changing-children-changes-vsprawl-mixin))
   (declare (ignore new-children))
-  (setf (vsprawl zone) nil))
+  (setf (clim3:vsprawl zone) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class CHANGING-CHILDREN-CHANGES-BOTH-SPRAWLS-MIXIN
 
-(defclass changing-children-changes-both-sprawls-mixin () ())
+(defclass clim3-ext:changing-children-changes-both-sprawls-mixin () ())
 
-(defmethod (setf children) :after
-  (new-children (zone changing-children-changes-vsprawl-mixin))
+(defmethod (setf clim3:children) :after
+  (new-children (zone clim3-ext:changing-children-changes-vsprawl-mixin))
   (declare (ignore new-children))
-  (setf (hsprawl zone) nil)
-  (setf (vsprawl zone) nil))
+  (setf (clim3:hsprawl zone) nil)
+  (setf (clim3:vsprawl zone) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class CHANGING-CHILDREN-CHANGES-NOTHING-MIXIN
 
-(defclass changing-children-changes-nothing-mixin () ())
+(defclass clim3-ext:changing-children-changes-nothing-mixin () ())
 
 ;;; Default method on NOTIFY-CHILD-HSPRAWL-CHANGED for ZONE and NULL.
 ;;; This method does nothing, thus allowing this generic function to
 ;;; be called with any zone and its parent.
-(defmethod notify-child-hsprawl-changed ((child zone) (parent null))
+(defmethod clim3-ext:notify-child-hsprawl-changed ((child clim3:zone) (parent null))
   nil)
 
 ;;; Default method on NOTIFY-CHILD-VSPRAWL-CHANGED for ZONE and NULL.
 ;;; This method does nothing, thus allowing this generic function to
 ;;; be called with any zone and its parent.
-(defmethod notify-child-vsprawl-changed ((child zone) (parent null))
+(defmethod clim3-ext:notify-child-vsprawl-changed ((child clim3:zone) (parent null))
   nil)
 

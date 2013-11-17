@@ -12,22 +12,22 @@
 ;;; By factoring out this class, we can safely add an :AFTER method to
 ;;; (SETF PARENT), specialized to this class.  
 
-(defgeneric client (zone))
+(defgeneric clim3-ext:client (zone))
 
-(defgeneric (setf client) (new-client zone))
+(defgeneric (setf clim3-ext:client) (new-client zone))
 
 (defclass client-mixin ()
-  ((%client :initform nil :accessor client)))
+  ((%client :initform nil :accessor clim3-ext:client)))
 
-(defun set-clients (zone client)
+(defun clim3-ext:set-clients (zone client)
   (labels ((aux (zone)
-	     (unless (eq (client zone) client)
-	       (setf (client zone) client)
-	       (map-over-children #'aux zone))))
+	     (unless (eq (clim3-ext:client zone) client)
+	       (setf (clim3-ext:client zone) client)
+	       (clim3-ext:map-over-children #'aux zone))))
     (aux zone)))
 
-(defmethod (setf parent) :after ((new-parent zone) (zone client-mixin))
-  (set-clients zone (client new-parent)))
+(defmethod (setf clim3-ext:parent) :after ((new-parent clim3:zone) (zone client-mixin))
+  (clim3-ext:set-clients zone (clim3-ext:client new-parent)))
 
 
 

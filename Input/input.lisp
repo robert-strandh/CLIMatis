@@ -7,8 +7,8 @@
 ;;; An input zone is very elastic.  Client code will stick the input
 ;;; zone in a compound zone on top of some more rigid zones. 
 
-(defclass input (clim3-zone:standard-zone
-		 clim3-zone:atomic-mixin)
+(defclass input (clim3:standard-zone
+		 clim3-ext:atomic-mixin)
   ()
   (:default-initargs :vsprawl (clim3-sprawl:sprawl 0 0 nil)
 		     :hsprawl (clim3-sprawl:sprawl 0 0 nil)))

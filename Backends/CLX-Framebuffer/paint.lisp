@@ -36,9 +36,9 @@
   (let* ((pa *pixel-array*)
 	 (height (array-dimension pa 0))
 	 (width (array-dimension pa 1))
-	 (pixel (+ (ash (round (* 255 (clim3-color:red color))) 16)
-		   (ash (round (* 255 (clim3-color:green color))) 8)
-		   (ash (round (* 255 (clim3-color:blue color))) 0)))
+	 (pixel (+ (ash (round (* 255 (clim3:red color))) 16)
+		   (ash (round (* 255 (clim3:green color))) 8)
+		   (ash (round (* 255 (clim3:blue color))) 0)))
 	 (hstart *hstart*)
 	 (hend *hend*)
 	 (vstart *vstart*)
@@ -62,9 +62,9 @@
     ((port clx-framebuffer-port) mask color)
   (let ((width (array-dimension mask 1))
 	(height (array-dimension mask 0))
-	(r (clim3-color:red color))
-	(g (clim3-color:green color))
-	(b (clim3-color:blue color)))
+	(r (clim3:red color))
+	(g (clim3:green color))
+	(b (clim3:blue color)))
     (loop for vpos from (max *vstart* *vpos*) below *vend*
 	  for row from (max 0 (- *vstart* *vpos*)) below height
 	  do (loop for hpos from (max *hstart* *hpos*) below *hend*
@@ -89,9 +89,9 @@
 
 (defmethod clim3-port:new-port-paint-translucent
     ((port clx-framebuffer-port) color opacity)
-  (let ((r (clim3-color:red color))
-	(g (clim3-color:green color))
-	(b (clim3-color:blue color)))
+  (let ((r (clim3:red color))
+	(g (clim3:green color))
+	(b (clim3:blue color)))
     (loop for vpos from (max *vstart* *vpos*) below *vend*
 	  do (loop for hpos from (max *hstart* *hpos*) below *hend*
 		   do (let* ((pa *pixel-array*)

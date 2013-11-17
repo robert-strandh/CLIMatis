@@ -7,7 +7,7 @@
 
 (defun hash-table-from-children (zone)
   (let ((table (make-hash-table :test #'eq)))
-    (map-over-children
+    (clim3-ext:map-over-children
      (lambda (child)
        (setf (gethash child table) t))
      zone)
@@ -29,7 +29,7 @@
 ;;; COMPOUND-ZONE.  It could be a list, a vector, a 2-D array, or
 ;;; something else.  
 
-(defgeneric children (zone))
+(defgeneric clim3:children (zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -47,15 +47,15 @@
 ;;;
 ;;; There are :around methods on this function (see below).  One is
 ;;; specialized for AT-MOST-ONE-CHILD-MIXIN, and the other for
-;;; ANY-NUMBER-OF-CHILDREN-MIXIN, both subclasses of COMPOUND-ZONE.
-;;; These :around methods always call the primary methods, but they
-;;; also do some extra work such as error checking, setting the parent
-;;; of every new child, removing the parent of every removed child,
-;;; and client notification.  The :around method calls CHILDREN, which
-;;; has as a consequence that in order to use (SETF CHILDREN) the
+;;; SEVERAL-CHILDREN-MIXIN, both subclasses of COMPOUND-ZONE.  These
+;;; :around methods always call the primary methods, but they also do
+;;; some extra work such as error checking, setting the parent of
+;;; every new child, removing the parent of every removed child, and
+;;; client notification.  The :around method calls CHILDREN, which has
+;;; as a consequence that in order to use (SETF CHILDREN) the
 ;;; corresponding slot must be bound.
 
-(defgeneric (setf children) (new-children compound-zone))
+(defgeneric (setf clim3:children) (new-children compound-zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -66,26 +66,26 @@
 ;;; first argument on each child of the zone given as a second argument.  
 ;;;
 
-(defgeneric map-over-children (function zone))
+(defgeneric clim3-ext:map-over-children (function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class ATOMIC-MIXIN
 ;;;
 
-(defclass atomic-mixin (child-depth-insignificant-mixin) ())
+(defclass clim3-ext:atomic-mixin (clim3-ext:child-depth-insignificant-mixin) ())
 
-(defmethod children ((zone atomic-mixin))
+(defmethod clim3:children ((zone clim3-ext:atomic-mixin))
   '())
 
-(defmethod child ((zone atomic-mixin))
+(defmethod clim3:child ((zone clim3-ext:atomic-mixin))
   nil)
 
-(defmethod (setf children) (new-children (zone atomic-mixin))
+(defmethod (setf clim3:children) (new-children (zone clim3-ext:atomic-mixin))
   (declare (ignore new-children))
   (error "can't set the children of an atomic zone"))
 
-(defmethod map-over-children (function (zone atomic-mixin))
+(defmethod clim3-ext:map-over-children (function (zone clim3-ext:atomic-mixin))
   (declare (ignore function))
   nil)
 
@@ -93,14 +93,14 @@
 ;;;
 ;;; Class COMPOUND-MIXIN.
 
-(defclass compound-mixin ()
-  ((%children :initform '() :initarg :children :accessor children)))
+(defclass clim3-ext:compound-mixin ()
+  ((%children :initform '() :initarg :children :accessor clim3:children)))
 
-(defmethod initialize-instance :after ((zone compound-mixin) &key)
-  (map-over-children (lambda (child) (setf (parent child) zone)) zone))
+(defmethod initialize-instance :after ((zone clim3-ext:compound-mixin) &key)
+  (clim3-ext:map-over-children (lambda (child) (setf (clim3-ext:parent child) zone)) zone))
 
-(defmethod print-components progn ((zone compound-mixin) stream)
-  (map-over-children
+(defmethod clim3-ext:print-components progn ((zone clim3-ext:compound-mixin) stream)
+  (clim3-ext:map-over-children
    (lambda (child)
      (format stream "~s " child))
    zone))
@@ -110,25 +110,25 @@
 ;;; Class AT-MOST-ONE-CHILD-MIXIN.
 ;;;
 
-(defclass at-most-one-child-mixin (compound-mixin) ())
+(defclass clim3-ext:at-most-one-child-mixin (clim3-ext:compound-mixin) ())
 
-(defmethod (setf children) :around (new-child (zone at-most-one-child-mixin))
+(defmethod (setf clim3:children) :around (new-child (zone clim3-ext:at-most-one-child-mixin))
   (declare (ignore new-child))
-  (let ((child-before (children zone)))
+  (let ((child-before (clim3:children zone)))
     (call-next-method)
-    (let ((child-after (children zone)))
+    (let ((child-after (clim3:children zone)))
       (unless (eq child-before child-after)
 	(unless (null child-before)
-	  (setf (parent child-before) nil))
+	  (setf (clim3-ext:parent child-before) nil))
 	(unless (null child-after)
-	  (setf (parent child-after) zone))))))
+	  (setf (clim3-ext:parent child-after) zone))))))
 
-(defmethod (setf children) :before (new-child (zone at-most-one-child-mixin))
-  (unless (or (null new-child) (zone-p new-child))
+(defmethod (setf clim3:children) :before (new-child (zone clim3-ext:at-most-one-child-mixin))
+  (unless (or (null new-child) (clim3:zone-p new-child))
     (error "new child must be a zone or NIL")))
 
-(defmethod map-over-children (function (zone at-most-one-child-mixin))
-  (let ((child (children zone)))
+(defmethod clim3-ext:map-over-children (function (zone clim3-ext:at-most-one-child-mixin))
+  (let ((child (clim3:children zone)))
     (unless (null child)
       (funcall function child))))
 
@@ -137,20 +137,20 @@
 ;;; Class SEVERAL-CHILDREN-MIXIN.
 ;;;
 
-(defclass several-children-mixin (compound-mixin) ())
+(defclass clim3-ext:several-children-mixin (clim3-ext:compound-mixin) ())
 
-(defmethod (setf children) :around (new-children (zone several-children-mixin))
+(defmethod (setf clim3:children) :around (new-children (zone clim3-ext:several-children-mixin))
   (declare (ignore new-children))
   (let ((children-before (hash-table-from-children zone)))
     (call-next-method)
     (let ((children-after (hash-table-from-children zone)))
       (map-over-hash-table-difference
        (lambda (deleted-child)
-	 (setf (parent deleted-child) nil))
+	 (setf (clim3-ext:parent deleted-child) nil))
        children-before children-after)
       (map-over-hash-table-difference
        (lambda (inserted-child)
-	 (setf (parent inserted-child) zone))
+	 (setf (clim3-ext:parent inserted-child) zone))
        children-after children-before))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -158,17 +158,17 @@
 ;;; Class LIST-CHILDREN-MIXIN.
 ;;;
 
-(defclass list-children-mixin (several-children-mixin) ())
+(defclass clim3-ext:list-children-mixin (clim3-ext:several-children-mixin) ())
 
-(defmethod map-over-children (function (zone list-children-mixin))
-  (mapc function (children zone)))
+(defmethod clim3-ext:map-over-children (function (zone clim3-ext:list-children-mixin))
+  (mapc function (clim3:children zone)))
 
-(defmethod (setf children) :before (new-children (zone list-children-mixin))
+(defmethod (setf clim3:children) :before (new-children (zone clim3-ext:list-children-mixin))
   ;; FIXME: check that new-children is a proper list.
   (loop for child in new-children
-	do (unless (zone-p child)
+	do (unless (clim3:zone-p child)
 	     (error "new child must be a zone"))
-	   (unless (null (parent child))
+	   (unless (null (clim3-ext:parent child))
 	     (error "attempt to connect a zone that is already connected"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -176,18 +176,18 @@
 ;;; Class VECTOR-CHILDREN-MIXIN.
 ;;;
 
-(defclass vector-children-mixin (several-children-mixin) ())
+(defclass clim3-ext:vector-children-mixin (clim3-ext:several-children-mixin) ())
 
-(defmethod map-over-children (function (zone vector-children-mixin))
-  (map nil function (children zone)))
+(defmethod clim3-ext:map-over-children (function (zone clim3-ext:vector-children-mixin))
+  (map nil function (clim3:children zone)))
 
-(defmethod (setf children) :before (new-children (zone vector-children-mixin))
+(defmethod (setf clim3:children) :before (new-children (zone clim3-ext:vector-children-mixin))
   (unless (vectorp new-children)
     (error "new children must be a vector"))
   (loop for child across new-children
-	do (unless (zone-p child)
+	do (unless (clim3:zone-p child)
 	     (error "new child must be a zone"))
-	   (unless (null (parent child))
+	   (unless (null (clim3-ext:parent child))
 	     (error "attempt to connect a zone that is already connected"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -195,23 +195,23 @@
 ;;; Class MATRIX-CHILDREN-MIXIN.
 ;;;
 
-(defclass matrix-children-mixin (several-children-mixin) ())
+(defclass clim3-ext:matrix-children-mixin (clim3-ext:several-children-mixin) ())
 
-(defmethod map-over-children (function (zone matrix-children-mixin))
-  (let ((children (children zone)))
+(defmethod clim3-ext:map-over-children (function (zone clim3-ext:matrix-children-mixin))
+  (let ((children (clim3:children zone)))
     (loop for r from 0 below (array-dimension children 0)
 	  do (loop for c from 0 below (array-dimension children 1)
 		   do (funcall function (aref children r c))))))
 
-(defmethod (setf children) :before (new-children (zone matrix-children-mixin))
+(defmethod (setf clim3:children) :before (new-children (zone clim3-ext:matrix-children-mixin))
   (unless (and (arrayp new-children)
 	       (= (array-rank new-children) 2))
     (error "new children must be an array of rank 2"))
   (loop for r from 0 below (array-dimension new-children 0)
 	do (loop for c from 0 below (array-dimension new-children 1)
 		 do (let ((child (aref new-children r c)))
-		      (unless (zone-p child)
+		      (unless (clim3:zone-p child)
 			(error "new child must be a zone"))
-		      (unless (null (parent child))
+		      (unless (null (clim3-ext:parent child))
 			(error "attempt to connect a zone that is already connected"))))))
 

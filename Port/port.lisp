@@ -6,8 +6,8 @@
 
 ;;; FIXME: add a comment
 
-(defmethod (setf clim3-zone:parent) :after ((new-parent port) (zone clim3-zone:zone))
-  (clim3-zone:set-clients zone new-parent))
+(defmethod (setf clim3-ext:parent) :after ((new-parent port) (zone clim3:zone))
+  (clim3-ext:set-clients zone new-parent))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

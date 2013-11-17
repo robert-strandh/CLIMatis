@@ -9,7 +9,7 @@
 ;;; COMPOUND-ZONE.  It could be a list, a vector, a 2-D array, or
 ;;; something else.  
 
-(defgeneric children (compound-zone))
+(defgeneric clim3:children (compound-zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -27,17 +27,17 @@
 ;;;
 ;;; There are :around methods on this function (see below).  One is
 ;;; specialized for AT-MOST-ONE-CHILD-MIXIN, and the other for
-;;; ANY-NUMBER-OF-CHILDREN-MIXIN, both subclasses of COMPOUND-ZONE.
-;;; These :around methods always call the primary methods, but they
-;;; also do some extra work such as error checking, setting the parent
-;;; of every new child, removing the parent of every removed child,
-;;; and client notification.  The :around method calls CHILDREN, which
-;;; has as a consequence that in order to use (SETF CHILDREN) the
+;;; SEVERAL-CHILDREN-MIXIN, both subclasses of COMPOUND-ZONE.  These
+;;; :around methods always call the primary methods, but they also do
+;;; some extra work such as error checking, setting the parent of
+;;; every new child, removing the parent of every removed child, and
+;;; client notification.  The :around method calls CHILDREN, which has
+;;; as a consequence that in order to use (SETF CHILDREN) the
 ;;; corresponding slot must be bound.
 ;;;
 ;;; There is one :after method specialized for COMPOUND-ZONE that calls 
 
-(defgeneric (setf children) (new-children compound-zone))
+(defgeneric (setf clim3:children) (new-children compound-zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -48,7 +48,7 @@
 ;;; first argument on each child of the zone given as a second argument.  
 ;;;
 
-(defgeneric map-over-children (function zone))
+(defgeneric clim3-ext:map-over-children (function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -58,7 +58,7 @@
 ;;; argument is a zone.  This function calls the function given as the
 ;;; first argument on each child of the zone given as a second argument.  
 
-(defgeneric map-over-children-top-to-bottom (function zone))
+(defgeneric clim3-ext:map-over-children-top-to-bottom (function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -68,5 +68,5 @@
 ;;; argument is a zone.  This function calls the function given as the
 ;;; first argument on each child of the zone given as a second argument.  
 
-(defgeneric map-over-children-bottom-to-top (function zone))
+(defgeneric clim3-ext:map-over-children-bottom-to-top (function zone))
 

@@ -216,56 +216,56 @@
 		  (string-to-words-and-spaces string first-blank))))))
 
 (defun line-from-string (string)
-  (clim3-layout:hbox*
-   (clim3-layout:hbox
+  (clim3:hbox*
+   (clim3:hbox
     (mapcar (lambda (item)
 	      (if (numberp item)
-		  (clim3-layout:hframe* 7 7 7)
+		  (clim3:hframe* 7 7 7)
 		  (clim3-text:text
 		   (coerce item 'string)
 		   (clim3-text-style:text-style :camfer :sans :roman 12)
-		   (clim3-color:make-color 0.0 0.0 0.0))))
+		   (clim3:make-color 0.0 0.0 0.0))))
 	    (string-to-words-and-spaces string 0)))
-   (clim3-layout:hframe* 0 0 nil)))
+   (clim3:hframe* 0 0 nil)))
 
 (defun edit-zone (height lines)
-  (clim3-layout:vframe*
+  (clim3:vframe*
    height height height
-   (clim3-layout:pile*
-    (clim3-layout:bboard* lines)
-    (clim3-graphics:opaque (clim3-color:make-color 0.95 0.95 0.95)))))
+   (clim3:pile*
+    (clim3:bboard* lines)
+    (clim3:opaque (clim3:make-color 0.95 0.95 0.95)))))
 
 (defun info-zone (height)
-  (clim3-layout:vframe*
+  (clim3:vframe*
    height height height
-   (clim3-layout:pile*
-    (clim3-layout:hbox*
-     (clim3-layout:hframe* 30 30 30)
+   (clim3:pile*
+    (clim3:hbox*
+     (clim3:hframe* 30 30 30)
      (clim3-text:text
       "Climacs"
       (clim3-text-style:text-style :camfer :sans :roman 12)
-      (clim3-color:make-color 0.0 0.0 0.0))
-     (clim3-layout:hframe* 0 0 nil))
-    (clim3-graphics:opaque (clim3-color:make-color 0.8 0.8 0.8)))))
+      (clim3:make-color 0.0 0.0 0.0))
+     (clim3:hframe* 0 0 nil))
+    (clim3:opaque (clim3:make-color 0.8 0.8 0.8)))))
    
 (defun minibuffer-zone (height)
-  (clim3-layout:vframe*
+  (clim3:vframe*
    height height height 
-   (clim3-layout:pile*
+   (clim3:pile*
     ;; This one should really be a scroller.
-    (clim3-layout:bboard*
+    (clim3:bboard*
       ;; The zone containing the text
-     (clim3-layout:hbox* (clim3-layout:hframe* 0 0 nil)))
-    (clim3-graphics:opaque (clim3-color:make-color 0.95 0.95 0.95)))))
+     (clim3:hbox* (clim3:hframe* 0 0 nil)))
+    (clim3:opaque (clim3:make-color 0.95 0.95 0.95)))))
 
 
 (defun stuff-buffer-text (buffer vbox)
-  (setf (clim3-zone:children vbox)
+  (setf (clim3:children vbox)
 	(loop for line across buffer
 	      ;; Put the words and spaces of a line into a hbox.
 	      collect (line-from-string line)
 	      ;; Make some space between lines
-	      collect (clim3-layout:vframe* 5 5 nil))))
+	      collect (clim3:vframe* 5 5 nil))))
 
 (defparameter *fun* nil)
 
@@ -285,17 +285,17 @@
 		     nil))))))
 
 (defun editor-zones (width height)
-  (let* ((lines (clim3-layout:vbox*))
+  (let* ((lines (clim3:vbox*))
 	 (view (make-instance 'editor-view))
 	 (keystroke-processor
 	   (make-instance 'emacs-like-keystroke-processor
 			  :view view
 			  :command-table *fundametal-table*)))
-    (clim3-layout:hframe*
+    (clim3:hframe*
      width width width
-     (clim3-layout:vframe*
+     (clim3:vframe*
       height height height
-      (clim3-layout:pile* 
+      (clim3:pile* 
        (clim3-input:key
 	(clim3-port:standard-key-processor
 	 (setf *fun*
@@ -303,7 +303,7 @@
 		 (process-keystroke keystroke-processor key)
 		 (stuff-buffer-text (buffer view) lines))))
 	(lambda (&rest rest) (declare (ignore rest)) nil))
-       (clim3-layout:vbox*
+       (clim3:vbox*
 	(edit-zone (- height 60) lines)
 	(info-zone 30)
 	(minibuffer-zone 30)))))))

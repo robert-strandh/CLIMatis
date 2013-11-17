@@ -4,11 +4,11 @@
 ;;;
 ;;; Generic function IMPOSE-CHILD-LAYOUTS.
 
-(defgeneric impose-child-layouts (compound-zone))
+(defgeneric clim3-ext:impose-child-layouts (compound-zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Function ENSURE-CHILD-LAYOUTS-VALID.
 
-(defun ensure-child-layouts-valid (compound-zone)
-  (impose-child-layouts compound-zone))
+(defun clim3-ext:ensure-child-layouts-valid (compound-zone)
+  (clim3-ext:impose-child-layouts compound-zone))

@@ -1,7 +1,7 @@
 (in-package #:common-lisp-user)
 
 (asdf:defsystem :clim3-zone
-  :depends-on (:clim3-sprawl)
+  :depends-on (:climatis-packages :clim3-sprawl)
   :components
   ((:file "zone-packages" :depends-on ())
    (:file "protocol-class" :depends-on ("zone-packages"))

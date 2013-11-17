@@ -1,11 +1,11 @@
 (in-package #:common-lisp-user)
 
 (defparameter *z2*
-  (clim3-layout:hbox*
-   (clim3-layout:brick
+  (clim3:hbox*
+   (clim3:brick
     200 200
-    (clim3-layout:pile*
-     (clim3-graphics:opaque (clim3-color:make-color 1.0 0.0 0.0))
+    (clim3:pile*
+     (clim3:opaque (clim3:make-color 1.0 0.0 0.0))
      (clim3-input:button
       (lambda (zone code modifiers)
 	(declare (ignore zone))
@@ -32,10 +32,10 @@
 	(declare (ignore zone))
 	(format *debug-io* "red: motion ~a ~a~%" hpos vpos)
 	(force-output *debug-io*)))))
-   (clim3-layout:brick
+   (clim3:brick
     200 200
-    (clim3-layout:pile*
-     (clim3-graphics:opaque (clim3-color:make-color 0.0 1.0 0.0))
+    (clim3:pile*
+     (clim3:opaque (clim3:make-color 0.0 1.0 0.0))
      (clim3-input:button
       (lambda (zone code modifiers)
 	(declare (ignore zone))

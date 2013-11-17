@@ -44,22 +44,22 @@
     (funcall (action handler))))
 
 (defun butcon (label-zone action)
-  (let* ((normal (clim3-layout:sponge))
-	 (black (clim3-color:make-color 0d0 0d0 0d0))
-	 (darker (clim3-graphics:translucent black 0.2d0))
-	 (wrap (clim3-layout:wrap normal))
+  (let* ((normal (clim3:sponge))
+	 (black (clim3:make-color 0d0 0d0 0d0))
+	 (darker (clim3:translucent black 0.2d0))
+	 (wrap (clim3:wrap normal))
 	 (handler (make-instance 'action-button-handler :action action)))
-    (clim3-layout:pile*
+    (clim3:pile*
      (clim3-input:visit
       (lambda (zone)
 	(declare (ignore zone))
 	(setf clim3-port:*button-handler* handler)
-	(setf (clim3-zone:children wrap) darker))
+	(setf (clim3:children wrap) darker))
       (lambda (zone)
 	(declare (ignore zone))
 	(setf (armedp handler) nil)
 	(setf clim3-port:*button-handler* clim3-port:*null-button-handler*)
-	(setf (clim3-zone:children wrap) normal)))
+	(setf (clim3:children wrap) normal)))
      label-zone
      wrap)))
 
@@ -87,28 +87,28 @@
 
 (defparameter *follow-hour-space* 5)
 
-(defparameter *background* (clim3-color:make-color 0.95d0 0.95d0 0.95d0))
+(defparameter *background* (clim3:make-color 0.95d0 0.95d0 0.95d0))
 
-(defparameter *black* (clim3-color:make-color 0.0d0 0.0d0 0.0d0))
+(defparameter *black* (clim3:make-color 0.0d0 0.0d0 0.0d0))
 
 (defun hour-zone ()
-  (clim3-layout:sponge))
+  (clim3:sponge))
 
 (defun vline ()
-  (clim3-layout:hbrick
+  (clim3:hbrick
    1
-   (clim3-graphics:opaque (clim3-color:make-color 0.3d0 0d0 0d0))))
+   (clim3:opaque (clim3:make-color 0.3d0 0d0 0d0))))
 
 (defun hline ()
-  (clim3-layout:vbrick
+  (clim3:vbrick
    1
-   (clim3-graphics:opaque (clim3-color:make-color 0.3d0 0d0 0d0))))
+   (clim3:opaque (clim3:make-color 0.3d0 0d0 0d0))))
 
 ;;; The day numbers are wrap zones, and the child of each such wrap
 ;;; zone will be modified to reflect what is currently on display. 
 (defparameter *day-numbers-of-week*
   (loop repeat 7
-	collect (clim3-layout:wrap)))
+	collect (clim3:wrap)))
 
 (defun set-day-numbers ()
   (let ((utime (* *current-week* #.(* 7 24 60 60))))
@@ -116,44 +116,44 @@
 	  for dno = (second (multiple-value-list
 			     (dut (+ utime (* i #.(* 24 60 60))))))
 	  for wrap in *day-numbers-of-week*
-	  do (setf (clim3-zone:children wrap)
+	  do (setf (clim3:children wrap)
 		   (clim3-text:text
 		    (format nil "~2,'0d" dno)
 		    *day-number-text-style*
 		    *black*)))))
 
 (defun dayname-zone (name number)
-  (clim3-layout:vbrick
+  (clim3:vbrick
    40
-   (clim3-layout:vbox*
-    (clim3-layout:sponge)
-    (clim3-layout:hbox*
-     (clim3-layout:hbrick 5)
-     (clim3-layout:hbrick
+   (clim3:vbox*
+    (clim3:sponge)
+    (clim3:hbox*
+     (clim3:hbrick 5)
+     (clim3:hbrick
       40
-      (clim3-layout:vbox*
-       (clim3-layout:sponge)
+      (clim3:vbox*
+       (clim3:sponge)
        number))
-     (clim3-layout:hbrick
+     (clim3:hbrick
       40
-      (clim3-layout:vbox*
-       (clim3-layout:sponge)
+      (clim3:vbox*
+       (clim3:sponge)
        (clim3-text:text name
 			*dayname-text-style*
 			*black*)
-       (clim3-layout:sponge)))
-     (clim3-layout:sponge))
-    (clim3-layout:vbrick 2))))
+       (clim3:sponge)))
+     (clim3:sponge))
+    (clim3:vbrick 2))))
 
 (defun day-names ()
-  (clim3-layout:hbox 
+  (clim3:hbox 
    (loop for name in '("Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun")
 	 for number in *day-numbers-of-week*
 	 collect (dayname-zone name number))))
 
 (defun day-zone ()
-  (clim3-layout:hbox*
-   (clim3-layout:vbox
+  (clim3:hbox*
+   (clim3:vbox
     (cons (hline)
 	  (loop repeat 24
 		collect (hour-zone)
@@ -161,40 +161,40 @@
    (vline)))
 
 (defun grid-zones ()
-  (clim3-layout:hbox
+  (clim3:hbox
    (cons (vline)
 	 (loop repeat 7
 	       collect (day-zone)))))
 
 (defun hours ()
-  (let ((color (clim3-color:make-color 0.0d0 0.0d0 0.0d0 )))
-    (clim3-layout:vbox
+  (let ((color (clim3:make-color 0.0d0 0.0d0 0.0d0 )))
+    (clim3:vbox
      (cons (clim3-text:text "00:00" *hour-text-style* color)
 	   (loop for hour from 1 to 24
-		 collect (clim3-layout:sponge)
+		 collect (clim3:sponge)
 		 collect (clim3-text:text (format nil "~2,'0d:00" (mod hour 24))
 					  *hour-text-style* color))))))
 (defun time-plane ()
-  (clim3-layout:hbox*
+  (clim3:hbox*
    (hours)
-   (clim3-layout:hbrick *follow-hour-space*)
-   (clim3-layout:vbox*
-    (clim3-layout:vbrick 10)
+   (clim3:hbrick *follow-hour-space*)
+   (clim3:vbox*
+    (clim3:vbrick 10)
     (grid-zones)
-    (clim3-layout:vbrick 10))))
+    (clim3:vbrick 10))))
 
 (defun calendar-zones ()
-  (clim3-layout:pile*
-   (clim3-layout:brick
+  (clim3:pile*
+   (clim3:brick
     1000 700
-    (clim3-layout:hbox*
-     (clim3-layout:vbox*
-      (clim3-layout:hbox*
-       (clim3-layout:hbrick 60)
+    (clim3:hbox*
+     (clim3:vbox*
+      (clim3:hbox*
+       (clim3:hbrick 60)
        (day-names))
       (time-plane))
-     (clim3-layout:hbrick 10)))
-   (clim3-graphics:opaque *background*)))
+     (clim3:hbrick 10)))
+   (clim3:opaque *background*)))
 
 (defun previous-week ()
   (decf *current-week*)
@@ -207,24 +207,24 @@
 (defparameter *icons* (clim3-icons:make-icons 20))
 
 (defun toolbar ()
-  (clim3-layout:pile*
-   (clim3-layout:hbox*
-    (clim3-layout:sponge)
-    (butcon (clim3-graphics:masked
+  (clim3:pile*
+   (clim3:hbox*
+    (clim3:sponge)
+    (butcon (clim3:masked
 	     *black* (clim3-icons:find-icon *icons* :left))
 	    #'previous-week)
-    (clim3-layout:hbrick 20)
-    (butcon (clim3-graphics:masked
+    (clim3:hbrick 20)
+    (butcon (clim3:masked
 	     *black* (clim3-icons:find-icon *icons* :right))
 	    #'next-week)
-    (clim3-layout:sponge))
-   (clim3-graphics:opaque *background*)))
+    (clim3:sponge))
+   (clim3:opaque *background*)))
 
 (defun calendar ()
   (setf *current-week* (floor (get-universal-time) #.(* 7 24 60 60)))
   (set-day-numbers)
   (let ((port (clim3-port:make-port :clx-framebuffer))
-	(root (clim3-layout:vbox*
+	(root (clim3:vbox*
 	       (toolbar)
 	       (calendar-zones))))
     (clim3-port:connect root port)
