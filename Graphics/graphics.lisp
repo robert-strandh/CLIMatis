@@ -38,7 +38,7 @@
   (make-instance 'clim3:opaque :color color))
 
 (defmethod clim3-paint:new-paint ((zone clim3:opaque))
-  (clim3-port:new-paint-opaque (clim3:color zone)))
+  (clim3:paint-opaque (clim3:color zone)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -85,7 +85,6 @@
 		 :opacity opacity))
 
 (defmethod clim3-paint:new-paint ((zone clim3:translucent))
-  (clim3-port:new-paint-translucent
-   (clim3:color zone) (clim3:opacity zone)))
+  (clim3:paint-translucent   (clim3:color zone) (clim3:opacity zone)))
 
 

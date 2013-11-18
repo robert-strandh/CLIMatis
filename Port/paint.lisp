@@ -1,31 +1,31 @@
 (cl:in-package #:clim3-port)
 
-(defgeneric new-port-paint-pixel (port r g b alpha))
+(defgeneric clim3-ext:paint-pixel (port r g b alpha))
 
-(defgeneric new-port-paint-mask (port mask color))
+(defgeneric clim3-ext:paint-mask (port mask color))
 
-(defgeneric new-port-paint-opaque (port color))
+(defgeneric clim3-ext:paint-opaque (port color))
 
-(defgeneric new-port-paint-translucent (port color opacity))
+(defgeneric clim3-ext:paint-translucent (port color opacity))
 
-(defgeneric new-port-paint-text (port text text-style color))
+(defgeneric clim3-ext:paint-text (port text text-style color))
 
-(defgeneric new-port-paint-trapezoids (port trapezoids color))
+(defgeneric clim3-ext:paint-trapezoids (port trapezoids color))
 
-(defun new-paint-pixel (r g b alpha)
-  (new-port-paint-pixel *new-port* r g b alpha))
+(defun clim3:paint-pixel (r g b alpha)
+  (clim3-ext:paint-pixel clim3:*port* r g b alpha))
 
-(defun new-paint-mask (mask color)
-  (new-port-paint-mask *new-port* mask color))
+(defun clim3:paint-mask (mask color)
+  (clim3-ext:paint-mask clim3:*port* mask color))
 
-(defun new-paint-opaque (color)
-  (new-port-paint-opaque *new-port* color))
+(defun clim3:paint-opaque (color)
+  (clim3-ext:paint-opaque clim3:*port* color))
 
-(defun new-paint-translucent (color opacity)
-  (new-port-paint-translucent *new-port* color opacity))
+(defun clim3:paint-translucent (color opacity)
+  (clim3-ext:paint-translucent clim3:*port* color opacity))
 
-(defun new-paint-text (text text-style color)
-  (new-port-paint-text *new-port* text text-style color))
+(defun clim3:paint-text (text text-style color)
+  (clim3-ext:paint-text clim3:*port* text text-style color))
 
-(defun new-paint-trapezoids (trapezoids color)
-  (new-port-paint-trapezoids *new-port* trapezoids color))
+(defun clim3:paint-trapezoids (trapezoids color)
+  (clim3-ext:paint-trapezoids clim3:*port* trapezoids color))

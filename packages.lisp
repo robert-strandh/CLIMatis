@@ -32,6 +32,40 @@
    #:inside-p
    #:motion
    #:handler
+   #:port
+   #:make-port
+   #:event-loop
+   #:connect
+   #:disconnect
+   #:text-ascent
+   #:text-descent
+   #:text-width
+   #:text-style-ascent
+   #:text-style-descent
+   #:with-zone
+   #:with-area
+   #:with-position
+   #:paint-pixel
+   #:paint-mask
+   #:paint-text
+   #:paint-opaque
+   #:paint-translucent
+   #:paint-trapezoids
+   #:*port*
+   #:standard-key-processor
+   #:key-handler
+   #:*key-handler*
+   #:handle-key-press
+   #:handle-key-release
+   #:null-key-handler
+   #:*null-key-handler*
+   #:read-keystroke
+   #:button-handler
+   #:*button-handler*
+   #:handle-button-press
+   #:handle-button-release
+   #:null-button-handler
+   #:*null-button-handler*
   ))
 
 (defpackage #:clim3-ext
@@ -81,4 +115,13 @@
    #:client
    #:parent
    #:print-components
+   #:call-with-zone #:call-with-area #:call-with-position
+   #:paint-pixel
+   #:paint-mask
+   #:paint-text
+   #:paint-opaque
+   #:paint-translucent
+   #:paint-trapezoids
+   #:repaint
+   #:standard-key-processor
    ))

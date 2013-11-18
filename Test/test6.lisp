@@ -12,13 +12,13 @@
 	(lambda (zone) (setf (clim3:color red-zone) red))
 	(lambda (zone) (setf (clim3:color red-zone) blue)))
        (clim3-input:key-press
-	(clim3-port:standard-key-processor #'print))
+	(clim3:standard-key-processor #'print))
        red-zone))
      (clim3:brick
       70 100
       (clim3:opaque (clim3:make-color 0.0 1.0 0.0))))))
 
 (defun test-zone (zone)
-  (let ((port (clim3-port:make-port :clx-framebuffer)))
-    (clim3-port:connect zone port)
-    (clim3-port:event-loop port)))
+  (let ((port (clim3:make-port :clx-framebuffer)))
+    (clim3:connect zone port)
+    (clim3:event-loop port)))

@@ -29,6 +29,6 @@
        (clim3:brick 20 100 z2)))))
 
 (defun test-zone (zone)
-  (let ((port (clim3-port:make-port :clx-framebuffer)))
-    (clim3-port:connect zone port)
-    (clim3-port:event-loop port)))
+  (let ((port (clim3:make-port :clx-framebuffer)))
+    (clim3:connect zone port)
+    (clim3:event-loop port)))

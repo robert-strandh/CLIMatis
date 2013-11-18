@@ -6,7 +6,7 @@
 
 ;;; Paint a pixel at *hpos* *vpos* provided that that
 ;;; pixel is in the clipping region.
-(defmethod clim3-port:new-port-paint-pixel
+(defmethod clim3-ext:paint-pixel
     ((port clx-framebuffer-port) r g b alpha)
   (when (and (>= *hpos* *hstart*)
 	     (>= *vpos* *vstart*)
@@ -31,7 +31,7 @@
 ;;;
 ;;; Paint the entire clipping region with an opaque color.
 
-(defmethod clim3-port:new-port-paint-opaque
+(defmethod clim3-ext:paint-opaque
     ((port clx-framebuffer-port) color)
   (let* ((pa *pixel-array*)
 	 (height (array-dimension pa 0))
@@ -58,7 +58,7 @@
 ;;;
 ;;; Paint a mask.
 
-(defmethod clim3-port:new-port-paint-mask
+(defmethod clim3-ext:paint-mask
     ((port clx-framebuffer-port) mask color)
   (let ((width (array-dimension mask 1))
 	(height (array-dimension mask 0))
@@ -87,7 +87,7 @@
 ;;;
 ;;; Paint a uniformly translucent area. 
 
-(defmethod clim3-port:new-port-paint-translucent
+(defmethod clim3-ext:paint-translucent
     ((port clx-framebuffer-port) color opacity)
   (let ((r (clim3:red color))
 	(g (clim3:green color))
@@ -123,8 +123,8 @@
 	     (mask (char)
 	       (camfer:mask (camfer:find-glyph font-instance char))))
 	;; paint the first character
-	(clim3-port:with-position (0 (y-pos (char text 0)))
-	  (clim3-port:new-port-paint-mask port (mask (char text 0)) color))
+	(clim3:with-position (0 (y-pos (char text 0)))
+	  (clim3-ext:paint-mask port (mask (char text 0)) color))
  	(loop with pos-x = 0
  	      for i from 1 below (length text)
  	      for glyph = (camfer:find-glyph font-instance (char text i))
@@ -133,8 +133,8 @@
  		   (incf pos-x
  			 (+ (glyph-width font-instance (char text (1- i)))
  			    (glyph-space font-instance (char text (1- i)) (char text i))))
-		   (clim3-port:with-position (pos-x (y-pos (char text i)))
-		     (clim3-port:new-port-paint-mask port (mask (char text i)) color))))))))
+		   (clim3:with-position (pos-x (y-pos (char text i)))
+		     (clim3-ext:paint-mask port (mask (char text i)) color))))))))
 
 (defmethod font-instance-paint-text
     (port text (font-instance clim3-truetype:font-instance) color)
@@ -146,16 +146,16 @@
     (unless (zerop (length text))
       (flet ((y-pos (glyph)
 	       (+ ascent (clim3-truetype:y-offset glyph))))
-	(clim3-port:with-position
+	(clim3:with-position
 	    ((- (clim3-truetype:x-offset (car glyphs))) 0)
 	  (loop for x = 0 then (+ x (clim3-truetype:advance-width glyph))
 		for glyph in glyphs
-		do (clim3-port:with-position ((+ x (clim3-truetype:x-offset glyph))
+		do (clim3:with-position ((+ x (clim3-truetype:x-offset glyph))
 					      (y-pos glyph))
-		     (clim3-port:new-port-paint-mask
+		     (clim3-ext:paint-mask
 		      port (clim3-truetype:mask glyph) color))))))))
 
-(defmethod clim3-port:new-port-paint-text
+(defmethod clim3-ext:paint-text
     ((port clx-framebuffer-port) text text-style color)
   (font-instance-paint-text
    port text (text-style-to-font-instance text-style) color))
@@ -164,9 +164,9 @@
 ;;;
 ;;; Paint trapezoids.
 
-(defmethod clim3-port:new-port-paint-trapezoids
+(defmethod clim3-ext:paint-trapezoids
     ((port clx-framebuffer-port) trapezoids color)
   (multiple-value-bind (opacities min-x min-y)
       (clim3-rendering:render-trapezoids trapezoids)
-    (clim3-port:with-position (min-x min-y)
-      (clim3-port:new-paint-mask opacities color))))
+    (clim3:with-position (min-x min-y)
+      (clim3:paint-mask opacities color))))

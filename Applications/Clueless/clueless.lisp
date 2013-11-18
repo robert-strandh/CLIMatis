@@ -158,9 +158,9 @@
 
 (defvar *wrap*)
 
-(defclass inspect-button-handler (clim3-port:button-handler) ())
+(defclass inspect-button-handler (clim3:button-handler) ())
 
-(defmethod clim3-port:handle-button-press
+(defmethod clim3:handle-button-press
     ((handler inspect-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
   (unless (null *object-to-inspect*)
@@ -168,7 +168,7 @@
     (setf (clim3:children *wrap*)
 	  (inspect-object (car *object-to-inspect*)))))
   
-(defmethod clim3-port:handle-button-release
+(defmethod clim3:handle-button-release
     ((handler inspect-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
   nil)
@@ -182,19 +182,19 @@
 	 (background (clim3:opaque color))
 	 (size (clim3:brick 800 500))
 	 (root (clim3:pile* scroll size background))
-	 (port (clim3-port:make-port :clx-framebuffer)))
+	 (port (clim3:make-port :clx-framebuffer)))
     (setf *stack* (list object))
     (setf (clim3:children *wrap*)
 	  (inspect-object object))
     (setf (clim3:depth background) 100)
-    (clim3-port:connect root port)
-    (let ((clim3-port:*key-handler*
+    (clim3:connect root port)
+    (let ((clim3:*key-handler*
 	    (make-instance 'clim3-port::read-keystroke-key-handler
 	      :receiver
 	      (lambda (keystroke)
 		;; Why can keystroke be NIL?
 		(cond ((equal keystroke '(#\q))
-		       (clim3-port:disconnect root port)
+		       (clim3:disconnect root port)
 		       (return-from inspect nil))
 		      ((equal keystroke '(#\i))
 		       (inspect root))
@@ -203,8 +203,8 @@
 		       (pop *stack*)
 		       (setf (clim3:children *wrap*)
 			     (inspect-object (car *stack*))))))))
-	  (clim3-port:*button-handler*
+	  (clim3:*button-handler*
 	    (make-instance 'inspect-button-handler)))
-      (clim3-port:event-loop port))))
+      (clim3:event-loop port))))
 
 

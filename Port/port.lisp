@@ -1,12 +1,13 @@
 (in-package #:clim3-port)
 
-(defclass port () ())
+(defclass clim3:port () ())
 
-(defparameter *new-port* nil)
+(defparameter clim3:*port* nil)
 
 ;;; FIXME: add a comment
 
-(defmethod (setf clim3-ext:parent) :after ((new-parent port) (zone clim3:zone))
+(defmethod (setf clim3-ext:parent) :after
+    ((new-parent clim3:port) (zone clim3:zone))
   (clim3-ext:set-clients zone new-parent))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -16,7 +17,7 @@
 ;;; The argument to this function is a keyword symbol indicating
 ;;; what kind of port to make.
 
-(defgeneric make-port (display-server))
+(defgeneric clim3:make-port (display-server))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -26,7 +27,7 @@
 ;;;
 ;;; Signal an error if the zone is already connected. 
 
-(defgeneric connect (zone port))
+(defgeneric clim3:connect (zone port))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -37,19 +38,19 @@
 ;;; Signal an error if the zone is not connected, or if it is
 ;;; connected to a port other than this one.
 
-(defgeneric disconnect (zone port))
+(defgeneric clim3:disconnect (zone port))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function EVENT-LOOP.
 
-(defgeneric event-loop (port))
+(defgeneric clim3:event-loop (port))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function REDISPLAY. 
 
-(defgeneric repaint (port))
+(defgeneric clim3-ext:repaint (port))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -59,7 +60,7 @@
 ;;; the text on that port, i.e., the largest number of pixels above
 ;;; the baseline of any of the characters in the string.
 
-(defgeneric text-ascent (port text-style string))
+(defgeneric clim3:text-ascent (port text-style string))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -69,7 +70,7 @@
 ;;; the text on that port, i.e., the largest number of pixels below
 ;;; the baseline of any of the characters in the string.
 
-(defgeneric text-descent (port text-style string))
+(defgeneric clim3:text-descent (port text-style string))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -79,7 +80,7 @@
 ;;; the text on that port, i.e., the number of horizontal pixels
 ;;; required to draw it.
 
-(defgeneric text-width (port text-style string))
+(defgeneric clim3:text-width (port text-style string))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -89,7 +90,7 @@
 ;;; style on that port i.e., the largest number of pixels above the
 ;;; baseline of any of the characters in the text style.
 
-(defgeneric text-style-ascent (port text-style))
+(defgeneric clim3:text-style-ascent (port text-style))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -99,31 +100,31 @@
 ;;; style on that port i.e., the largest number of pixels below the
 ;;; baseline of any of the characters in the text style.
 
-(defgeneric text-style-descent (port text-style))
+(defgeneric clim3:text-style-descent (port text-style))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function PORT-STANDARD-KEY-PROCESSOR.
 ;;;
 
-(defgeneric port-standard-key-processor (port keycode modifier))
+(defgeneric clim3-ext:standard-key-processor (port keycode modifier))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Function STANDARD-KEY-PROCESSOR.
 
-(defun standard-key-processor (key-code modifiers)
-  (port-standard-key-processor *new-port* key-code modifiers))
+(defun clim3:standard-key-processor (key-code modifiers)
+  (clim3-ext:standard-key-processor clim3:*port* key-code modifiers))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic functions for traversing zones and areas
 
-(defgeneric call-with-zone (port thunk zone))
+(defgeneric clim3-ext:call-with-zone (port thunk zone))
 
-(defgeneric call-with-area (port thunk hpos vpos width heigt))
+(defgeneric clim3-ext:call-with-area (port thunk hpos vpos width heigt))
 
-(defgeneric call-with-position (port thunk hpos vpos))
+(defgeneric clim3-ext:call-with-position (port thunk hpos vpos))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -131,81 +132,81 @@
 ;;; Macros for traversing zones and areas
 ;;;
 
-(defmacro with-zone (zone &body body)
-  `(call-with-zone *new-port* (lambda () ,@body) ,zone))
+(defmacro clim3:with-zone (zone &body body)
+  `(clim3-ext:call-with-zone clim3:*port* (lambda () ,@body) ,zone))
 
-(defmacro with-area ((hpos vpos width height) &body body)
-  `(call-with-area *new-port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
+(defmacro clim3:with-area ((hpos vpos width height) &body body)
+  `(clim3-ext:call-with-area clim3:*port* (lambda () ,@body) ,hpos  ,vpos ,width ,height))
 
-(defmacro with-position ((hpos vpos) &body body)
-  `(call-with-position *new-port* (lambda () ,@body) ,hpos  ,vpos))
+(defmacro clim3:with-position ((hpos vpos) &body body)
+  `(clim3-ext:call-with-position clim3:*port* (lambda () ,@body) ,hpos  ,vpos))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Key handler
 
-(defgeneric handle-key-press (key-handler key-code modifiers))
-(defgeneric handle-key-release (key-handler key-code modifiers))
+(defgeneric clim3:handle-key-press (key-handler key-code modifiers))
+(defgeneric clim3:handle-key-release (key-handler key-code modifiers))
 
-(defclass key-handler () ())
+(defclass clim3:key-handler () ())
 
-(defclass null-key-handler (key-handler) ())
+(defclass clim3:null-key-handler (clim3:key-handler) ())
 
-(defmethod handle-key-press
-    ((key-handler null-key-handler) key-code modifiers)
+(defmethod clim3:handle-key-press
+    ((key-handler clim3:null-key-handler) key-code modifiers)
   (declare (ignore key-code modifiers))
   nil)
 
-(defmethod handle-key-release
-    ((key-handler null-key-handler) key-code modifiers)
+(defmethod clim3:handle-key-release
+    ((key-handler clim3:null-key-handler) key-code modifiers)
   (declare (ignore key-code modifiers))
   nil)
 
-(defparameter *null-key-handler* (make-instance 'null-key-handler))
+(defparameter clim3:*null-key-handler* (make-instance 'clim3:null-key-handler))
 
-(defparameter *key-handler* *null-key-handler*)
+(defparameter clim3:*key-handler* clim3:*null-key-handler*)
 
-(defclass read-keystroke-key-handler (key-handler)
+(defclass read-keystroke-key-handler (clim3:key-handler)
   ((%receiver :initarg :receiver :reader receiver)))
 
-(defmethod handle-key-press
+(defmethod clim3:handle-key-press
     ((key-handler read-keystroke-key-handler) key-code modifiers)
   (funcall (receiver key-handler)
-	   (standard-key-processor key-code modifiers)))
+	   (clim3:standard-key-processor key-code modifiers)))
 
-(defmethod handle-key-release
+(defmethod clim3:handle-key-release
     ((key-handler read-keystroke-key-handler) key-code modifiers)
   (declare (ignore key-code modifiers))
   nil)
 
-(defun read-keystroke ()
-  (let ((*key-handler*
+(defun clim3:read-keystroke ()
+  (let ((clim3:*key-handler*
 	  (make-instance 'read-keystroke-key-handler
 	     :receiver (lambda (keystroke)
-			 (return-from read-keystroke keystroke)))))
-    (event-loop *new-port*)))
+			 (return-from clim3:read-keystroke keystroke)))))
+    (clim3:event-loop clim3:*port*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Button handler
 
-(defgeneric handle-button-press (button-handler button-code modifiers))
-(defgeneric handle-button-release (button-handler button-code modifiers))
+(defgeneric clim3:handle-button-press (button-handler button-code modifiers))
+(defgeneric clim3:handle-button-release (button-handler button-code modifiers))
 
-(defclass button-handler () ())
+(defclass clim3:button-handler () ())
 
-(defclass null-button-handler (button-handler) ())
+(defclass clim3:null-button-handler (clim3:button-handler) ())
 
-(defmethod handle-button-press
-    ((button-handler null-button-handler) button-code modifiers)
+(defmethod clim3:handle-button-press
+    ((button-handler clim3:null-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
   nil)
 
-(defmethod handle-button-release
-    ((button-handler null-button-handler) button-code modifiers)
+(defmethod clim3:handle-button-release
+    ((button-handler clim3:null-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
   nil)
 
-(defparameter *null-button-handler* (make-instance 'null-button-handler))
+(defparameter clim3:*null-button-handler* (make-instance 'clim3:null-button-handler))
 
-(defparameter *button-handler* *null-button-handler*)
+(defparameter clim3:*button-handler* clim3:*null-button-handler*)

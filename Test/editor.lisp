@@ -297,7 +297,7 @@
       height height height
       (clim3:pile* 
        (clim3-input:key
-	(clim3-port:standard-key-processor
+	(clim3:standard-key-processor
 	 (setf *fun*
 	       (lambda (key)
 		 (process-keystroke keystroke-processor key)
@@ -309,10 +309,10 @@
 	(minibuffer-zone 30)))))))
 
 (defun editor (width height)
-  (let ((port (clim3-port:make-port :clx-framebuffer))
+  (let ((port (clim3:make-port :clx-framebuffer))
 	(root (editor-zones width height)))
-    (clim3-port:connect root port)
+    (clim3:connect root port)
     (catch 'end 
-      (clim3-port:event-loop port))
-    (clim3-port:disconnect root port)))
+      (clim3:event-loop port))
+    (clim3:disconnect root port)))
 

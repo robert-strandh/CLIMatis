@@ -27,16 +27,16 @@
 ;;; pressed prevents the action from being executed when the button is
 ;;; released.
 
-(defclass action-button-handler (clim3-port:button-handler)
+(defclass action-button-handler (clim3:button-handler)
   ((%armedp :initform nil :accessor armedp)
    (%action :initarg :action :reader action)))
 
-(defmethod clim3-port:handle-button-press
+(defmethod clim3:handle-button-press
     ((handler action-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
   (setf (armedp handler) t))
 
-(defmethod clim3-port:handle-button-release
+(defmethod clim3:handle-button-release
     ((handler action-button-handler) button-code modifiers)
   (declare (ignore button-code modifiers))
   (when (armedp handler)
@@ -53,12 +53,12 @@
      (clim3:visit
       (lambda (zone)
 	(declare (ignore zone))
-	(setf clim3-port:*button-handler* handler)
+	(setf clim3:*button-handler* handler)
 	(setf (clim3:children wrap) darker))
       (lambda (zone)
 	(declare (ignore zone))
 	(setf (armedp handler) nil)
-	(setf clim3-port:*button-handler* clim3-port:*null-button-handler*)
+	(setf clim3:*button-handler* clim3:*null-button-handler*)
 	(setf (clim3:children wrap) normal)))
      label-zone
      wrap)))
@@ -223,12 +223,12 @@
 (defun calendar ()
   (setf *current-week* (floor (get-universal-time) #.(* 7 24 60 60)))
   (set-day-numbers)
-  (let ((port (clim3-port:make-port :clx-framebuffer))
+  (let ((port (clim3:make-port :clx-framebuffer))
 	(root (clim3:vbox*
 	       (toolbar)
 	       (calendar-zones))))
-    (clim3-port:connect root port)
-    (let ((clim3-port:*new-port* port))
-      (loop for keystroke = (clim3-port:read-keystroke)
+    (clim3:connect root port)
+    (let ((clim3:*port* port))
+      (loop for keystroke = (clim3:read-keystroke)
 	    until (eql (car keystroke) #\q)
-	    do (clim3-port:repaint port)))))
+	    do (clim3-ext:repaint port)))))

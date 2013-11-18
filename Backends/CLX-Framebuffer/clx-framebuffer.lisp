@@ -8,9 +8,9 @@
 (defparameter *vend* nil)
 (defparameter *pixel-array* nil)
 
-(defgeneric call-with-zone (port zone function))
+(defgeneric clim3-ext:call-with-zone (port zone function))
 
-(defclass clx-framebuffer-port (clim3-port:port)
+(defclass clx-framebuffer-port (clim3:port)
   ((%display :accessor display)
    (%screen :accessor screen)
    (%root :accessor root)
@@ -23,7 +23,7 @@
    (%keyboard-mapping :initform nil :accessor keyboard-mapping)
    (%meter :initform (make-instance 'clim3-meter:meter) :reader meter)))
 
-(defmethod clim3-port:call-with-zone ((port clx-framebuffer-port) function zone)
+(defmethod clim3-ext:call-with-zone ((port clx-framebuffer-port) function zone)
   (let ((zone-hpos (clim3:hpos zone))
 	(zone-vpos (clim3:vpos zone))
 	(zone-width (clim3:width zone))
@@ -44,7 +44,7 @@
 		(*vend* new-vend))
 	    (funcall function)))))))
 	
-(defmethod clim3-port:call-with-area
+(defmethod clim3-ext:call-with-area
     ((port clx-framebuffer-port) function hpos vpos width height)
   (let ((new-hpos (+ *hpos* hpos))
 	(new-vpos (+ *vpos* vpos)))
@@ -64,13 +64,13 @@
 	
 ;;; Do not change the clipping region, just the 
 ;;; origin of the coordinate system. 
-(defmethod clim3-port:call-with-position
+(defmethod clim3-ext:call-with-position
     ((port clx-framebuffer-port) function hpos vpos)
   (let ((*hpos* (+ *hpos* hpos))
 	(*vpos* (+ *vpos* vpos)))
     (funcall function)))
 
-(defmethod clim3-port:make-port ((display-server (eql :clx-framebuffer)))
+(defmethod clim3:make-port ((display-server (eql :clx-framebuffer)))
   (let ((port (make-instance 'clx-framebuffer-port)))
     (setf (display port) (xlib:open-default-display))
     (setf (xlib:display-after-function (display port))
@@ -332,7 +332,7 @@
 	       (clim3-ext:impose-child-layouts zone)
 	       (clim3-ext:map-over-children
 		(lambda (child)
-		  (clim3-port:with-zone child
+		  (clim3:with-zone child
 		    (aux child)))
 		zone))))
     (let ((*hpos* 0)
@@ -394,14 +394,14 @@
 		       :x 0 :y 0
 		       :width width :height height))))
 
-(defmethod clim3-port:repaint ((port clx-framebuffer-port))
+(defmethod clim3-ext:repaint ((port clx-framebuffer-port))
   (loop for zone-entry in (zone-entries port)
 	do (update zone-entry)))
 
-(defmethod clim3-port:connect ((zone clim3:zone)
+(defmethod clim3:connect ((zone clim3:zone)
 			       (port clx-framebuffer-port))
   (let ((zone-entry (make-instance 'zone-entry :port port :zone zone))
-	(clim3-port:*new-port* port))
+	(clim3:*port* port))
     ;; Register this zone entry.  We need to do this right away, because 
     ;; it has to exist when we set the parent of the zone. 
     (push zone-entry (zone-entries port))
@@ -452,7 +452,7 @@
     ;; Make sure the window has the right contents.
     (update zone-entry)))
 
-(defmethod clim3-port:disconnect (zone (port clx-framebuffer-port))
+(defmethod clim3:disconnect (zone (port clx-framebuffer-port))
   (let ((zone-entry (find zone (zone-entries port) :key #'zone)))
     (xlib:free-gcontext (gcontext zone-entry))
     (xlib:destroy-window (window zone-entry))
@@ -551,16 +551,16 @@
 (defmethod font-instance-descent ((font clim3-truetype:font-instance))
   (clim3-truetype:descender font))
 
-(defmethod clim3-port:text-style-ascent ((port clx-framebuffer-port)
+(defmethod clim3:text-style-ascent ((port clx-framebuffer-port)
 					 text-style)
   (font-instance-ascent (text-style-to-font-instance text-style)))
 
-(defmethod clim3-port:text-style-descent ((port clx-framebuffer-port)
+(defmethod clim3:text-style-descent ((port clx-framebuffer-port)
 					  text-style)
   (font-instance-descent (text-style-to-font-instance text-style)))
 
 ;;; These are not used for now.
-;; (defmethod clim3-port:text-ascent ((port clx-framebuffer-port)
+;; (defmethod clim3:text-ascent ((port clx-framebuffer-port)
 ;; 				   text-style
 ;; 				   string)
 ;;   (let ((font (font port)))
@@ -568,7 +568,7 @@
 ;; 	    :key (lambda (char)
 ;; 		   (camfer:y-offset (camfer:find-glyph font char))))))
 
-;; (defmethod clim3-port:text-descent ((port clx-framebuffer-port)
+;; (defmethod clim3:text-descent ((port clx-framebuffer-port)
 ;; 				    text-style
 ;; 				    string)
 ;;   (let ((font (font port)))
@@ -612,7 +612,7 @@
 		    sum (clim3-truetype:advance-width (aref glyphs i))))
 	   (clim3-truetype:x-offset (aref glyphs 0))))))
 
-(defmethod clim3-port:text-width ((port clx-framebuffer-port)
+(defmethod clim3:text-width ((port clx-framebuffer-port)
 				  text-style
 				  string)
   (font-instance-text-width (text-style-to-font-instance text-style) string))
@@ -643,7 +643,7 @@
 	  (member keycode modifiers))
 	(multiple-value-list (xlib:modifier-mapping (display port)))))
 
-(defmethod clim3-port:port-standard-key-processor
+(defmethod clim3-ext:standard-key-processor
     ((port clx-framebuffer-port) keycode modifiers)
   (if (keycode-is-modifier-p port keycode)
       nil
@@ -670,8 +670,8 @@
 ;;;
 ;;; Handling events.
 
-(defmethod clim3-port:event-loop ((port clx-framebuffer-port))
-  (let ((clim3-port:*new-port* port))
+(defmethod clim3:event-loop ((port clx-framebuffer-port))
+  (let ((clim3:*port* port))
     (loop do (let ((event (xlib:event-case ((display port))
 			    (:key-press
 			     (window code state)
@@ -723,20 +723,20 @@
 			   (ecase (car event)
 			     (:key-press 
 			      (destructuring-bind (code state) (cddr event)
-				(clim3-port:handle-key-press
-				 clim3-port:*key-handler* code state)))
+				(clim3:handle-key-press
+				 clim3:*key-handler* code state)))
 			     (:key-release 
 			      (destructuring-bind (code state) (cddr event)
-				(clim3-port:handle-key-release
-				 clim3-port:*key-handler* code state)))
+				(clim3:handle-key-release
+				 clim3:*key-handler* code state)))
 			     (:button-press 
 			      (destructuring-bind (code state) (cddr event)
-				(clim3-port:handle-button-press
-				 clim3-port:*button-handler* code state)))
+				(clim3:handle-button-press
+				 clim3:*button-handler* code state)))
 			     (:button-release 
 			      (destructuring-bind (code state) (cddr event)
-				(clim3-port:handle-button-release
-				 clim3-port:*button-handler* code state)))
+				(clim3:handle-button-release
+				 clim3:*button-handler* code state)))
 			     ((:exposure :enter-notify :leave-notify)
 			      nil))
 			   (update entry)))))))))

@@ -4,10 +4,10 @@
 ;;;
 ;;; Create a backend for testing.
 
-(defclass test-port (clim3-port:port)
+(defclass test-port (clim3:port)
   ((%root :initform nil :accessor root)))
 
-(defmethod clim3-port:connect (zone (port test-port))
+(defmethod clim3:connect (zone (port test-port))
   (setf (root port) zone)
   (setf (clim3-ext:parent zone) port))
 
@@ -42,7 +42,7 @@
 (defun test2 ()
   (let ((port (make-instance 'test-port))
 	(zone (clim3:opaque (clim3:make-color 0.5 0.5 0.5))))
-    (clim3-port:connect zone port)
+    (clim3:connect zone port)
     (assert (eq (clim3-ext:parent zone) port))
     (assert (eq (clim3-ext:client zone) port))
     (update port)
@@ -54,7 +54,7 @@
 	(zone (clim3:masked
 	       (clim3:make-color 0.5 0.5 0.5)
 	       (make-array '(50 30) :initial-element 0.5))))
-    (clim3-port:connect zone port)
+    (clim3:connect zone port)
     (assert (eq (clim3-ext:parent zone) port))
     (assert (eq (clim3-ext:client zone) port))
     (update port)

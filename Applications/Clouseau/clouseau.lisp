@@ -60,7 +60,7 @@
 
 (defun inspect (obj)
   (let* ((objects-to-inspect (make-hash-table :test #'eq))
-	 (port (clim3-port:make-port :clx-framebuffer))
+	 (port (clim3:make-port :clx-framebuffer))
 	 (wrap (clim3:wrap))
 	 (root (clim3:pile*
 		wrap
@@ -76,7 +76,7 @@
 		       (inspect-object obj)))))
       (setf (gethash obj objects-to-inspect) t)
       (redisplay)
-      (clim3-port:connect root port)
-      (let ((clim3-port:*new-port* port))
-	(loop for keystroke = (clim3-port:read-keystroke)
+      (clim3:connect root port)
+      (let ((clim3:*port* port))
+	(loop for keystroke = (clim3:read-keystroke)
 	      until (eql (car keystroke) #\q))))))

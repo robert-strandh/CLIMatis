@@ -19,7 +19,7 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone text))
   (clim3-ext:set-hsprawl
-   (let ((width (clim3-port:text-width (clim3-ext:client zone)
+   (let ((width (clim3:text-width (clim3-ext:client zone)
 				       (style zone)
 				       (chars zone))))
      (clim3-sprawl:sprawl width width width))
@@ -27,9 +27,9 @@
 
 (defmethod clim3-ext:compute-vsprawl ((zone text))
   (clim3-ext:set-vsprawl
-   (let ((height (+ (clim3-port:text-style-ascent
+   (let ((height (+ (clim3:text-style-ascent
 		     (clim3-ext:client zone) (style zone))
-		    (clim3-port:text-style-descent
+		    (clim3:text-style-descent
 		     (clim3-ext:client zone) (style zone)))))
      (clim3-sprawl:sprawl height height height))
    zone))
@@ -38,5 +38,5 @@
   (make-instance 'text :style style :chars string :color color))
   
 (defmethod clim3-paint:new-paint ((zone text))
-  (clim3-port:new-paint-text (chars zone) (style zone) (clim3:color zone)))
+  (clim3:paint-text (chars zone) (style zone) (clim3:color zone)))
 
