@@ -2,7 +2,7 @@
 
 (defgeneric new-paint (zone))
 
-(defmethod new-paint ((zone clim3-input:input))
+(defmethod new-paint ((zone clim3:input))
   nil)
 
 (defmethod new-paint ((zone clim3-ext:compound-mixin))

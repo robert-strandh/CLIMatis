@@ -8,7 +8,7 @@
      (clim3:brick
       100 100
       (clim3:pile*
-       (clim3-input:visit
+       (clim3:visit
 	(lambda (zone) (setf (clim3:color red-zone) red))
 	(lambda (zone) (setf (clim3:color red-zone) blue)))
        red-zone))

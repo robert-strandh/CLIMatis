@@ -68,7 +68,7 @@
 	       (unhighlight)
 	       (setf *object-to-inspect* nil)))
 	(clim3:pile*
-	 (clim3-input:visit #'enter-handler #'leave-handler)
+	 (clim3:visit #'enter-handler #'leave-handler)
 	 (clim3-text:text (let ((*print-circle* t)) (format nil "~s" object))
 			  *inspectable-object-style*
 			  *inspectable-object-color*)

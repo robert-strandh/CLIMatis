@@ -25,7 +25,14 @@
    #:image #:pixels
    #:connect #:disconnect
    #:event-loop
-   ))
+   #:input
+   #:visit
+   #:enter-handler
+   #:leave-handler
+   #:inside-p
+   #:motion
+   #:handler
+  ))
 
 (defpackage #:clim3-ext
   (:use #:common-lisp)

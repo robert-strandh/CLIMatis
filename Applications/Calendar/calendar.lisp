@@ -50,7 +50,7 @@
 	 (wrap (clim3:wrap normal))
 	 (handler (make-instance 'action-button-handler :action action)))
     (clim3:pile*
-     (clim3-input:visit
+     (clim3:visit
       (lambda (zone)
 	(declare (ignore zone))
 	(setf clim3-port:*button-handler* handler)

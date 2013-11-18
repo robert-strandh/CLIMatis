@@ -34,7 +34,7 @@
     (clim3:brick
      slider-width slider-height
      (clim3:pile*
-      (clim3-input:motion motion-handler)
+      (clim3:motion motion-handler)
       (clim3:bboard* pile)
       background))))
 	

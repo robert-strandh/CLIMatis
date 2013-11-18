@@ -127,7 +127,7 @@
 ;;; Handle pointer position
 
 (defmethod (setf clim3-ext:client) :after
-  ((new-client clx-framebuffer-port) (zone clim3-input:motion))
+  ((new-client clx-framebuffer-port) (zone clim3:motion))
   ;; Find the root zone of the zone.
   (let ((root zone))
     (loop while (clim3:zone-p (clim3-ext:parent root))
@@ -170,7 +170,7 @@
 		       do (incf absolute-hpos (clim3:hpos parent))
 			  (incf absolute-vpos (clim3:vpos parent))
 			  (setf parent (clim3-ext:parent parent)))
-		 (funcall (clim3-input:handler zone)
+		 (funcall (clim3:handler zone)
 			  zone
 			  (- hpos absolute-hpos)
 			  (- vpos absolute-vpos)))))))
@@ -188,8 +188,8 @@
 				       (< vpos 0)
 				       (> hpos (clim3:width zone))
 				       (> vpos (clim3:height zone)))
-			     (if (and (typep zone 'clim3-input:visit)
-				      (funcall (clim3-input:inside-p zone)
+			     (if (and (typep zone 'clim3:visit)
+				      (funcall (clim3:inside-p zone)
 					       hpos vpos))
 				 (return-from found zone)
 				 (progn 
@@ -203,9 +203,9 @@
 		  (traverse (zone zone-entry) hpos vpos)))))
 	(unless (eq zone prev)
 	  (unless (null prev)
-	    (funcall (clim3-input:leave-handler prev) prev))
+	    (funcall (clim3:leave-handler prev) prev))
 	  (unless (null zone)
-	    (funcall (clim3-input:enter-handler zone) zone))
+	    (funcall (clim3:enter-handler zone) zone))
 	  (setf (zone-containing-pointer zone-entry) zone))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

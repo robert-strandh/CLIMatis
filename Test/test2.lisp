@@ -15,7 +15,7 @@
 	(declare (ignore zone))
 	(format *debug-io* "red: button release: ~a ~a~%" code modifiers)
 	(force-output *debug-io*)))
-     (clim3-input:visit
+     (clim3:visit
       (lambda (zone)
 	(declare (ignore zone))
 	(format *debug-io* "red: enter~%")
@@ -27,7 +27,7 @@
       (lambda (hpos vpos)
 	(< (+ (expt (- hpos 100) 2) (expt (- vpos 100) 2))
 	   (expt 50 2))))
-     (clim3-input:motion
+     (clim3:motion
       (lambda (zone hpos vpos)
 	(declare (ignore zone))
 	(format *debug-io* "red: motion ~a ~a~%" hpos vpos)
@@ -45,7 +45,7 @@
 	(declare (ignore zone))
 	(format *debug-io* "green: button release: ~a ~a~%" code modifiers)
 	(force-output *debug-io*)))
-     (clim3-input:visit
+     (clim3:visit
       (lambda (zone)
 	(declare (ignore zone))
 	(format *debug-io* "green: enter~%")
@@ -54,7 +54,7 @@
 	(declare (ignore zone))
 	(format *debug-io* "green: leave~%")
 	(force-output *debug-io*)))
-     (clim3-input:motion
+     (clim3:motion
       (lambda (zone hpos vpos)
 	(declare (ignore zone))
 	(format *debug-io* "green: motion ~a ~a~%" hpos vpos)

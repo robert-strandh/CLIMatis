@@ -14,9 +14,9 @@
        (clim3:brick
 	100 100
 	(clim3:pile*
-	 (clim3-input:visit (lambda (zone) (setf (clim3:color red-zone) red))
+	 (clim3:visit (lambda (zone) (setf (clim3:color red-zone) red))
 			    (lambda (zone) (setf (clim3:color red-zone) blue)))
-	 (clim3-input:motion (lambda (zone hpos vpos)
+	 (clim3:motion (lambda (zone hpos vpos)
 			       (setf (clim3:color z1)
 				     (make-gray (max 0.0 (min 1.0 (/ hpos 100.0)))))
 			       (setf (clim3:color z2)
