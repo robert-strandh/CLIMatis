@@ -38,7 +38,7 @@
 	 (let* ((ink (foreground-ink stream))
 		(word (clim3-text:text
 		       (string char)
-		       (clim3-text-style:text-style :camfer :sans :roman 12)
+		       (clim3:text-style :camfer :sans :roman 12)
 		       ink))
 		(line (current-line stream)))
 	   (setf (current-word stream) word)

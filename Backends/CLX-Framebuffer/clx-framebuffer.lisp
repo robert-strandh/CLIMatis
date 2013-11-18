@@ -491,10 +491,10 @@
 (defparameter *freefont-fonts* (make-hash-table :test #'equal))
   
 (defun text-style-to-font-instance (text-style)
-  (with-accessors ((foundry clim3-text-style:foundry)
-		   (family clim3-text-style:family)
-		   (face clim3-text-style:face)
-		   (size clim3-text-style:size))
+  (with-accessors ((foundry clim3:foundry)
+		   (family clim3:family)
+		   (face clim3:face)
+		   (size clim3:size))
       text-style
     (ecase foundry
       (:camfer (progn (unless (and (eq family :sans)
@@ -503,8 +503,8 @@
 		      (or (gethash size *camfer-sans-roman*)
 			  (setf (gethash size *camfer-sans-roman*)
 				(camfer:make-font size 100)))))
-      (:free (let* ((family-face (list (clim3-text-style:family text-style)
-				       (clim3-text-style:face text-style)))
+      (:free (let* ((family-face (list (clim3:family text-style)
+				       (clim3:face text-style)))
 		    (font (gethash family-face *freefont-fonts*)))
 	       (cond ((null font)
 		      (let ((filename (cadr (find family-face *freefont-files*

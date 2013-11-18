@@ -44,7 +44,7 @@
 	       collect (clim3:hbox*
 			(clim3-text:text
 			 (format nil "hello ~a" i)
-			 (clim3-text-style:text-style :camfer :sans :roman 12)
+			 (clim3:text-style :camfer :sans :roman 12)
 			 text-color)
 			(clim3:hframe 0 0 nil))))
 	(clim3:opaque background-color)))))))
@@ -59,7 +59,7 @@
        (loop for word in (split-sequence:split-sequence #\Space text)
 	     collect (clim3-text:text
 		      word
-		      (clim3-text-style:text-style :camfer :sans :roman 12)
+		      (clim3:text-style :camfer :sans :roman 12)
 		      text-color)
 	     collect (clim3:hframe 7 7 7)))
       (clim3:hframe 0 0 nil))

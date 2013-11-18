@@ -18,7 +18,7 @@
 ;;; representation of objects to be inspected.
 
 (defparameter *inspectable-object-style*
-  (clim3-text-style:text-style :free :sans :roman 12))
+  (clim3:text-style :free :sans :roman 12))
 
 (defparameter *inspectable-object-color*
   (clim3:make-color 0.0 0.0 0.0))
@@ -86,7 +86,7 @@
 
 (defmethod inspect-object ((object t))
   (let ((color (clim3:make-color 0.0 0.0 0.0))
-	(style (clim3-text-style:text-style :free :sans :roman 12)))
+	(style (clim3:text-style :free :sans :roman 12)))
     (clim3:hbox*
      (clim3:hbrick
       100 (clim3-text:text "Class:" style color))
@@ -94,7 +94,7 @@
 
 (defmethod inspect-object ((object symbol))
   (let ((color (clim3:make-color 0.0 0.0 0.0))
-	(style (clim3-text-style:text-style :free :sans :roman 12)))
+	(style (clim3:text-style :free :sans :roman 12)))
     (clim3:vbox*
      (clim3:hbox*
       (clim3:hbrick
@@ -117,7 +117,7 @@
 
 (defmethod inspect-object ((object cons))
   (let ((color (clim3:make-color 0.0 0.0 0.0))
-	(style (clim3-text-style:text-style :free :sans :roman 12)))
+	(style (clim3:text-style :free :sans :roman 12)))
     (clim3:vbox*
      (clim3:hbox*
       (clim3:hbrick
@@ -137,7 +137,7 @@
 
 (defmethod inspect-object ((object standard-object))
   (let ((color (clim3:make-color 0.0 0.0 0.0))
-	(style (clim3-text-style:text-style :free :sans :roman 12)))
+	(style (clim3:text-style :free :sans :roman 12)))
     (clim3:vbox*
      (clim3:hbox*
       (clim3:hbrick

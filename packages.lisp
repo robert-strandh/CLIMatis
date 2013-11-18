@@ -66,6 +66,11 @@
    #:handle-button-release
    #:null-button-handler
    #:*null-button-handler*
+   #:text-style
+   #:foundry
+   #:family
+   #:face
+   #:size
   ))
 
 (defpackage #:clim3-ext

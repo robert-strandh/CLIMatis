@@ -223,7 +223,7 @@
 		  (clim3:hframe* 7 7 7)
 		  (clim3-text:text
 		   (coerce item 'string)
-		   (clim3-text-style:text-style :camfer :sans :roman 12)
+		   (clim3:text-style :camfer :sans :roman 12)
 		   (clim3:make-color 0.0 0.0 0.0))))
 	    (string-to-words-and-spaces string 0)))
    (clim3:hframe* 0 0 nil)))
@@ -243,7 +243,7 @@
      (clim3:hframe* 30 30 30)
      (clim3-text:text
       "Climacs"
-      (clim3-text-style:text-style :camfer :sans :roman 12)
+      (clim3:text-style :camfer :sans :roman 12)
       (clim3:make-color 0.0 0.0 0.0))
      (clim3:hframe* 0 0 nil))
     (clim3:opaque (clim3:make-color 0.8 0.8 0.8)))))

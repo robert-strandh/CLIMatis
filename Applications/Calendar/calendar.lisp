@@ -74,16 +74,16 @@
 (defparameter *current-week* 0)
 
 (defparameter *dayname-text-style*
-  (clim3-text-style:text-style :free :sans :roman 10))
+  (clim3:text-style :free :sans :roman 10))
 
 (defparameter *day-number-text-style*
-  (clim3-text-style:text-style :free :sans :bold 20))
+  (clim3:text-style :free :sans :bold 20))
 
 (defparameter *hour-text-style*
-  (clim3-text-style:text-style :free :fixed :roman 10))
+  (clim3:text-style :free :fixed :roman 10))
 
 (defparameter *toolbar-text-style*
-  (clim3-text-style:text-style :free :fixed :roman 20))
+  (clim3:text-style :free :fixed :roman 20))
 
 (defparameter *follow-hour-space* 5)
 
