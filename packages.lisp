@@ -27,6 +27,8 @@
    #:event-loop
    #:input
    #:visit
+   #:enter
+   #:leave
    #:enter-handler
    #:leave-handler
    #:inside-p

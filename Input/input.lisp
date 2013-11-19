@@ -21,16 +21,22 @@
 ;;;
 ;;;   the zone
 
-(defclass clim3:visit (clim3:input)
-  ((%enter-handler :initarg :enter-handler :reader clim3:enter-handler)
-   (%leave-handler :initarg :leave-handler :reader clim3:leave-handler)
-   (%inside-p :initarg :inside-p :reader clim3:inside-p)))
+(defgeneric clim3:enter (zone)
+  (:method-combination progn))
 
-(defun clim3:visit (enter-handler leave-handler &optional (inside-p (constantly t)))
-  (make-instance 'clim3:visit
-		 :enter-handler enter-handler
-		 :leave-handler leave-handler
-		 :inside-p inside-p))
+(defmethod clim3:enter progn (zone)
+  (declare (ignore zone))
+  nil)
+
+(defgeneric clim3:leave (zone)
+  (:method-combination progn))
+
+(defmethod clim3:leave progn (zone)
+  (declare (ignore zone))
+  nil)
+
+(defclass clim3:visit ()
+  ((%inside-p :initarg :inside-p :reader clim3:inside-p)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

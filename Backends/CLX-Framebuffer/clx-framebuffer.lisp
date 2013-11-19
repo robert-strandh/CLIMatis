@@ -201,9 +201,9 @@
 		  (traverse (zone zone-entry) hpos vpos)))))
 	(unless (eq zone prev)
 	  (unless (null prev)
-	    (funcall (clim3:leave-handler prev) prev))
+	    (clim3:leave prev))
 	  (unless (null zone)
-	    (funcall (clim3:enter-handler zone) zone))
+	    (clim3:enter zone))
 	  (setf (zone-containing-pointer zone-entry) zone))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
