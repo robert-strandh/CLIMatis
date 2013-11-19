@@ -11,7 +11,6 @@
    (:file "size" :depends-on ("zone-packages" "protocol-class"))
    (:file "depth" :depends-on ("zone-packages" "protocol-class"))
    (:file "sprawls" :depends-on ("zone-packages" "protocol-class"))
-   (:file "genealogy" :depends-on ("zone-packages" "protocol-class"))
    (:file "layout" :depends-on ("zone-packages" "protocol-class"))
    (:file "zone" :depends-on ("zone-packages"
 			      "protocol-class"
@@ -21,7 +20,6 @@
 			      "size"
 			      "depth"
 			      "sprawls"
-			      "genealogy"
 			      "layout"))
    (:file "children" :depends-on ("zone"))
    (:file "layout-mixins" :depends-on ("zone"))))
