@@ -59,6 +59,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function CHILD.
+
+(defgeneric clim3:child (zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic function MAP-OVER-CHILDREN.
 ;;;
 ;;; The first argument is a function of a single argument.  The second
