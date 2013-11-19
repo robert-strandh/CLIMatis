@@ -105,12 +105,6 @@
 (defmethod initialize-instance :after ((zone clim3-ext:compound-mixin) &key)
   (clim3-ext:map-over-children (lambda (child) (setf (clim3-ext:parent child) zone)) zone))
 
-(defmethod clim3-ext:print-components progn ((zone clim3-ext:compound-mixin) stream)
-  (clim3-ext:map-over-children
-   (lambda (child)
-     (format stream "~s " child))
-   zone))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Class AT-MOST-ONE-CHILD-MIXIN.

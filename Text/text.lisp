@@ -10,9 +10,6 @@
 	   :initform (make-array 0 :element-type 'character)
 	   :reader chars)))
 
-(defmethod clim3-ext:print-components progn ((zone text) stream)
-  (format stream "~s " (chars zone)))
-
 (defmethod (setf clim3-ext:parent) :after ((new-parent null) (zone text))
   (setf (clim3:hsprawl zone) nil)
   (setf (clim3:vsprawl zone) nil))

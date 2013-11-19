@@ -25,22 +25,3 @@
 
 (defun clim3:zone-p (object)
   (typep object 'clim3:zone))
-
-(defgeneric clim3-ext:print-components (zone stream)
-  (:method-combination progn :most-specific-last))
-
-;; (defmethod print-object ((object zone) stream)
-;;   (print-unreadable-object (object stream :type t :identity t)
-;;     (print-components object stream)))
-
-(defmethod clim3-ext:print-components progn ((zone clim3:zone) stream)
-  nil)
-
-(defmethod clim3-ext:print-components progn ((zone clim3:standard-zone) stream)
-  (format stream
-	  "hp: ~a vp: ~a w: ~a h: ~a d: ~a "
-	  (clim3:hpos zone)
-	  (clim3:vpos zone)
-	  (clim3:width zone)
-	  (clim3:height zone)
-	  (clim3:depth zone)))
