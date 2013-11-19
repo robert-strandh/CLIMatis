@@ -49,24 +49,3 @@
 ;;;
 
 (defgeneric clim3-ext:map-over-children (function zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function MAP-OVER-CHILDREN-TOP-TO-BOTTOM.
-;;;
-;;; The first argument is a function of a single argument.  The second
-;;; argument is a zone.  This function calls the function given as the
-;;; first argument on each child of the zone given as a second argument.  
-
-(defgeneric clim3-ext:map-over-children-top-to-bottom (function zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function MAP-OVER-CHILDREN-BOTTOM-TO-TOP.
-;;;
-;;; The first argument is a function of a single argument.  The second
-;;; argument is a zone.  This function calls the function given as the
-;;; first argument on each child of the zone given as a second argument.  
-
-(defgeneric clim3-ext:map-over-children-bottom-to-top (function zone))
-
