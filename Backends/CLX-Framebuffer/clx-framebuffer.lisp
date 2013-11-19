@@ -349,7 +349,7 @@
 	(*hend* width)
 	(*vend* height)
 	(*pixel-array* pixel-array))
-    (clim3-paint:new-paint zone)))
+    (clim3-ext:paint zone)))
 
 (defun draw-default-background (pixel-array)
   (loop for r from 0 below (array-dimension pixel-array 0)

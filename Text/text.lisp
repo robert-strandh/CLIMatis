@@ -34,6 +34,6 @@
 (defun text (string style color)
   (make-instance 'text :style style :chars string :color color))
   
-(defmethod clim3-paint:new-paint ((zone text))
+(defmethod clim3-ext:paint ((zone text))
   (clim3:paint-text (chars zone) (style zone) (clim3:color zone)))
 

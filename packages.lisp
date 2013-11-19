@@ -121,6 +121,7 @@
    #:parent
    #:print-components
    #:call-with-zone #:call-with-area #:call-with-position
+   #:paint
    #:paint-pixel
    #:paint-mask
    #:paint-text
