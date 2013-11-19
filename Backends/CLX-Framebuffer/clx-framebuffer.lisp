@@ -8,8 +8,6 @@
 (defparameter *vend* nil)
 (defparameter *pixel-array* nil)
 
-(defgeneric clim3-ext:call-with-zone (port zone function))
-
 (defclass clx-framebuffer-port (clim3:port)
   ((%display :accessor display)
    (%screen :accessor screen)
@@ -23,7 +21,7 @@
    (%keyboard-mapping :initform nil :accessor keyboard-mapping)
    (%meter :initform (make-instance 'clim3-meter:meter) :reader meter)))
 
-(defmethod clim3-ext:call-with-zone ((port clx-framebuffer-port) function zone)
+(defmethod clim3-ext:call-with-zone ((port clx-framebuffer-port) thunk zone)
   (let ((zone-hpos (clim3:hpos zone))
 	(zone-vpos (clim3:vpos zone))
 	(zone-width (clim3:width zone))
@@ -42,7 +40,7 @@
 		(*vstart* new-vstart)
 		(*hend* new-hend)
 		(*vend* new-vend))
-	    (funcall function)))))))
+	    (funcall thunk)))))))
 	
 (defmethod clim3-ext:call-with-area
     ((port clx-framebuffer-port) function hpos vpos width height)
