@@ -3,4 +3,5 @@
 (defpackage #:clim3-calendar
   (:use #:common-lisp)
   (:export
+   #:calendar
    ))
