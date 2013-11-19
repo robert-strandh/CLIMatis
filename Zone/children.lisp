@@ -65,6 +65,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function (SETF CHILD).
+
+(defgeneric (setf clim3:child) (new-child zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic function MAP-OVER-CHILDREN.
 ;;;
 ;;; The first argument is a function of a single argument.  The second

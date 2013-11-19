@@ -23,4 +23,4 @@
 			      "depth"
 			      "sprawls"
 			      "layout"))
-   (:file "layout-mixins" :depends-on ("zone"))))
+   (:file "layout-mixins" :depends-on ("zone" "children"))))
