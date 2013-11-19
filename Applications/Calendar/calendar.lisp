@@ -43,25 +43,41 @@
     (setf (armedp handler) nil)
     (funcall (action handler))))
 
-(defun butcon (label-zone action)
-  (let* ((normal (clim3:sponge))
-	 (black (clim3:make-color 0d0 0d0 0d0))
-	 (darker (clim3:translucent black 0.2d0))
-	 (wrap (clim3:wrap normal))
-	 (handler (make-instance 'action-button-handler :action action)))
-    (clim3:pile*
-     (clim3:visit
-      (lambda (zone)
-	(declare (ignore zone))
-	(setf clim3:*button-handler* handler)
-	(setf (clim3:children wrap) darker))
-      (lambda (zone)
-	(declare (ignore zone))
-	(setf (armedp handler) nil)
-	(setf clim3:*button-handler* clim3:*null-button-handler*)
-	(setf (clim3:children wrap) normal)))
-     label-zone
-     wrap)))
+(defclass butcon (clim3:pile clim3:visit clim3:highlight)
+  ((%armedp :initform nil :accessor armedp)
+   (%action :initarg :action :reader action)
+   (%wrap :initform (clim3:wrap) :reader wrap)
+   (%icon :initarg :icon :reader icon))
+  (:default-initargs :inside-p (constantly t)))
+  
+(defmethod initialize-instance :after ((zone butcon) &key &allow-other-keys)
+  (setf (clim3:depth (wrap zone)) 100)
+  (setf (clim3:children zone)
+	(list (clim3:masked
+	       (clim3:make-color 0.0 0.0 0.0)
+	       (icon zone))
+	      (wrap zone))))
+
+(defmethod clim3:highlight ((zone butcon))
+  (setf (clim3:children (wrap zone))
+	(clim3:translucent (clim3:make-color 0.0 0.0 0.0) 0.2d0)))
+
+(defmethod clim3:unhighlight ((zone butcon))
+  (setf (clim3:children (wrap zone))
+	'()))
+
+(defmethod clim3:enter progn ((zone butcon))
+  (setf clim3:*button-handler*
+	(make-instance 'action-button-handler
+	  :action (action zone))))
+	      
+(defmethod clim3:leave progn ((zone butcon))
+  (setf clim3:*button-handler* clim3:*null-button-handler*))
+
+(defun butcon (icon action)
+  (make-instance 'butcon
+    :action action
+    :icon icon))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -210,13 +226,9 @@
   (clim3:pile*
    (clim3:hbox*
     (clim3:sponge)
-    (butcon (clim3:masked
-	     *black* (clim3-icons:find-icon *icons* :left))
-	    #'previous-week)
+    (butcon (clim3-icons:find-icon *icons* :left) #'previous-week)
     (clim3:hbrick 20)
-    (butcon (clim3:masked
-	     *black* (clim3-icons:find-icon *icons* :right))
-	    #'next-week)
+    (butcon (clim3-icons:find-icon *icons* :right) #'next-week)
     (clim3:sponge))
    (clim3:opaque *background*)))
 
@@ -230,5 +242,5 @@
     (clim3:connect root port)
     (let ((clim3:*port* port))
       (loop for keystroke = (clim3:read-keystroke)
-	    until (eql (car keystroke) #\q)
-	    do (clim3-ext:repaint port)))))
+	    until (eql (car keystroke) #\q)))
+    (clim3:disconnect root port)))
