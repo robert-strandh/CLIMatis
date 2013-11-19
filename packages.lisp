@@ -73,6 +73,7 @@
    #:family
    #:face
    #:size
+   #:highlight #:unhighlight
   ))
 
 (defpackage #:clim3-ext
