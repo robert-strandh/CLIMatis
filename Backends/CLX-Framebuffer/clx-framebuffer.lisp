@@ -97,7 +97,6 @@
    (%pixel-array :accessor pixel-array)
    (%image :accessor image)
    (%motion-zones :initform '() :accessor motion-zones)
-   (%button-press-zone :initform nil :accessor button-press-zone)
    (%zone-containing-pointer :initform nil :accessor zone-containing-pointer)
    (%prev-pointer-hpos :initform 0 :accessor prev-pointer-hpos)
    (%prev-pointer-vpos :initform 0 :accessor prev-pointer-vpos)))
