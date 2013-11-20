@@ -4,4 +4,6 @@
   :depends-on (:climatis-packages :clim3-zone)
   :components
   ((:file "input-packages" :depends-on ())
-   (:file "input" :depends-on ("input-packages"))))
+   (:file "input" :depends-on ("input-packages"))
+   (:file "presentation" :depends-on ("input-packages" "input"))))
+
