@@ -25,55 +25,65 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; This value of this variable is NIL most of the time.  When the
-;;; pointer is inside a zone containing an object to inspect, this
-;;; variable is set to a list containing that object as its only
-;;; element, so that the key-press handler sees it.  When the pointer
-;;; leaves the zone, this variable is set to NIL again.
-
-(defvar *object-to-inspect*)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; A zone that contains the object to be inspected when clicked on.
-;;;
-;;; We show a method for building such a zone without using
-;;; subclassing.  The top-zone is a PILE containing three other zones:
-;;; The VISIT input zone that handles highlighting and making the
-;;; object clickable, the TEXT containing the printed representation
-;;; of the object, and a WRAP zone.  The WRAP zone has no child when
-;;; the the pointer is outside the VISIT zone, so that there is no
-;;; highlighting then, and when the pointer is inside the VISIT zone,
-;;; then an OPAQUE zone is made the child of the WRAP zone.
+
+(defclass inspectable-object-zone (clim3:pile clim3:activate)
+  ((%background :initarg :background :reader background)))
+
+(defmethod initialize-instance :after
+    ((zone inspectable-object-zone) &key &allow-other-keys)
+  (setf (clim3:depth (background zone)) 100))
 
 (defun make-inspectable-object-zone (object)
-  (let* ((highlighted-color (clim3:make-color 0.5 1.0 0.5))
-	 (highlighted-zone (clim3:opaque highlighted-color))
-	 (highlighted-wrap (clim3:wrap)))
-    ;; We want to make sure that the background is always in the
-    ;; well, background. 
-    (setf (clim3:depth highlighted-wrap) 100)
-    (flet ((highlight ()
-	     (setf (clim3:children highlighted-wrap)
-		   highlighted-zone))
-	   (unhighlight ()
-	     (setf (clim3:children highlighted-wrap)
-		   nil)))
-      (flet ((enter-handler (zone)
-	       (declare (ignore zone))
-	       (highlight)
-	       (setf *object-to-inspect* (list object)))
-	     (leave-handler (zone)
-	       (declare (ignore zone))
-	       (unhighlight)
-	       (setf *object-to-inspect* nil)))
-	(clim3:pile*
-	 (clim3:visit #'enter-handler #'leave-handler)
-	 (clim3-text:text (let ((*print-circle* t)) (format nil "~s" object))
-			  *inspectable-object-style*
-			  *inspectable-object-color*)
-	 highlighted-wrap)))))
-      
+  (let ((background (clim3:wrap)))
+    (make-instance 'inspectable-object-zone
+      :inside-p (constantly t)
+      :gem object
+      :command-name 'inspect-item
+      :children 
+      (list
+       (clim3-text:text (let ((*print-circle* t)) (format nil "~s" object))
+			*inspectable-object-style*
+			*inspectable-object-color*)
+       background)
+      :background background)))
+
+(defmethod clim3:highlight ((zone inspectable-object-zone))
+  (let* ((color (clim3:make-color 0.5 1.0 0.5))
+	 (opaque (clim3:opaque color)))
+    (setf (clim3:children (background zone)) opaque)))
+
+(defmethod clim3:unhighlight ((zone inspectable-object-zone))
+  (setf (clim3:children (background zone)) '()))
+
+(defmethod clim3:action ((zone inspectable-object-zone))
+  `(inspect-item ,(clim3:gem zone)))
+
+(clim3:define-command inspect-item (object)
+  (push object *stack*)
+  (setf (clim3:children *wrap*)
+	(inspect-object object)))
+
+(clim3:define-command last-item ()
+  (when (not (null (cdr *stack*)))
+    (pop *stack*)
+    (setf (clim3:children *wrap*)
+	  (inspect-object (car *stack*)))))  
+
+(clim3:define-command quit ()
+  (throw 'quit nil))
+
+(defparameter *command-names*
+  (let ((table (make-hash-table :test #'eq)))
+    (setf (gethash 'inspect-item table) t)
+    (setf (gethash 'last-item table) t)
+    (setf (gethash 'quit table) t)
+    table))
+    
+(defparameter *command-table*
+  (make-instance 'clim3:hashed-command-table
+    :command-names *command-names*))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function INSPECT-OBJECT.
@@ -158,26 +168,10 @@
 
 (defvar *wrap*)
 
-(defclass inspect-button-handler (clim3:button-handler) ())
-
-(defmethod clim3:handle-button-press
-    ((handler inspect-button-handler) button-code modifiers)
-  (declare (ignore button-code modifiers))
-  (unless (null *object-to-inspect*)
-    (push (car *object-to-inspect*) *stack*)
-    (setf (clim3:children *wrap*)
-	  (inspect-object (car *object-to-inspect*)))))
-  
-(defmethod clim3:handle-button-release
-    ((handler inspect-button-handler) button-code modifiers)
-  (declare (ignore button-code modifiers))
-  nil)
-
 (defun inspect (object)
   (let* ((wrap (clim3:wrap))
 	 (scroll (clim3:scroll wrap))
 	 (*wrap* wrap)
-	 (*object-to-inspect* '())
 	 (color (clim3:make-color 1.0 1.0 1.0))
 	 (background (clim3:opaque color))
 	 (size (clim3:brick 800 500))
@@ -188,23 +182,16 @@
 	  (inspect-object object))
     (setf (clim3:depth background) 100)
     (clim3:connect root port)
-    (let ((clim3:*key-handler*
-	    (make-instance 'clim3-port::read-keystroke-key-handler
-	      :receiver
-	      (lambda (keystroke)
-		;; Why can keystroke be NIL?
-		(cond ((equal keystroke '(#\q))
-		       (clim3:disconnect root port)
-		       (return-from inspect nil))
-		      ((equal keystroke '(#\i))
-		       (inspect root))
-		      ((and (equal keystroke '(#\l))
-			    (not (null (cdr *stack*))))
-		       (pop *stack*)
-		       (setf (clim3:children *wrap*)
-			     (inspect-object (car *stack*))))))))
-	  (clim3:*button-handler*
-	    (make-instance 'inspect-button-handler)))
-      (clim3:event-loop port))))
-
-
+    (catch 'quit
+      (let ((clim3:*port* port)
+	    (clim3:*key-handler*
+	      (make-instance 'clim3-port::read-keystroke-key-handler
+		:receiver
+		(lambda (keystroke)
+		  (when (eq clim3-ext:*input-context* 'clim3:command-table)
+		    (cond ((equal keystroke '(#\q))
+			   (throw :object 'quit))
+			  ((equal keystroke '(#\l))
+			   (throw :object 'last-item))))))))
+	(clim3:command-loop *command-table*)))
+    (clim3:disconnect root port)))
