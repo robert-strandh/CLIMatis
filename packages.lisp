@@ -2,6 +2,7 @@
 
 (defpackage #:clim3
   (:use #:common-lisp)
+  (:shadow #:abort)
   (:export
    #:zone #:children #:child #:hpos #:vpos #:depth #:width #:height
    #:zone-p
@@ -29,6 +30,9 @@
    #:visit
    #:enter
    #:leave
+   #:clickable #:attention #:at-ease
+   #:activate
+   #:action
    #:enter-handler
    #:leave-handler
    #:inside-p
@@ -55,6 +59,7 @@
    #:paint-trapezoids
    #:*port*
    #:standard-key-processor
+   #:standard-button-processor
    #:key-handler
    #:*key-handler*
    #:handle-key-press
@@ -66,6 +71,8 @@
    #:*button-handler*
    #:handle-button-press
    #:handle-button-release
+   #:button-press
+   #:button-release
    #:null-button-handler
    #:*null-button-handler*
    #:text-style
@@ -74,6 +81,16 @@
    #:face
    #:size
    #:highlight #:unhighlight
+   #:presentation #:gem
+   #:ptypep
+   #:zone-button-handler
+   #:define-command
+   #:command-table
+   #:hashed-command-table
+   #:command-loop
+   #:active-command-p
+   #:abort
+   #:?
   ))
 
 (defpackage #:clim3-ext
@@ -133,4 +150,7 @@
    #:paint-trapezoids
    #:repaint
    #:standard-key-processor
+   #:standard-button-processor
+   #:*input-context*
+   #:*command-table*
    ))
