@@ -104,7 +104,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function PORT-STANDARD-KEY-PROCESSOR.
+;;; Generic function STANDARD-KEY-PROCESSOR.
 ;;;
 
 (defgeneric clim3-ext:standard-key-processor (port keycode modifier))
@@ -188,6 +188,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function STANDARD-BUTTON-PROCESSOR.
+;;;
+
+(defgeneric clim3-ext:standard-button-processor (port button-code modifier))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Function STANDARD-BUTTON-PROCESSOR.
+
+(defun clim3:standard-button-processor (button-code modifiers)
+  (clim3-ext:standard-button-processor clim3:*port* button-code modifiers))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Button handler
 
 (defgeneric clim3:handle-button-press (button-handler button-code modifiers))
@@ -210,3 +224,4 @@
 (defparameter clim3:*null-button-handler* (make-instance 'clim3:null-button-handler))
 
 (defparameter clim3:*button-handler* clim3:*null-button-handler*)
+

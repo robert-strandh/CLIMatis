@@ -663,6 +663,16 @@
 	       (cons (code-char (aref keysyms 0))
 		     (modifier-names modifiers)))))))
 
+(defmethod clim3-ext:standard-button-processor
+    ((port clx-framebuffer-port) button-code modifiers)
+  (cons (ecase button-code
+	  (1 :button-1)
+	  (2 :button-2)
+	  (3 :button-3)
+	  (4 :button-4)
+	  (5 :button-5))
+	(modifier-names modifiers)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Handling events.
