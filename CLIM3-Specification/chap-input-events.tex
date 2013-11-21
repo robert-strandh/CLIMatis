@@ -1,4 +1,4 @@
-\chapter{Input events}
+\chapter{Input}
 \label{chap-input-events}
 
 Input events are handled in two different ways; either globally for
@@ -65,8 +65,11 @@ backend.  The function \code{standard-key-processor} takes a \emph{key
   code} and a \emph{modifier} and returns a \cl{} \emph{character}
 corresponding to the two backend-specific arguments. 
 
-A class \code{read-keystroke-handler} exists, and it takes a
-\code{:receiver} initarg.  This initarg should be a function of one
+\Defclass {read-keystroke-handler}
+
+\Definitarg {:receiver}
+
+This initarg should be a function of one
 argument, a \emph{character}.  A method exists on
 \code{handle-key-press} specialized for \code{read-keystroke-handler}
 which calls the receiver function with a character that corresponds to
@@ -120,3 +123,95 @@ default method on \code{handle-button-press} specialized for the
 a default method on \code{handle-button-release} specialized for the
 \code{null-button-handler} class exists, and it does nothing.
 
+\Defclass {visit}
+
+The \code{visit} class is a class that can be used to mix into zone
+classes in order to create a zone that detects when the pointer enters
+or leaves the zone.  
+
+When the pointer enters a zone with this class as a superclass, it
+calls the generic function \code{enter} (see below) with the zone as
+an argument, and when the pointer leaves a zone with this class as a
+superclass, it calls the generic function \code{leave} (see below)
+with the zone as an argument.
+
+\Definitarg {:inside-p}
+
+This initarg takes a function of two arguments, the zone-local $x$ and
+$y$ coordinates of the pointer, and returns a Boolean value indicating
+whether the pointer is to be considered \emph{inside} the zone.  The
+default value for this initarg is a function that always returns
+\emph{true}. 
+
+\Defgeneric {enter} {zone}
+
+This generic function is called when the pointer enters a zone that
+has the class \code{visit} as a superclass.  It supplies the zone as
+an argument.  This generic function uses the \code{progn} method
+combination.
+
+\Defgeneric {leave} {zone}
+
+This generic function is called when the pointer leaves a zone that
+has the class \code{visit} as a superclass.  It supplies the zone as
+an argument.  This generic function uses the \code{progn} method
+combination.
+
+\Defclass {clickable}
+
+This class can be used to mix into zone classes in order to create a
+zone that is sensitive to pointer clicks.  Notice that this class is
+itself not a subclass of \code{zone}. 
+
+\Defgeneric {attention} {zone}
+
+This generic function is called in order to make a zone sensitive to
+pointer clicks.  The argument should be an instance of
+\code{clickable}.  The class \code{clickable} supplies a method on
+this generic function that replaces the button handler by a button
+handler that calls the generic function \code{button-press} (see
+below) when a pointer button is pressed inside the zone, and that
+calls the generic function \code{button-release} (see below) when a
+pointer button is released inside the zone
+
+If the application wants a zone to become sensitive to pointer clicks
+when the pointer enters the zone, then it should make the zone a
+subclass of both \code{visit} and \code{clickable}, and it should
+supply a method on \code{enter} that calls \code{attention}. 
+
+\Defgeneric {at-ease} {zone}
+
+This generic function is called in order to make a zone insensitive to
+pointer clicks.  The argument should be an instance of
+\code{clickable}.  The class \code{clickable} supplies a method on
+this generic function that restores the original button handler.
+
+If the application wants a zone to become insensitive to pointer clicks
+when the pointer leaves the zone, then it should make the zone a
+subclass of both \code{visit} and \code{clickable}, and it should
+supply a method on \code{leave} that calls \code{at-ease}. 
+
+\Defgeneric {button-press} {zone button}
+
+This generic function is called when a pointer button is pressed
+inside a zone that is a subclass of \code{clickable}, provided that
+the generic function \code{attention} has previously been called on
+that zone.  The first argument is the zone and the second argument is
+the result of calling \code{standard-button-processor} on the button
+code and the modifiers, i.e. a list where the first element is a
+keyword symbol corresponding to the button and the remaining elements
+are keyword symbols representing modifiers.
+
+\Defgeneric {button-release} {zone button}
+
+This generic function is called when a pointer button is released
+inside a zone that is a subclass of \code{clickable}, provided that
+the generic function \code{attention} has previously been called on
+that zone.  The first argument is the zone and the second argument is
+the result of calling \code{standard-button-processor} on the button
+code and the modifiers, i.e. a list where the first element is a
+keyword symbol corresponding to the button and the remaining elements
+are keyword symbols representing modifiers.
+
+
+%%  LocalWords:  backend superclass initarg
