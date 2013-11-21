@@ -213,5 +213,77 @@ code and the modifiers, i.e. a list where the first element is a
 keyword symbol corresponding to the button and the remaining elements
 are keyword symbols representing modifiers.
 
+\Defclass {presentation}
 
-%%  LocalWords:  backend superclass initarg
+This class contains an object (called the \code{gem}) that can be
+supplied as an argument to a \emph{command} provided that the object
+has the right \emph{presentation type} as required by the context. 
+
+The class \code{presentation} is a subclass of \code{visit} and
+\code{clickable}.  
+
+It supplies a method on the generic function \code{enter} that checks
+whether the \emph{gem} has the right type according to context, and if
+so, calls \code{highlight} and \code{attention}, thus highlighting the
+zone and making in clickable.
+
+It supplies a method on the generic function \code{leave} that calls
+\code{unhighlight} and \code{at-ease},  thus unhighlighting the zone
+and making it no longer clickable. 
+
+Finally, it supplies a method on \code{button-press} that supplies the
+\emph{gem} to the input context, thus satisfying the request for an
+object. 
+
+\Defgeneric {gem} {presentation}
+
+This generic function returns the object being presented in a
+presentation. 
+
+\Defclass {action}
+
+This class contains a symbol that represents a \emph{command name},
+and it is used to mix into zones that should supply an \emph{action}
+to satisfy such a request.
+
+The class \code{action} is a subclass of \code{visit} and
+\code{clickable}.  
+
+It supplies a method on the generic function \code{enter} that checks
+whether the input context requires an action, and whether the
+\emph{command-name} is \emph{active}, i.e. whether it is a command
+that is allowed in this context, and if so, calls \code{highlight} and
+\code{attention}, thus highlighting the zone and making in clickable.
+
+It supplies a method on the generic function \code{leave} that calls
+\code{unhighlight} and \code{at-ease},  thus unhighlighting the zone
+and making it no longer clickable. 
+
+Finally, it supplies a method on \code{button-press} that checks that
+the input context requires and action, and if so calls the generic
+function \code{action} (see below) to generate an \emph{action} which
+is then supplied to the input context, thus satisfying the request.
+
+\Defgeneric {command-name} {action}
+
+This generic function returns the command name of its argument. 
+
+\Defgeneric {action} {action}
+
+This generic function takes an instance of the \code{action} class
+and returns an \emph{action}, i.e. either a \emph{command name} or a
+list where the first element is a \emph{command name} and each
+remaining element is either an argument to be supplied to the command
+with that name, or the symbol named \code{?}  which indicates that no
+argument is supplied in that position.
+
+In the simplest case, this function simply returns the value of
+calling \code{command-name}, thus triggering a command that must
+subsequently request values for its arguments.  However, in the case
+where a zone is also a \code{presentation} the function \code{action}
+typically supplies a list where the first element is the command name
+and the second element is the \emph{gem} of the presentation,
+effectively invoking the command with that name on the gem.
+
+%%  LocalWords:  backend superclass initarg unhighlight
+%%  LocalWords:  unhighlighting
