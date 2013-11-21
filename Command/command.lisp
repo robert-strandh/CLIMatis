@@ -28,21 +28,25 @@
 			(clim3:event-loop clim3:*port*)))
 		    argument)))
 
+(defgeneric command-name-in-table-p (command-name command-table))
+
 (defclass clim3:command-table ()
   ((%commands-names :initarg :command-names :reader command-names)))
 
-(defgeneric clim3:active-command-p (command-name command-table))
-
 (defclass clim3:hashed-command-table (clim3:command-table) ())
 
-(defmethod clim3:active-command-p
+(defmethod command-name-in-table-p
     (command-name (command-table clim3:hashed-command-table))
   (gethash command-name (command-names command-table)))
+
+(defun clim3:active-command-p (command-name)
+  (and (typep clim3-ext:*command-table* 'clim3:command-table)
+       (command-name-in-table-p command-name clim3-ext:*command-table*)))
 
 (defun clim3:command-loop (command-table)
   (loop do (catch 'abort
 	     (let* ((action
-		      (let ((clim3-ext:*input-context* 'clim3:command-table)
+		      (let ((clim3-ext:*input-context* 'nil)
 			    (clim3-ext:*command-table* command-table))
 			(catch :object
 			  (clim3:event-loop clim3:*port*))))
