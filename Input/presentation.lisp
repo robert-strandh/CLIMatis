@@ -45,13 +45,12 @@
 
 (defgeneric clim3:action (zone))
 
-(defclass clim3:activate (clim3:presentation)
+(defclass clim3:activate ()
   ((%command-name :initarg :command-name :reader command-name)))
     
 (defmethod clim3:enter progn ((zone clim3:activate))
-  (when (and (eq clim3-ext:*input-context* 'clim3:command-table)
-	     (clim3:active-command-p (command-name zone)
-				     clim3-ext:*command-table*))
+  (when (and (eq clim3-ext:*input-context* 'nil)
+	     (clim3:active-command-p (command-name zone)))
     (clim3:highlight zone)
     (clim3:attention zone)))
 
@@ -60,7 +59,7 @@
   (clim3:at-ease zone))
 
 (defmethod clim3:button-press progn ((zone clim3:activate) button)
-  (when (and (eq clim3-ext:*input-context* 'clim3:command-table)
+  (when (and (eq clim3-ext:*input-context* 'nil)
 	     (equal button '(:button-1)))
     (throw :object (clim3:action zone))))
 
