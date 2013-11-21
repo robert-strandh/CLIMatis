@@ -1,16 +1,56 @@
-\chapter{Command loop}
+\chapter{Commands and the command loop}
 
-\clim{} maintains a \emph{command loop} as follows:
+A \emph{command} is a \cl{} function that has a \emph{presentation
+  type} associated with each required parameter.  
 
-\begin{itemize}
-\item Acquire a \emph{command object}.
-\item Acquire the arguments of the command object.
-\item Execute the command object on the arguments.
-\item Call \code{redisplay} on the top zone.  The result of calling
-  \code{redisplay} might be a new zone or the same zone, modified
-  or unchanged.  The behavior of redisplay on a particular zone
-  depends on the exact subclass of the zone.
-\item Update the visible area of the screen according to the new
-  zone hierarchy.
-\end{itemize}
+\Defmacro {define-command} {name lambda-list \body body}
 
+This macro is like the \cl{} macro \code{defun}, except that a
+required parameter can be either a symbol naming the parameter or a
+list whose first element is the name of the parameter and whose second
+element is a \emph{presentation type}.  
+
+The macro \code{define-command} does define an ordinary \cl{} function
+with the same name as the command, and that function accepts arguments
+in conformance with the given lambda list.  However, the function may
+have been altered in some way to allow \clim{} to determine the
+presentation types of the arguments. 
+
+To invoke a command, \clim{} first acquires an \emph{action}.  An
+action is either simply the \emph{name} of a command, or a list where
+the first element is the name of the command and each remaining
+element corresponds to an argument of the command.  An element of an
+action can be an object that should be supplied to the command
+invocation in the corresponding argument position, or in can be the
+symbol \code{?} (in the \code{clim3} package) which indicates that the
+corresponding argument was not supplied as part of the action. 
+
+To invoke the command, \clim{} must first request values for the
+unsupplied arguments in the action.  This is done by calling the
+generic function \code{accept} with the presentation type of the
+corresponding parameter of the command.  When all unsupplied arguments
+have been acquired this way, the \cl{} function corresponding to the
+command is \emph{called} by using \code{apply} passing the command
+name and the list of arguments.
+
+An action can be supplied in different ways.  If the application has a
+\emph{command processor} associated with it, then an action can be
+supplied by a sequence of keystrokes, either in the form of a
+\emph{command line interface} or in the form of \emph{Emacs-style
+  keystrokes}, or a combination of the two.  An action can also be
+supplied by a \emph{gadget} that has been created for that purpose.
+The gadget can be an area to click on, or a menu item.   When the
+application does not have a command processor, then the only way of
+supplying actions is by this last method. 
+
+Executing a \clim{} application involves calling the \clim{}
+\emph{command loop}.  The command loop repeatedly acquires an action,
+acquires the unsupplied arguments, and invokes the command.  
+
+During the execution of the command loop, event processing continues
+as usual.  It is therefore possible to resize windows, use scroll bars
+etc.  If, as a result of executing a command, the hierarchy of zones
+is modified in some way, the visible part of this hierarchy is updated
+automatically.
+
+%%  LocalWords:  unsupplied resize
