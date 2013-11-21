@@ -41,24 +41,24 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Class ACTIVATE
+;;; Class ACTION
 
 (defgeneric clim3:action (zone))
 
-(defclass clim3:activate ()
+(defclass clim3:action (clim3:visit clim3:clickable)
   ((%command-name :initarg :command-name :reader command-name)))
     
-(defmethod clim3:enter progn ((zone clim3:activate))
+(defmethod clim3:enter progn ((zone clim3:action))
   (when (and (eq clim3-ext:*input-context* 'nil)
 	     (clim3:active-command-p (command-name zone)))
     (clim3:highlight zone)
     (clim3:attention zone)))
 
-(defmethod clim3:leave progn ((zone clim3:activate))
+(defmethod clim3:leave progn ((zone clim3:action))
   (clim3:unhighlight zone)
   (clim3:at-ease zone))
 
-(defmethod clim3:button-press progn ((zone clim3:activate) button)
+(defmethod clim3:button-press progn ((zone clim3:action) button)
   (when (and (eq clim3-ext:*input-context* 'nil)
 	     (equal button '(:button-1)))
     (throw :object (clim3:action zone))))

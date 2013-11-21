@@ -31,7 +31,6 @@
    #:enter
    #:leave
    #:clickable #:attention #:at-ease
-   #:activate
    #:action
    #:enter-handler
    #:leave-handler
