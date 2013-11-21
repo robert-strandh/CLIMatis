@@ -27,7 +27,7 @@
 ;;;
 ;;; A zone that contains the object to be inspected when clicked on.
 
-(defclass inspectable-object-zone (clim3:pile clim3:activate)
+(defclass inspectable-object-zone (clim3:pile clim3:activate clim3:presentation)
   ((%background :initarg :background :reader background)))
 
 (defmethod initialize-instance :after
@@ -188,7 +188,7 @@
 	      (make-instance 'clim3-port::read-keystroke-key-handler
 		:receiver
 		(lambda (keystroke)
-		  (when (eq clim3-ext:*input-context* 'clim3:command-table)
+		  (when (eq clim3-ext:*input-context* 'nil)
 		    (cond ((equal keystroke '(#\q))
 			   (throw :object 'quit))
 			  ((equal keystroke '(#\l))
