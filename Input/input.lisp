@@ -41,7 +41,9 @@
   nil)
 
 (defclass clim3:visit ()
-  ((%inside-p :initarg :inside-p :reader clim3:inside-p)))
+  ((%inside-p :initform (constantly t)
+	      :initarg :inside-p
+	      :reader clim3:inside-p)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
