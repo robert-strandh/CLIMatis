@@ -1,29 +1,35 @@
 (in-package #:clim3-command)
 
-(defparameter *parameter-types* nil)
+(defparameter *required-types* nil)
 
 (defmacro clim3:define-command (name params &body body)
-  (let ((params-sym (gensym))
-	(parameter-types (loop for param in params
+  (let* ((pos (position-if (lambda (item)
+			     (member item lambda-list-keywords
+				     :test #'eq))
+			   params))
+	 (required (subseq params 0 pos))
+	 (rest (if (null pos) '() (subseq params pos)))
+	 (params-sym (gensym))
+	 (required-types (loop for param in required
 			       collect (if (symbolp param)
 					   t
 					   (cadr param))))
-	(parameter-names (loop for param in params
+	 (required-names (loop for param in params
 			       collect (if (symbolp param)
 					   param
 					   (car param)))))
     `(defun ,name (&rest ,params-sym)
-       (flet ((aux ,parameter-names
+       (flet ((aux ,(append required-names rest)
 		,@body))
-	 (if *parameter-types*
-	     ',parameter-types
+	 (if *required-types*
+	     ',required-types
 	     (apply #'aux ,params-sym))))))
 
-(defun acquire-arguments (parameter-types initial-arguments)
-  (loop for parameter-type in parameter-types
-	for argument in initial-arguments
+(defun acquire-arguments (required-types initial-arguments)
+  (loop for argument in initial-arguments
+	for i from 0
 	collect (if (eq argument 'clim3:?)
-		    (let ((clim3-ext:*input-context* parameter-type))
+		    (let ((clim3-ext:*input-context* (elt required-types i)))
 		      (catch :accept
 			(clim3:event-loop clim3:*port*)))
 		    argument)))
@@ -54,11 +60,11 @@
 		      (if (symbolp action) action (car action)))
 		    (initial-arguments 
 		      (if (symbolp action) '() (cdr action)))
-		    (parameter-types
-		      (let ((*parameter-types* t))
+		    (required-types
+		      (let ((*required-types* t))
 			(funcall command-name)))
 		    (arguments
-		      (acquire-arguments parameter-types initial-arguments)))
+		      (acquire-arguments required-types initial-arguments)))
 	       (apply command-name arguments)))))
 
 (clim3:define-command clim3:abort ()
