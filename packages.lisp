@@ -57,8 +57,8 @@
    #:paint-translucent
    #:paint-trapezoids
    #:*port*
-   #:standard-key-processor
-   #:standard-button-processor
+   #:standard-key-decoder
+   #:standard-button-decoder
    #:key-handler
    #:*key-handler*
    #:handle-key-press
@@ -148,8 +148,8 @@
    #:paint-translucent
    #:paint-trapezoids
    #:repaint
-   #:standard-key-processor
-   #:standard-button-processor
+   #:standard-key-decoder
+   #:standard-button-decoder
    #:*input-context*
    #:*command-table*
    ))

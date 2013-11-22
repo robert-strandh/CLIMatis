@@ -69,12 +69,12 @@
 (defmethod clim3:handle-button-press
     ((button-handler clim3:zone-button-handler) code modifiers)
   (clim3:button-press (zone button-handler)
-		      (clim3:standard-button-processor code modifiers)))
+		      (clim3:standard-button-decoder code modifiers)))
 
 (defmethod clim3:handle-button-release
     ((button-handler clim3:zone-button-handler) code modifiers)
   (clim3:button-release (zone button-handler)
-			(clim3:standard-button-processor code modifiers)))
+			(clim3:standard-button-decoder code modifiers)))
 
 (defclass clim3:clickable ()
   ((%previous :initform nil :accessor previous)))

@@ -297,7 +297,7 @@
       height height height
       (clim3:pile* 
        (clim3-input:key
-	(clim3:standard-key-processor
+	(clim3:standard-key-decoder
 	 (setf *fun*
 	       (lambda (key)
 		 (process-keystroke keystroke-processor key)

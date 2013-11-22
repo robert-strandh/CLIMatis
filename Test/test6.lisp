@@ -12,7 +12,7 @@
 	(lambda (zone) (setf (clim3:color red-zone) red))
 	(lambda (zone) (setf (clim3:color red-zone) blue)))
        (clim3-input:key-press
-	(clim3:standard-key-processor #'print))
+	(clim3:standard-key-decoder #'print))
        red-zone))
      (clim3:brick
       70 100

@@ -640,7 +640,7 @@
 	  (member keycode modifiers))
 	(multiple-value-list (xlib:modifier-mapping (display port)))))
 
-(defmethod clim3-ext:standard-key-processor
+(defmethod clim3-ext:standard-key-decoder
     ((port clx-framebuffer-port) keycode modifiers)
   (if (keycode-is-modifier-p port keycode)
       nil
@@ -663,7 +663,7 @@
 	       (cons (code-char (aref keysyms 0))
 		     (modifier-names modifiers)))))))
 
-(defmethod clim3-ext:standard-button-processor
+(defmethod clim3-ext:standard-button-decoder
     ((port clx-framebuffer-port) button-code modifiers)
   (cons (ecase button-code
 	  (1 :button-1)

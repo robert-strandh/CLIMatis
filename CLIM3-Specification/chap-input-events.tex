@@ -59,9 +59,9 @@ a default method on \code{handle-key-release} specialized for the
 As mentioned above, \clim{} provides functionality for turning the
 \emph{key code} and the \emph{modifier state} into backend-independent
 objects.  For this purpose, \clim{} provides a function
-\code{standard-key-processor}.  This function calls the generic
-function \code{port-standard-key-processor} which has methods for each
-backend.  The function \code{standard-key-processor} takes a \emph{key
+\code{standard-key-decoder}.  This function calls the generic
+function \code{port-standard-key-decoder} which has methods for each
+backend.  The function \code{standard-key-decoder} takes a \emph{key
   code} and a \emph{modifier} and returns a \cl{} \emph{character}
 corresponding to the two backend-specific arguments. 
 
@@ -76,7 +76,7 @@ which calls the receiver function with a character that corresponds to
 the key that was pressed.  The corresponding method on
 \code{handle-key-press} does nothing.  To transform the key-press
 event into a character, the method on \code{handle-key-press} calls
-the function \code{standard-key-processor} discussed above.
+the function \code{standard-key-decoder} discussed above.
 
 \section{Handling pointer button events}
 
@@ -197,7 +197,7 @@ This generic function is called when a pointer button is pressed
 inside a zone that is a subclass of \code{clickable}, provided that
 the generic function \code{attention} has previously been called on
 that zone.  The first argument is the zone and the second argument is
-the result of calling \code{standard-button-processor} on the button
+the result of calling \code{standard-button-decoder} on the button
 code and the modifiers, i.e. a list where the first element is a
 keyword symbol corresponding to the button and the remaining elements
 are keyword symbols representing modifiers.
@@ -208,7 +208,7 @@ This generic function is called when a pointer button is released
 inside a zone that is a subclass of \code{clickable}, provided that
 the generic function \code{attention} has previously been called on
 that zone.  The first argument is the zone and the second argument is
-the result of calling \code{standard-button-processor} on the button
+the result of calling \code{standard-button-decoder} on the button
 code and the modifiers, i.e. a list where the first element is a
 keyword symbol corresponding to the button and the remaining elements
 are keyword symbols representing modifiers.

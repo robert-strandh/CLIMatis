@@ -104,17 +104,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function STANDARD-KEY-PROCESSOR.
+;;; Generic function STANDARD-KEY-DECODER.
 ;;;
 
-(defgeneric clim3-ext:standard-key-processor (port keycode modifier))
+(defgeneric clim3-ext:standard-key-decoder (port keycode modifier))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Function STANDARD-KEY-PROCESSOR.
+;;; Function STANDARD-KEY-DECODER.
 
-(defun clim3:standard-key-processor (key-code modifiers)
-  (clim3-ext:standard-key-processor clim3:*port* key-code modifiers))
+(defun clim3:standard-key-decoder (key-code modifiers)
+  (clim3-ext:standard-key-decoder clim3:*port* key-code modifiers))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -172,7 +172,7 @@
 (defmethod clim3:handle-key-press
     ((key-handler read-keystroke-key-handler) key-code modifiers)
   (funcall (receiver key-handler)
-	   (clim3:standard-key-processor key-code modifiers)))
+	   (clim3:standard-key-decoder key-code modifiers)))
 
 (defmethod clim3:handle-key-release
     ((key-handler read-keystroke-key-handler) key-code modifiers)
@@ -188,17 +188,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function STANDARD-BUTTON-PROCESSOR.
+;;; Generic function STANDARD-BUTTON-DECODER.
 ;;;
 
-(defgeneric clim3-ext:standard-button-processor (port button-code modifier))
+(defgeneric clim3-ext:standard-button-decoder (port button-code modifier))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Function STANDARD-BUTTON-PROCESSOR.
+;;; Function STANDARD-BUTTON-DECODER.
 
-(defun clim3:standard-button-processor (button-code modifiers)
-  (clim3-ext:standard-button-processor clim3:*port* button-code modifiers))
+(defun clim3:standard-button-decoder (button-code modifiers)
+  (clim3-ext:standard-button-decoder clim3:*port* button-code modifiers))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
