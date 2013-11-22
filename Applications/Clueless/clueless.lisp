@@ -27,7 +27,7 @@
 ;;;
 ;;; A zone that contains the object to be inspected when clicked on.
 
-(defclass inspectable-object-zone (clim3:pile clim3:activate clim3:presentation)
+(defclass inspectable-object-zone (clim3:pile clim3:action clim3:presentation)
   ((%background :initarg :background :reader background)))
 
 (defmethod initialize-instance :after
