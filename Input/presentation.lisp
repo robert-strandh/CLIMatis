@@ -37,7 +37,7 @@
 (defmethod clim3:button-press progn ((zone clim3:presentation) button)
   (when (and (clim3:ptypep (clim3:gem zone) clim3-ext:*input-context*)
 	     (equal button '(:button-1)))
-    (throw :object (clim3:gem zone))))
+    (throw :accept (clim3:gem zone))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -61,5 +61,5 @@
 (defmethod clim3:button-press progn ((zone clim3:action) button)
   (when (and (eq clim3-ext:*input-context* 'nil)
 	     (equal button '(:button-1)))
-    (throw :object (clim3:action zone))))
+    (throw :accept (clim3:action zone))))
 

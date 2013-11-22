@@ -24,7 +24,7 @@
 	for argument in initial-arguments
 	collect (if (eq argument 'clim3:?)
 		    (let ((clim3-ext:*input-context* parameter-type))
-		      (catch :object
+		      (catch :accept
 			(clim3:event-loop clim3:*port*)))
 		    argument)))
 
@@ -48,7 +48,7 @@
 	     (let* ((action
 		      (let ((clim3-ext:*input-context* 'nil)
 			    (clim3-ext:*command-table* command-table))
-			(catch :object
+			(catch :accept
 			  (clim3:event-loop clim3:*port*))))
 		    (command-name
 		      (if (symbolp action) action (car action)))
