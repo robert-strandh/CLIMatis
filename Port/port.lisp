@@ -186,6 +186,27 @@
 			 (return-from clim3:read-keystroke keystroke)))))
     (clim3:event-loop clim3:*port*)))
 
+;;; A KEY PROCESSOR KEY HANDLER is a key handler that contains a key
+;;; processor and that uses the standard key decoder to decode the key
+;;; and then it calls SUBMIT KEYSTROKE on the key processor and the
+;;; decoded key stroke. 
+;;; FIXME: improve terminology!
+(defclass clim3:key-processor-key-handler (clim3:key-handler)
+  ((%processor :initarg :processor :reader processor)))
+
+(defmethod clim3:handle-key-press
+    ((key-handler clim3:key-processor-key-handler) key-code modifiers)
+  (let ((keystroke (clim3:standard-key-decoder key-code modifiers)))
+    (unless (null keystroke)
+      ;; The keystroke is nil if a modifier key was pressed
+      (clim3:submit-keystroke (processor key-handler)
+			      keystroke))))
+
+(defmethod clim3:handle-key-release
+    ((key-handler clim3:key-processor-key-handler) key-code modifiers)
+  (declare (ignore key-code modifiers))
+  nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Generic function STANDARD-BUTTON-DECODER.
