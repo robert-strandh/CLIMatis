@@ -56,7 +56,7 @@
 
 (defun clim3:active-command-p (command-name)
   (and (typep clim3-ext:*command-table* 'clim3:command-table)
-       (command-name-in-table-p command-name clim3-ext:*command-table*)))
+       (clim3:command-name-in-table-p command-name clim3-ext:*command-table*)))
 
 (defgeneric clim3:command-loop-iteration (application view))
 
