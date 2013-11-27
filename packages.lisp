@@ -85,11 +85,21 @@
    #:zone-button-handler
    #:define-command
    #:command-table
+   #:command-name-in-table-p
    #:hashed-command-table
    #:command-loop
+   #:command-loop-iteration
+   #:acquire-action
    #:active-command-p
    #:abort
    #:?
+   #:application
+   #:view
+   #:current-view
+   #:key-processor
+   #:key-processor-key-handler
+   #:submit-keystroke
+   #:*application*
   ))
 
 (defpackage #:clim3-ext
