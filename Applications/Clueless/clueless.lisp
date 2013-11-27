@@ -168,6 +168,17 @@
 
 (defvar *wrap*)
 
+;;; This is a simple application so this class plays the role
+;;; of both an application and a view.
+(defclass clueless (clim3:application clim3:view)
+  ())
+
+(defmethod clim3:command-table ((view clueless))
+  *command-table*)
+
+(defmethod clim3:current-view ((application clueless))
+  application)
+
 (defun inspect (object)
   (let* ((wrap (clim3:wrap))
 	 (scroll (clim3:scroll wrap))
@@ -184,6 +195,7 @@
     (clim3:connect root port)
     (catch 'quit
       (let ((clim3:*port* port)
+	    (clim3:*application* (make-instance 'clueless))
 	    (clim3:*key-handler*
 	      (make-instance 'clim3-port::read-keystroke-key-handler
 		:receiver
@@ -193,5 +205,5 @@
 			   (throw :accept 'quit))
 			  ((equal keystroke '(#\l))
 			   (throw :accept 'last-item))))))))
-	(clim3:command-loop *command-table*)))
+	(clim3:command-loop)))
     (clim3:disconnect root port)))
