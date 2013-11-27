@@ -603,10 +603,10 @@
 		     string)))
     (if (zerop length)
 	0
-	(- (+ (clim3-truetype:x-offset (aref glyphs (1- length)))
-	      (array-dimension (clim3-truetype:mask (aref glyphs (1- length))) 1)
-	      (loop for i from 0 to (- length 2)
-		    sum (clim3-truetype:advance-width (aref glyphs i))))
+	(- (+ ;; This is not perfect, but also not too bad
+	    (clim3-truetype:x-offset (aref glyphs (1- length)))
+	    (loop for i from 0 to (1- length)
+		  sum (clim3-truetype:advance-width (aref glyphs i))))
 	   (clim3-truetype:x-offset (aref glyphs 0))))))
 
 (defmethod clim3:text-width ((port clx-framebuffer-port)
