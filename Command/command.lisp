@@ -14,7 +14,7 @@
 			       collect (if (symbolp param)
 					   t
 					   (cadr param))))
-	 (required-names (loop for param in params
+	 (required-names (loop for param in required
 			       collect (if (symbolp param)
 					   param
 					   (car param)))))
@@ -25,6 +25,15 @@
 	     ',required-types
 	     (apply #'aux ,params-sym))))))
 
+(defgeneric clim3:command-table (view))
+
+(defgeneric clim3:acquire-action (view))
+
+(defmethod clim3:acquire-action (view)
+  (let ((clim3-ext:*command-table* (clim3:command-table view)))
+    (catch :accept
+      (clim3:event-loop clim3:*port*))))
+
 (defun acquire-arguments (required-types initial-arguments)
   (loop for argument in initial-arguments
 	for i from 0
@@ -34,14 +43,14 @@
 			(clim3:event-loop clim3:*port*)))
 		    argument)))
 
-(defgeneric command-name-in-table-p (command-name command-table))
+(defgeneric clim3:command-name-in-table-p (command-name command-table))
 
 (defclass clim3:command-table ()
   ((%commands-names :initarg :command-names :reader command-names)))
 
 (defclass clim3:hashed-command-table (clim3:command-table) ())
 
-(defmethod command-name-in-table-p
+(defmethod clim3:command-name-in-table-p
     (command-name (command-table clim3:hashed-command-table))
   (gethash command-name (command-names command-table)))
 
@@ -49,23 +58,28 @@
   (and (typep clim3-ext:*command-table* 'clim3:command-table)
        (command-name-in-table-p command-name clim3-ext:*command-table*)))
 
-(defun clim3:command-loop (command-table)
-  (loop do (catch 'abort
-	     (let* ((action
-		      (let ((clim3-ext:*input-context* 'nil)
-			    (clim3-ext:*command-table* command-table))
-			(catch :accept
-			  (clim3:event-loop clim3:*port*))))
-		    (command-name
-		      (if (symbolp action) action (car action)))
-		    (initial-arguments 
-		      (if (symbolp action) '() (cdr action)))
-		    (required-types
-		      (let ((*required-types* t))
-			(funcall command-name)))
-		    (arguments
-		      (acquire-arguments required-types initial-arguments)))
-	       (apply command-name arguments)))))
+(defgeneric clim3:command-loop-iteration (application view))
+
+(defmethod clim3:command-loop-iteration (application view)
+  (declare (ignore application))
+  (let* ((action (clim3:acquire-action view))
+	 (command-name
+	   (if (symbolp action) action (car action)))
+	 (initial-arguments 
+	   (if (symbolp action) '() (cdr action)))
+	 (required-types
+	   (let ((*required-types* t))
+	     (funcall command-name)))
+	 (arguments
+	   (acquire-arguments required-types initial-arguments)))
+    (apply command-name arguments)))
+  
+
+(defun clim3:command-loop ()
+  (let ((clim3-ext:*input-context* 'nil))
+    (loop do (let ((view (clim3:current-view clim3:*application*)))
+	       (catch 'abort
+		 (clim3:command-loop-iteration clim3:*application* view))))))
 
 (clim3:define-command clim3:abort ()
   (throw 'abort nil))
