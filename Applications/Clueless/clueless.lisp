@@ -1,9 +1,4 @@
-(defpackage #:clueless
-  (:use #:common-lisp)
-  (:shadow #:inspect)
-  (:export #:inspect))
-
-(in-package #:clueless)
+(cl:in-package #:clueless)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -11,6 +6,12 @@
 ;;; previous object is inspected when the key `l' is hit.
 
 (defparameter *stack* '())
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; FIXME: add comment.
+
+(defvar *wrap*)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -165,8 +166,6 @@
 	     (make-inspectable-object-zone
 	      (slot-value object (slot-value slot 'sb-pcl::name)))
 	     (clim3:sponge)))))))
-
-(defvar *wrap*)
 
 ;;; This is a simple application so this class plays the role
 ;;; of both an application and a view.
