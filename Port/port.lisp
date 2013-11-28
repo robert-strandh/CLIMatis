@@ -84,6 +84,16 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Generic function TEXT-PREFIX-LENGTH.
+;;;
+;;; Take a port, a text style, a string, and a width in pixels, and
+;;; return the length of the largest prefix of the string that will
+;;; fit in that width.
+
+(defgeneric clim3:text-prefix-length (port text-style string width))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Generic function TEXT-STYLE-ASCENT.
 ;;;
 ;;; Take a port and a text style, and return the ascent of the text

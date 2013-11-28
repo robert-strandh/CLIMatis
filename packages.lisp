@@ -45,6 +45,7 @@
    #:text-ascent
    #:text-descent
    #:text-width
+   #:text-prefix-length
    #:text-style-ascent
    #:text-style-descent
    #:with-zone

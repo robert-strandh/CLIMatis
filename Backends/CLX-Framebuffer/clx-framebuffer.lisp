@@ -609,10 +609,48 @@
 		  sum (clim3-truetype:advance-width (aref glyphs i))))
 	   (clim3-truetype:x-offset (aref glyphs 0))))))
 
-(defmethod clim3:text-width ((port clx-framebuffer-port)
-				  text-style
-				  string)
+(defmethod clim3:text-width
+    ((port clx-framebuffer-port) text-style string)
   (font-instance-text-width (text-style-to-font-instance text-style) string))
+
+(defgeneric font-instance-text-prefix-length (font text width))
+
+(defmethod font-instance-text-prefix-length
+    ((font camfer:font) string width)
+  (if (or (zerop (length string))
+	  (> (glyph-width font (char string 0)) width))
+      0
+      (loop with w = (glyph-width font (char string 0))
+	    for i from 1 below (length string)
+	    for prev = (char string (1- i))
+	    for cur = (char string i)
+	    for space = (glyph-space font prev cur)
+	    for cur-width = (glyph-width font cur)
+	    do (incf w (+ space cur-width))
+	       (when (> w width)
+		 (return w))
+	    finally (return width))))
+
+(defmethod font-instance-text-prefix-length
+    ((font clim3-truetype:font-instance) string width)
+  (let ((length (length string))
+	(glyphs (map 'vector
+		     (lambda (char)
+		       (clim3-truetype:find-glyph-instance font char))
+		     string)))
+    (loop with w = 0
+	  for i from 0 below length
+	  for glyph = (aref glyphs i)
+	  for advance-width = (clim3-truetype:advance-width glyph)
+	  do (incf w advance-width)
+	     (when (> w width)
+	       (return i))
+	  finally (return length))))
+
+(defmethod clim3:text-prefix-length
+    ((port clx-framebuffer-port) text-style string width)
+  (font-instance-text-prefix-length
+   (text-style-to-font-instance text-style) string width))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
