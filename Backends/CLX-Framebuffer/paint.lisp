@@ -64,14 +64,19 @@
 	(height (array-dimension mask 0))
 	(r (clim3:red color))
 	(g (clim3:green color))
-	(b (clim3:blue color)))
-    (loop for vpos from (max *vstart* *vpos*) below *vend*
-	  for row from (max 0 (- *vstart* *vpos*)) below height
-	  do (loop for hpos from (max *hstart* *hpos*) below *hend*
-		   for col from (max 0 (- *hstart* *hpos*)) below width
-		   do (let* ((pa *pixel-array*)
-			     (pixel (aref pa vpos hpos))
-			     (alpha (aref mask row col))
+	(b (clim3:blue color))
+	(pa *pixel-array*))
+    (flet ((do-pixel (vpos hpos row col)
+	     (let  ((alpha (aref mask row col)))
+	       (cond ((< alpha 0.002)
+		      nil)
+		     ((> alpha 0.998)
+		      (setf (aref pa vpos hpos)
+			    (+ (ash (round (* 255 r)) 16)
+			       (ash (round (* 255 g)) 8)
+			       (ash (round (* 255 b)) 0))))
+		     (t
+		      (let* ((pixel (aref pa vpos hpos))
 			     (old-r (/ (logand 255 (ash pixel -16)) 255d0))
 			     (old-g (/ (logand 255 (ash pixel -8)) 255d0))
 			     (old-b (/ (logand 255 pixel) 255d0))
@@ -81,7 +86,12 @@
 			     (new-pixel (+ (ash (round (* 255 new-r)) 16)
 					   (ash (round (* 255 new-g)) 8)
 					   (ash (round (* 255 new-b)) 0))))
-			(setf (aref pa vpos hpos) new-pixel))))))
+			(setf (aref pa vpos hpos) new-pixel)))))))
+      (loop for vpos from (max *vstart* *vpos*) below *vend*
+	    for row from (max 0 (- *vstart* *vpos*)) below height
+	    do (loop for hpos from (max *hstart* *hpos*) below *hend*
+		     for col from (max 0 (- *hstart* *hpos*)) below width
+		     do (do-pixel vpos hpos row col))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
