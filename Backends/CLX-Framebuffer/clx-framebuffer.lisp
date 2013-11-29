@@ -351,9 +351,11 @@
     (clim3-ext:paint zone)))
 
 (defun draw-default-background (pixel-array)
-  (loop for r from 0 below (array-dimension pixel-array 0)
-	do (loop for c from 0 below (array-dimension pixel-array 1)
-		 do (setf (aref pixel-array r c) #xeeeeeeee))))
+  (let* ((size (array-total-size pixel-array))
+	 (v (make-array size
+			:element-type '(unsigned-byte 32)
+			:displaced-to pixel-array)))
+    (fill v #xeeeeeeee)))
 
 (defun update (zone-entry)
   (with-accessors ((zone zone)
