@@ -562,27 +562,173 @@ Constructor.
 
 \subsection{Scroll}
 
+The \code{scroll} zone is a zone that has either no children or a single
+child.  
+
+Either way, it ignores the sprawls of its child and imposes its own,
+making it behave exactly like a \code{sponge} zone.  
+
+If the \code{scroll} zone has a child, it does not impose any position
+or size of that child.  It always gives the child its \emph{natural
+  size}, and it does not modify the position of the child as set by
+the application.
+
 \Defclass {scroll}
 
 \Definitarg {:child}
 
+\Defun {scroll} {\optional child}
+
+Constructor. 
+
 \subsection{Vscroll}
+
+The \code{vscroll} zone is a zone that has either no children or a single
+child.  
+
+Vertically, the \code{vscroll} zone behaves like the \code{vsponge}
+zone in that it ignores the vertical sprawl of its child and instead
+imposes its own, which makes it willing to take on any size.  
+
+Horizontally, the \code{vscroll} zone copies the horizontal sprawl of
+its child.  If it does not have a child, it behaves like the
+\code{sponge} zone.  
+
+If the \code{vscroll} zone has a child, then the horizontal size and
+position are imposed on that child so that the left and right edges of
+the child align with the left and right edges of the \code{vscroll}
+zone.  
+
+If the \code{scroll} zone has a child, it does not impose any vertical
+position or vertical size of that child.  It always gives the child
+its \emph{natural height}, and it does not modify the vertical
+position of the child as set by the application.
 
 \Defclass {vscroll}
 
 \Definitarg {:child}
 
+\Defun {vscroll} {\optional child}
+
+Constructor. 
+
 \subsection{Hscroll}
 
 \Defclass {hscroll}
 
+The \code{hscroll} zone is a zone that has either no children or a single
+child.  
+
+Horizontally, the \code{hscroll} zone behaves like the \code{hsponge}
+zone in that it ignores the horizontal sprawl of its child and instead
+imposes its own, which makes it willing to take on any size.  
+
+Vertically, the \code{hscroll} zone copies the vertical sprawl of
+its child.  If it does not have a child, it behaves like the
+\code{sponge} zone.  
+
+If the \code{hscroll} zone has a child, then the vertical size and
+position are imposed on that child so that the upper and lower edges of
+the child align with the upper and lower edges of the \code{hscroll}
+zone.  
+
+If the \code{scroll} zone has a child, it does not impose any horizontal
+position or horizontal size of that child.  It always gives the child
+its \emph{natural width}, and it does not modify the horizontal
+position of the child as set by the application.
+
 \Definitarg {:child}
+
+\Defun {hscroll} {\optional child}
+
+Constructor. 
 
 \subsection{Bboard}
 
 \Defclass {bboard}
 
 \Definitarg {:children}
+
+\subsection{Center}
+
+The \code{center} zone has either no children or a single child.  If
+it has no children, it behaves like the \code{sponge} zone.
+
+If the \code{center} zone has a child, it copies the sprawls of its
+child, except that it sets the maximum size to infinity, making it
+infinitely stretchable.  
+
+If the vertical size of the \code{center} zone is greater than or
+equal to the \emph{natural height} of its child, then it centers the
+child vertically (with a possible error of half a pixel) by
+surrounding the child with totally transparent rows of pixels, and it
+gives the child its natural height.  If the vertical size of
+the \code{center} zone is strictly smaller than the natural height of
+its child, it imposes its own height on the child.
+
+Similarly, if the horizontal size of the \code{center} zone is greater than or
+equal to the \emph{natural width} of its child, then it centers the
+child horizontally (with a possible error of half a pixel) by
+surrounding the child with totally transparent columns of pixels, and it
+gives the child its natural width.  If the horizontal size of
+the \code{center} zone is strictly smaller than the natural width of
+its child, it imposes its own width on the child.
+
+\Defclass {center}
+
+\Definitarg {:child}
+
+\Defun {center} {\optional child}
+
+Constructor. 
+
+\subsection{Top}
+
+\Defclass {top}
+
+\Definitarg {:child}
+
+\subsection{Bottom}
+
+\Defclass {bottom}
+
+\Definitarg {:child}
+
+\subsection{Left}
+
+\Defclass {left}
+
+\Definitarg {:child}
+
+\subsection{Right}
+
+\Defclass {right}
+
+\Definitarg {:child}
+
+\subsection{Top-left}
+
+\Defclass {top-left}
+
+\Definitarg {:child}
+
+\subsection{Top-right}
+
+\Defclass {top-right}
+
+\Definitarg {:child}
+
+\subsection{Bottom-left}
+
+\Defclass {bottom-left}
+
+\Definitarg {:child}
+
+\subsection{Bottom-right}
+
+\Defclass {bottom-right}
+
+\Definitarg {:child}
 
 \section{Input zones}
 \label{sec-zones-input}
