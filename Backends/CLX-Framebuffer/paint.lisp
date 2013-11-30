@@ -133,18 +133,23 @@
 	     (mask (char)
 	       (camfer:mask (camfer:find-glyph font-instance char))))
 	;; paint the first character
-	(clim3:with-position (0 (y-pos (char text 0)))
-	  (clim3-ext:paint-mask port (mask (char text 0)) color))
+	(unless (eql (char text 0) #\Space)
+	  (clim3:with-position (0 (y-pos (char text 0)))
+	    (clim3-ext:paint-mask port (mask (char text 0)) color)))
  	(loop with pos-x = 0
  	      for i from 1 below (length text)
  	      for glyph = (camfer:find-glyph font-instance (char text i))
  	      do (progn
  		   ;; compute the new x position
  		   (incf pos-x
- 			 (+ (glyph-width font-instance (char text (1- i)))
- 			    (glyph-space font-instance (char text (1- i)) (char text i))))
-		   (clim3:with-position (pos-x (y-pos (char text i)))
-		     (clim3-ext:paint-mask port (mask (char text i)) color))))))))
+ 			 (+ (glyph-width font-instance
+					 (char text (1- i)))
+ 			    (glyph-space font-instance
+					 (char text (1- i))
+					 (char text i))))
+		   (unless (eql (char text i) #\Space)
+		     (clim3:with-position (pos-x (y-pos (char text i)))
+		       (clim3-ext:paint-mask port (mask (char text i)) color)))))))))
 
 (defmethod font-instance-paint-text
     (port text (font-instance clim3-truetype:font-instance) color)

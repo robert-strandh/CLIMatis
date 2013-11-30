@@ -355,7 +355,7 @@
 	 (v (make-array size
 			:element-type '(unsigned-byte 32)
 			:displaced-to pixel-array)))
-    (fill v #xeeeeeeee)))
+    (fill v #xffffffff)))
 
 (defun update (zone-entry)
   (with-accessors ((zone zone)
@@ -577,13 +577,19 @@
 ;; 		      (camfer:y-offset (camfer:find-glyph font char)))))))
 
 (defun glyph-space (font char1 char2)
-  (- (* 2 (camfer::stroke-width font))
-     (camfer:kerning font
-		     (camfer:find-glyph font char1)
-		     (camfer:find-glyph font char2))))
+  ;; Wing it for the space character for now.
+  (if (or (eql char1 #\Space) (eql char2 #\Space))
+      0
+      (- (* 2 (camfer::stroke-width font))
+	 (camfer:kerning font
+			 (camfer:find-glyph font char1)
+			 (camfer:find-glyph font char2)))))
 
 (defun glyph-width (font char)
-  (array-dimension (camfer:mask (camfer:find-glyph font char)) 1))
+  ;; Wing it for the space character for now.
+  (if (eql char #\Space)
+      10
+      (array-dimension (camfer:mask (camfer:find-glyph font char)) 1)))
 
 (defgeneric font-instance-text-width (font text))
 
