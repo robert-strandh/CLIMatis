@@ -56,6 +56,10 @@
 ;;; CHILD-DEPTH-SIGNIFICANT-MIXIN in its superclasses.  Compound zones
 ;;; for which the depth of the children is are not imporant should
 ;;; include CHILD-DEPTH-INSIGNIFICANT-MIXIN in its superclasses. 
+;;;
+;;; This function is used mainly for traversing zones to determine
+;;; whether the pointer is inside.  For that reason, it maps over ALL
+;;; children, i.e. including hidden children (also called cuckoos).
 
 (defgeneric clim3-ext:map-over-children-top-to-bottom (function zone))
 
@@ -73,6 +77,10 @@
 ;;; CHILD-DEPTH-SIGNIFICANT-MIXIN in its superclasses.  Compound zones
 ;;; for which the depth of the children is are not imporant should
 ;;; include CHILD-DEPTH-INSIGNIFICANT-MIXIN in its superclasses. 
+;;;
+;;; This function is used mainly for painting zones.  For that reason,
+;;; it maps over ALL children, i.e. including hidden children (also
+;;; called cuckoos).  
 
 (defgeneric clim3-ext:map-over-children-bottom-to-top (function zone))
 
@@ -128,11 +136,11 @@
 
 (defmethod clim3-ext:map-over-children-top-to-bottom
     (function (zone clim3-ext:child-depth-insignificant-mixin))
-  (clim3-ext:map-over-children function zone))
+  (clim3-ext:map-over-all-children function zone))
 
 (defmethod clim3-ext:map-over-children-bottom-to-top
     (function (zone clim3-ext:child-depth-insignificant-mixin))
-  (clim3-ext:map-over-children function zone))
+  (clim3-ext:map-over-all-children function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -169,10 +177,17 @@
   (declare (ignore new-children))
   (setf (depth-ordered-children parent) nil))
 
+;;; This function is used by MAP-OVER-CHILDREN-TOP-TO-BOTTOM and by
+;;; MAP-OVER-CHILDREN-BOTTOM-TO-TOP to make sure that the the slot
+;;; containing the children order by depth is up to date.  Because
+;;; these two client functions traverse ALL children, including hidden
+;;; children (aslo called cuckoos), this function calls
+;;; MAP-OVER-ALL-CHILDREN rather than MAP-OVER-CHILDREN.
 (defun ensure-depth-ordered-children (zone)
   (when (null (depth-ordered-children zone))
     (let ((children '()))
-      (clim3-ext:map-over-children (lambda (child) (push child children)) zone)
+      (clim3-ext:map-over-all-children (lambda (child) (push child children))
+				       zone)
       (setf (depth-ordered-children zone)
 	    (sort (coerce children 'vector) #'< :key #'clim3:depth)))))
 

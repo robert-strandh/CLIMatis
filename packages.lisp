@@ -163,4 +163,6 @@
    #:standard-button-decoder
    #:*input-context*
    #:*command-table*
+   #:all-children
+   #:map-over-all-children
    ))
