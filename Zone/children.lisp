@@ -154,7 +154,9 @@
   ((%children :initform '() :initarg :children :accessor clim3:children)))
 
 (defmethod initialize-instance :after ((zone clim3-ext:compound-mixin) &key)
-  (clim3-ext:map-over-children (lambda (child) (setf (clim3-ext:parent child) zone)) zone))
+  (clim3-ext:map-over-all-children
+   (lambda (child) (setf (clim3-ext:parent child) zone))
+   zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -174,11 +176,13 @@
 	(unless (null child-after)
 	  (setf (clim3-ext:parent child-after) zone))))))
 
-(defmethod (setf clim3:children) :before (new-child (zone clim3-ext:at-most-one-child-mixin))
+(defmethod (setf clim3:children) :before
+    (new-child (zone clim3-ext:at-most-one-child-mixin))
   (unless (or (null new-child) (clim3:zone-p new-child))
     (error "new child must be a zone or NIL")))
 
-(defmethod clim3-ext:map-over-children (function (zone clim3-ext:at-most-one-child-mixin))
+(defmethod clim3-ext:map-over-children
+    (function (zone clim3-ext:at-most-one-child-mixin))
   (let ((child (clim3:children zone)))
     (unless (null child)
       (funcall function child))))
@@ -211,10 +215,12 @@
 
 (defclass clim3-ext:list-children-mixin (clim3-ext:several-children-mixin) ())
 
-(defmethod clim3-ext:map-over-children (function (zone clim3-ext:list-children-mixin))
+(defmethod clim3-ext:map-over-children
+    (function (zone clim3-ext:list-children-mixin))
   (mapc function (clim3:children zone)))
 
-(defmethod (setf clim3:children) :before (new-children (zone clim3-ext:list-children-mixin))
+(defmethod (setf clim3:children) :before
+    (new-children (zone clim3-ext:list-children-mixin))
   ;; FIXME: check that new-children is a proper list.
   (loop for child in new-children
 	do (unless (clim3:zone-p child)
@@ -229,10 +235,12 @@
 
 (defclass clim3-ext:vector-children-mixin (clim3-ext:several-children-mixin) ())
 
-(defmethod clim3-ext:map-over-children (function (zone clim3-ext:vector-children-mixin))
+(defmethod clim3-ext:map-over-children
+    (function (zone clim3-ext:vector-children-mixin))
   (map nil function (clim3:children zone)))
 
-(defmethod (setf clim3:children) :before (new-children (zone clim3-ext:vector-children-mixin))
+(defmethod (setf clim3:children) :before
+    (new-children (zone clim3-ext:vector-children-mixin))
   (unless (vectorp new-children)
     (error "new children must be a vector"))
   (loop for child across new-children
@@ -248,13 +256,15 @@
 
 (defclass clim3-ext:matrix-children-mixin (clim3-ext:several-children-mixin) ())
 
-(defmethod clim3-ext:map-over-children (function (zone clim3-ext:matrix-children-mixin))
+(defmethod clim3-ext:map-over-children
+    (function (zone clim3-ext:matrix-children-mixin))
   (let ((children (clim3:children zone)))
     (loop for r from 0 below (array-dimension children 0)
 	  do (loop for c from 0 below (array-dimension children 1)
 		   do (funcall function (aref children r c))))))
 
-(defmethod (setf clim3:children) :before (new-children (zone clim3-ext:matrix-children-mixin))
+(defmethod (setf clim3:children) :before
+    (new-children (zone clim3-ext:matrix-children-mixin))
   (unless (and (arrayp new-children)
 	       (= (array-rank new-children) 2))
     (error "new children must be an array of rank 2"))

@@ -69,7 +69,7 @@
 
 (defmethod render
     ((zone clim3-zone:compound-zone) (port test-port-1) hstart vstart hend vend)
-  (clim3-ext:map-over-children
+  (clim3-ext:map-over-all-children
    (lambda (child)
      (clim3-ext:ensure-hsprawl-valid child)
      (clim3-ext:ensure-vsprawl-valid child))
