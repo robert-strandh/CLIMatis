@@ -141,6 +141,7 @@
    #:changing-children-changes-both-sprawls-mixin
    #:changing-children-changes-nothing-mixin
    #:changing-child-position-not-allowed-mixin
+   #:changing-child-position-changes-nothing-mixin
    #:changing-child-position-changes-hsprawl-mixin
    #:changing-child-position-changes-vsprawl-mixin
    #:changing-child-position-changes-both-sprawls-mixin

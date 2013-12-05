@@ -119,8 +119,20 @@
 (defclass clim3-ext:changing-child-position-not-allowed-mixin () ())
 
 (defmethod clim3-ext:notify-child-position-changed
-    ((child clim3:zone) (parent clim3-ext:changing-child-position-not-allowed-mixin))
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-position-not-allowed-mixin))
   (error "attempt to change the position of a child"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class CHANGING-CHILD-POSITION-CHANGES-NOTHING-MIXIN
+
+(defclass clim3-ext:changing-child-position-changes-nothing-mixin () ())
+
+(defmethod clim3-ext:notify-child-position-changed
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-position-changes-nothing-mixin))
+  nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -129,7 +141,8 @@
 (defclass clim3-ext:changing-child-position-changes-hsprawl-mixin () ())
 
 (defmethod clim3-ext:notify-child-position-changed
-    ((child clim3:zone) (parent clim3-ext:changing-child-position-changes-hsprawl-mixin))
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-position-changes-hsprawl-mixin))
   (setf (clim3:hsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -139,7 +152,8 @@
 (defclass clim3-ext:changing-child-position-changes-vsprawl-mixin () ())
 
 (defmethod clim3-ext:notify-child-position-changed
-    ((child clim3:zone) (parent clim3-ext:changing-child-position-changes-vsprawl-mixin))
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-position-changes-vsprawl-mixin))
   (setf (clim3:vsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -149,7 +163,8 @@
 (defclass clim3-ext:changing-child-position-changes-both-sprawls-mixin () ())
 
 (defmethod clim3-ext:notify-child-position-changed
-    ((child clim3:zone) (parent clim3-ext:changing-child-position-changes-both-sprawls-mixin))
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-position-changes-both-sprawls-mixin))
   (setf (clim3:hsprawl parent) nil)
   (setf (clim3:vsprawl parent) nil))
 
