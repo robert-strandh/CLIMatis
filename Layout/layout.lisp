@@ -283,6 +283,7 @@
      clim3-ext:at-most-one-child-mixin
      clim3-ext:changing-child-hsprawl-changes-nothing-mixin
      clim3-ext:changing-child-vsprawl-changes-nothing-mixin
+     clim3-ext:changing-child-position-changes-nothing-mixin
      clim3-ext:child-depth-insignificant-mixin)
   ()
   (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
