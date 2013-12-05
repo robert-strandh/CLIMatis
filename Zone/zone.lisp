@@ -15,12 +15,12 @@
 ;;; of such a layout zone will move and resize the child. 
 
 (defclass clim3:standard-zone (clim3:zone
-			 parent-mixin
-			 position-mixin
-			 size-mixin
-			 depth-mixin
-			 sprawls-mixin
-			 client-mixin)
+			       clim3-ext:parent-mixin
+			       clim3-ext:position-mixin
+			       clim3-ext:size-mixin
+			       clim3-ext:depth-mixin
+			       clim3-ext:sprawls-mixin
+			       clim3-ext:client-mixin)
   ())
 
 (defun clim3:zone-p (object)

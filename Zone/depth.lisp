@@ -106,10 +106,14 @@
 ;;; method on (SETF DEPTH) that triggers the depth-notification
 ;;; protocol.
 
-(defclass depth-mixin ()
-  ((%depth :initform 0 :initarg :depth :accessor clim3:depth :writer clim3-ext:set-depth)))
+(defclass clim3-ext:depth-mixin ()
+  ((%depth :initform 0
+	   :initarg :depth
+	   :accessor clim3:depth
+	   :writer clim3-ext:set-depth)))
 
-(defmethod (setf clim3:depth) :after (new-depth (zone depth-mixin))
+(defmethod (setf clim3:depth) :after
+    (new-depth (zone clim3-ext:depth-mixin))
   (clim3-ext:notify-child-depth-changed zone (clim3-ext:parent zone)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

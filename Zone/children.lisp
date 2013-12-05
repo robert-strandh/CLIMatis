@@ -165,7 +165,8 @@
 
 (defclass clim3-ext:at-most-one-child-mixin (clim3-ext:compound-mixin) ())
 
-(defmethod (setf clim3:children) :around (new-child (zone clim3-ext:at-most-one-child-mixin))
+(defmethod (setf clim3:children) :around
+    (new-child (zone clim3-ext:at-most-one-child-mixin))
   (declare (ignore new-child))
   (let ((child-before (clim3:children zone)))
     (call-next-method)
@@ -194,7 +195,8 @@
 
 (defclass clim3-ext:several-children-mixin (clim3-ext:compound-mixin) ())
 
-(defmethod (setf clim3:children) :around (new-children (zone clim3-ext:several-children-mixin))
+(defmethod (setf clim3:children) :around
+    (new-children (zone clim3-ext:several-children-mixin))
   (declare (ignore new-children))
   (let ((children-before (hash-table-from-children zone)))
     (call-next-method)

@@ -41,5 +41,5 @@
 ;;; PARENT and (SETF PARENT).  This class is a superclass of
 ;;; STANDARD-CLASS.
 
-(defclass parent-mixin ()
+(defclass clim3-ext:parent-mixin ()
   ((%parent :initarg :parent :initform nil :accessor clim3-ext:parent)))

@@ -75,7 +75,7 @@
   (setf (clim3:width zone) width)
   (setf (clim3:height zone) height))
 
-(defclass size-mixin ()
+(defclass clim3-ext:size-mixin ()
   ((%width :initform 0 :accessor clim3:width)
    (%height :initform 0 :accessor clim3:height)))
 

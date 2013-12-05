@@ -112,7 +112,7 @@
 
 ;;; FIXME make hpos and vpos :reader.
 
-(defclass position-mixin ()
+(defclass clim3-ext:position-mixin ()
   ((%hpos :initform 0
 	  :initarg :hpos
 	  :accessor clim3:hpos

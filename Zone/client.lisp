@@ -16,7 +16,7 @@
 
 (defgeneric (setf clim3-ext:client) (new-client zone))
 
-(defclass client-mixin ()
+(defclass clim3-ext:client-mixin ()
   ((%client :initform nil :accessor clim3-ext:client)))
 
 (defun clim3-ext:set-clients (zone client)
@@ -26,7 +26,8 @@
 	       (clim3-ext:map-over-all-children #'aux zone))))
     (aux zone)))
 
-(defmethod (setf clim3-ext:parent) :after ((new-parent clim3:zone) (zone client-mixin))
+(defmethod (setf clim3-ext:parent) :after
+    ((new-parent clim3:zone) (zone clim3-ext:client-mixin))
   (clim3-ext:set-clients zone (clim3-ext:client new-parent)))
 
 

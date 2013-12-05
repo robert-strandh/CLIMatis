@@ -113,7 +113,7 @@
   (when (null (clim3:vsprawl zone))
     (clim3-ext:compute-vsprawl zone)))
 
-(defclass sprawls-mixin ()
+(defclass clim3-ext:sprawls-mixin ()
   ((%hsprawl :initform nil
 	     :initarg :hsprawl
 	     :accessor clim3:hsprawl

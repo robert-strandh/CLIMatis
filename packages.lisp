@@ -13,6 +13,7 @@
    #:brick #:hbrick #:vbrick
    #:sponge #:hsponge #:vsponge
    #:hbox #:hbox* #:vbox #:vbox* #:grid
+   #:vtree #:vnode #:htree #:hnode
    #:bboard #:bboard*
    #:wrap #:border
    #:pile #:pile*
@@ -112,6 +113,12 @@
    #:set-clients
    #:atomic-mixin
    #:compound-mixin
+   #:parent-mixin
+   #:position-mixin
+   #:size-mixin
+   #:depth-mixin
+   #:sprawls-mixin
+   #:client-mixin
    #:at-most-one-child-mixin
    #:several-children-mixin
    #:list-children-mixin
