@@ -13,7 +13,7 @@
    #:brick #:hbrick #:vbrick
    #:sponge #:hsponge #:vsponge
    #:hbox #:hbox* #:vbox #:vbox* #:grid
-   #:vtree #:vnode #:htree #:hnode
+   #:vtree #:vnode #:htree #:hnode #:insert-node #:delete-node
    #:bboard #:bboard*
    #:wrap #:border
    #:pile #:pile*

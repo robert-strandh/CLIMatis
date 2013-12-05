@@ -4,4 +4,5 @@
   :depends-on (:climatis-packages :clim3-sprawl :clim3-zone)
   :components
   ((:file "layout-packages" :depends-on ())
-   (:file "layout" :depends-on ("layout-packages"))))
+   (:file "layout" :depends-on ("layout-packages"))
+   (:file "trees" :depends-on ("layout-packages"))))
