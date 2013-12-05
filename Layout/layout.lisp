@@ -751,3 +751,74 @@
 
 (defun clim3:wrap (&optional child)
   (make-instance 'clim3:wrap :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class BORDER
+
+(defclass clim3:border
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-both-sprawls-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
+  ((%thickness :initarg :thickness :reader thickness))
+  (:default-initargs :children '()))
+
+(defmethod clim3-ext:compute-hsprawl ((zone clim3:border))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (let* ((sprawl (clim3:hsprawl (clim3:children zone)))
+	      (min-size (clim3-sprawl:min-size sprawl))
+	      (size (clim3-sprawl:size sprawl))
+	      (max-size (clim3-sprawl:max-size sprawl))
+	      (thickness (thickness zone)))
+	 (clim3-sprawl:sprawl (+ thickness min-size)
+			      (+ thickness size)
+			      (if (null max-size)
+				  nil
+				  (+ thickness max-size)))))
+   zone))
+
+(defmethod clim3-ext:compute-vsprawl ((zone clim3:border))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (let* ((sprawl (clim3:vsprawl (clim3:children zone)))
+	      (min-size (clim3-sprawl:min-size sprawl))
+	      (size (clim3-sprawl:size sprawl))
+	      (max-size (clim3-sprawl:max-size sprawl))
+	      (thickness (thickness zone)))
+	 (clim3-sprawl:sprawl (+ thickness min-size)
+			      (+ thickness size)
+			      (if (null max-size)
+				  nil
+				  (+ thickness max-size)))))
+   zone))
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:border))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone))
+	(thickness (thickness zone)))
+    (unless (null child)
+      (clim3-ext:set-hpos thickness child)
+      (clim3-ext:set-vpos thickness child)
+      (clim3-ext:impose-size child
+			     (max 0 (- width (* 2 thickness)))
+			     (max 0 (- height (* 2 thickness)))))))
+
+;;; These constructors would typically not be used.  Instead, client
+;;; code would use MAKE-INSTANCE on the subclass of the border.
+
+(defun clim3:border (thickness child)
+  (make-instance 'clim3:border
+    :thickness thickness
+    :children child))
