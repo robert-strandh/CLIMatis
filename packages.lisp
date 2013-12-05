@@ -18,6 +18,8 @@
    #:wrap #:border
    #:pile #:pile*
    #:scroll 
+   #:scrollbar #:vscrollbar #:hscrollbar #:adjust-scroll
+   #:scroller-size #:scrollee-size #:scrollee-pos
    #:color #:make-color #:red #:green #:blue #:find-color #:name-color
    #:pixel #:opacity
    #:monochrome

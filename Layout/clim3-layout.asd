@@ -5,4 +5,5 @@
   :components
   ((:file "layout-packages" :depends-on ())
    (:file "layout" :depends-on ("layout-packages"))
-   (:file "trees" :depends-on ("layout-packages"))))
+   (:file "trees" :depends-on ("layout-packages"))
+   (:file "scrollbar" :depends-on ("layout-packages"))))
