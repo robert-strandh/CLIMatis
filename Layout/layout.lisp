@@ -815,9 +815,6 @@
 			     (max 0 (- width (* 2 thickness)))
 			     (max 0 (- height (* 2 thickness)))))))
 
-;;; These constructors would typically not be used.  Instead, client
-;;; code would use MAKE-INSTANCE on the subclass of the border.
-
 (defun clim3:border (thickness child)
   (make-instance 'clim3:border
     :thickness thickness
