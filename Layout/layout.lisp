@@ -819,3 +819,291 @@
   (make-instance 'clim3:border
     :thickness thickness
     :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class FIXED-POSITION
+;;;
+;;; This class is not meant to be instantiated directly.  Instead it
+;;; is the superclass of 9 zone classes, each of which positions a
+;;; single child in a fixed relative position (top, bottom, left,
+;;; right, top-left, top-right, bottom-left, bottom-right, center) and
+;;; gives the child its natural size (or the size of the layout zone
+;;; if the natural size of the child is too great.
+
+(defclass fixed-position
+    (clim3:standard-zone
+     clim3-ext:at-most-one-child-mixin
+     clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+     clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
+     clim3-ext:changing-children-changes-both-sprawls-mixin
+     clim3-ext:changing-child-position-not-allowed-mixin
+     clim3-ext:child-depth-insignificant-mixin)
+  ()
+  (:default-initargs :children '()))
+
+(defmethod clim3-ext:compute-hsprawl ((zone fixed-position))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:set-hsprawl
+   (if (null (clim3:children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (let* ((sprawl (clim3:hsprawl (clim3:children zone)))
+	      (min-size (clim3-sprawl:min-size sprawl))
+	      (size (clim3-sprawl:size sprawl)))
+	 (clim3-sprawl:sprawl min-size size nil)))
+   zone))
+
+(defmethod clim3-ext:compute-vsprawl ((zone fixed-position))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (clim3-ext:set-vsprawl
+   (if (null (clim3:children zone))
+       (clim3-sprawl:sprawl 0 0 nil)
+       (let* ((sprawl (clim3:vsprawl (clim3:children zone)))
+	      (min-size (clim3-sprawl:min-size sprawl))
+	      (size (clim3-sprawl:size sprawl)))
+	 (clim3-sprawl:sprawl min-size size nil)))
+   zone))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class CENTER
+
+(defclass clim3:center (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:center))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap (max 0 (floor (- width child-width) 2)))
+	      (vgap (max 0 (floor (- height child-height) 2)))
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:center (&optional child)
+  (make-instance 'clim3:center
+    :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class TOP
+
+(defclass clim3:top (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:top))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap (max 0 (floor (- width child-width) 2)))
+	      (vgap 0)
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:top (&optional child)
+  (make-instance 'clim3:top
+    :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class BOTTOM
+
+(defclass clim3:bottom (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:bottom))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap (max 0 (floor (- width child-width) 2)))
+	      (vgap (max 0 (- height child-height)))
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:bottom (&optional child)
+  (make-instance 'clim3:bottom
+    :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class LEFT
+
+(defclass clim3:left (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:left))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap 0)
+	      (vgap (max 0 (floor (- height child-height) 2)))
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:left (&optional child)
+  (make-instance 'clim3:left
+    :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class RIGHT
+
+(defclass clim3:right (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:right))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap (max 0 (- width child-width)))
+	      (vgap (max 0 (floor (- height child-height) 2)))
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:right (&optional child)
+  (make-instance 'clim3:right
+    :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class TOP-LEFT
+
+(defclass clim3:top-left (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:top-left))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap 0)
+	      (vgap 0)
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:top-left (&optional child)
+  (make-instance 'clim3:top-left
+    :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class TOP-RIGHT
+
+(defclass clim3:top-right (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:top-right))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap (max 0 (- width child-width)))
+	      (vgap 0)
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:top-right (&optional child)
+  (make-instance 'clim3:top-right
+    :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class BOTTOM-LEFT
+
+(defclass clim3:bottom-left (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:bottom-left))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap 0)
+	      (vgap (max 0 (- height child-height)))
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:bottom-left (&optional child)
+  (make-instance 'clim3:bottom-left
+    :children child))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class BOTTOM-RIGHT
+
+(defclass clim3:bottom-right (fixed-position) ())
+
+(defmethod clim3-ext:impose-child-layouts ((zone clim3:bottom-right))
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-hsprawl-valid zone)
+  (clim3-ext:map-over-all-children #'clim3-ext:ensure-vsprawl-valid zone)
+  (let ((width (clim3:width zone))
+	(height (clim3:height zone))
+	(child (clim3:children zone)))
+    (unless (null child)
+      (multiple-value-bind (child-width child-height)
+	  (clim3:natural-size child)
+	(let ((hgap (max 0 (- width child-width)))
+	      (vgap (max 0 (- height child-height)))
+	      (w (min width child-width))
+	      (h (min height child-height)))
+	  (clim3-ext:set-hpos hgap child)
+	  (clim3-ext:set-vpos vgap child)
+	  (clim3-ext:impose-size child w h))))))
+
+(defun clim3:bottom-right (&optional child)
+  (make-instance 'clim3:bottom-right
+    :children child))
+

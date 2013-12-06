@@ -17,6 +17,8 @@
    #:bboard #:bboard*
    #:wrap #:border
    #:pile #:pile*
+   #:center #:top #:bottom #:left #:right
+   #:top-left #:top-right #:bottom-left #:bottom-right
    #:scroll 
    #:scrollbar #:vscrollbar #:hscrollbar
    #:color #:make-color #:red #:green #:blue #:find-color #:name-color
