@@ -26,6 +26,7 @@
    #:translucent
    #:masked #:opacities
    #:image #:pixels
+   #:raised #:sunken
    #:connect #:disconnect
    #:event-loop
    #:input

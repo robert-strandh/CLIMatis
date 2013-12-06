@@ -87,4 +87,100 @@
 (defmethod clim3-ext:paint ((zone clim3:translucent))
   (clim3:paint-translucent   (clim3:color zone) (clim3:opacity zone)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Raised
 
+(defclass clim3:raised (clim3:standard-zone
+			clim3-ext:atomic-mixin)
+  ()
+  (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
+		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
+
+(defmethod clim3-ext:paint ((zone clim3:raised))
+  (let ((black (clim3:make-color 0.0 0.0 0.0))
+	(white (clim3:make-color 1.0 1.0 1.0))
+	(opacity 0.3)
+	(thickness 3)
+	(width (clim3:width zone))
+	(height (clim3:height zone)))
+    ;; Paint the left edge.
+    (loop for hpos from 0
+	  for vpos from 0
+	  for h downfrom height by 2
+	  repeat thickness
+	  do (clim3:with-area (hpos vpos 1 h)
+	       (clim3:paint-translucent white opacity)))
+    ;; Paint the right edge.
+    (loop for hpos downfrom (1- width)
+	  for vpos from 0
+	  for h downfrom height by 2
+	  repeat thickness
+	  do (clim3:with-area (hpos vpos 1 h)
+	       (clim3:paint-translucent black opacity)))
+    ;; Paint the top edge.
+    (loop for hpos from 0
+	  for vpos from 0
+	  for w downfrom width by 2
+	  repeat thickness
+	  do (clim3:with-area (hpos vpos w 1)
+	       (clim3:paint-translucent white opacity)))
+    ;; Paint the bottom edge.
+    (loop for vpos downfrom (1- height)
+	  for hpos from 0
+	  for w downfrom width by 2
+	  repeat thickness
+	  do (clim3:with-area (hpos vpos w 1)
+	       (clim3:paint-translucent black opacity)))))
+
+(defun clim3:raised ()
+  (make-instance 'clim3:raised))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Sunken
+
+(defclass clim3:sunken (clim3:standard-zone
+			clim3-ext:atomic-mixin)
+  ()
+  (:default-initargs :hsprawl (clim3-sprawl:sprawl 0 0 nil)
+		     :vsprawl (clim3-sprawl:sprawl 0 0 nil)))
+
+(defmethod clim3-ext:paint ((zone clim3:sunken))
+  (let ((black (clim3:make-color 0.0 0.0 0.0))
+	(white (clim3:make-color 1.0 1.0 1.0))
+	(opacity 0.3)
+	(thickness 3)
+	(width (clim3:width zone))
+	(height (clim3:height zone)))
+    ;; Paint the left edge.
+    (loop for hpos from 0
+	  for vpos from 0
+	  for h downfrom height by 2
+	  repeat thickness
+	  do (clim3:with-area (hpos vpos 1 h)
+	       (clim3:paint-translucent black opacity)))
+    ;; Paint the right edge.
+    (loop for hpos downfrom (1- width)
+	  for vpos from 0
+	  for h downfrom height by 2
+	  repeat thickness
+	  do (clim3:with-area (hpos vpos 1 h)
+	       (clim3:paint-translucent white opacity)))
+    ;; Paint the top edge.
+    (loop for hpos from 0
+	  for vpos from 0
+	  for w downfrom width by 2
+	  repeat thickness
+	  do (clim3:with-area (hpos vpos w 1)
+	       (clim3:paint-translucent black opacity)))
+    ;; Paint the bottom edge.
+    (loop for vpos downfrom (1- height)
+	  for hpos from 0
+	  for w downfrom width by 2
+	  repeat thickness
+	  do (clim3:with-area (hpos vpos w 1)
+	       (clim3:paint-translucent white opacity)))))
+
+(defun clim3:sunken ()
+  (make-instance 'clim3:sunken))
