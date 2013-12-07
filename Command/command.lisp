@@ -54,6 +54,12 @@
     (command-name (command-table clim3:hashed-command-table))
   (gethash command-name (command-names command-table)))
 
+(defclass clim3:list-command-table (clim3:command-table) ())
+
+(defmethod clim3:command-name-in-table-p
+    (command-name (command-table clim3:list-command-table))
+  (member command-name (command-names command-table)))
+
 (defun clim3:active-command-p (command-name)
   (and (typep clim3-ext:*command-table* 'clim3:command-table)
        (clim3:command-name-in-table-p command-name clim3-ext:*command-table*)))
