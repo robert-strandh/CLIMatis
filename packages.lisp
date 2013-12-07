@@ -28,7 +28,6 @@
    #:translucent
    #:masked #:opacities
    #:image #:pixels
-   #:raised #:sunken
    #:connect #:disconnect
    #:event-loop
    #:input
@@ -93,6 +92,7 @@
    #:command-table
    #:command-name-in-table-p
    #:hashed-command-table
+   #:list-command-table
    #:command-loop
    #:command-loop-iteration
    #:acquire-action
