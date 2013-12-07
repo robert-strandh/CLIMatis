@@ -777,11 +777,11 @@
 	      (size (clim3-sprawl:size sprawl))
 	      (max-size (clim3-sprawl:max-size sprawl))
 	      (thickness (thickness zone)))
-	 (clim3-sprawl:sprawl (+ thickness min-size)
-			      (+ thickness size)
+	 (clim3-sprawl:sprawl (+ (* 2 thickness) min-size)
+			      (+ (* 2 thickness) size)
 			      (if (null max-size)
 				  nil
-				  (+ thickness max-size)))))
+				  (+ (* 2 thickness) max-size)))))
    zone))
 
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:border))
@@ -794,11 +794,11 @@
 	      (size (clim3-sprawl:size sprawl))
 	      (max-size (clim3-sprawl:max-size sprawl))
 	      (thickness (thickness zone)))
-	 (clim3-sprawl:sprawl (+ thickness min-size)
-			      (+ thickness size)
+	 (clim3-sprawl:sprawl (+ (* 2 thickness) min-size)
+			      (+ (* 2 thickness) size)
 			      (if (null max-size)
 				  nil
-				  (+ thickness max-size)))))
+				  (+ (* 2 thickness) max-size)))))
    zone))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:border))
