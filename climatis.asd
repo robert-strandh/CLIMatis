@@ -5,7 +5,8 @@
 		      "Backends/CLX-Framebuffer"
 		      "Gadgets" "Command" "Application"
 		      "Color" "Zone" "Layout" "Graphics" "Text" "Drawing"
-		      "Meter" "Port" "Input" "Sprawl" "Ostream" "Paint")
+		      "Meter" "Port" "Input" "Sprawl" "Ostream" "Paint"
+		      "Gadgets" "Gadgets/Default")
       do (pushnew (concatenate
 		   'string
 		   "/home/strandh/Lisp/My-Projects/GIT-ified/CLIMatis2/"
@@ -21,6 +22,7 @@
 	       :clim3-graphics :clim3-text-style :clim3-text
 	       :clim3-gadgets :clim3-command
 	       :clim3-input :clim3-meter
-	       :clim3-application))
+	       :clim3-application
+	       :clim3-gadgets :clim3-gadgets-default))
 
 		       
