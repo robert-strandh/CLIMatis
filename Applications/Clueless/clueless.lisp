@@ -170,10 +170,10 @@
 ;;; This is a simple application so this class plays the role
 ;;; of both an application and a view.
 (defclass clueless (clim3:application clim3:view)
-  ())
-
-(defmethod clim3:command-table ((view clueless))
-  *command-table*)
+  ((%command-table
+    :initform (make-instance 'clim3:hashed-command-table
+		:command-names *command-names*)
+    :reader clim3:command-table)))
 
 (defmethod clim3:current-view ((application clueless))
   application)
