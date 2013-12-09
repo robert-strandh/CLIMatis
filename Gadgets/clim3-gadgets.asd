@@ -4,6 +4,7 @@
   :depends-on (:clim3-zone
 	       :clim3-input
 	       :clim3-layout
+	       :clim3-text
 	       :clim3-graphics)
   :components
   ((:file "packages")
