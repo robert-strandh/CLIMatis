@@ -140,11 +140,11 @@
 
 (defmethod clim3-ext:map-over-children-top-to-bottom
     (function (zone clim3-ext:child-depth-insignificant-mixin))
-  (clim3-ext:map-over-all-children function zone))
+  (clim3-ext:map-over-children function zone))
 
 (defmethod clim3-ext:map-over-children-bottom-to-top
     (function (zone clim3-ext:child-depth-insignificant-mixin))
-  (clim3-ext:map-over-all-children function zone))
+  (clim3-ext:map-over-children function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -190,8 +190,8 @@
 (defun ensure-depth-ordered-children (zone)
   (when (null (depth-ordered-children zone))
     (let ((children '()))
-      (clim3-ext:map-over-all-children (lambda (child) (push child children))
-				       zone)
+      (clim3-ext:map-over-children (lambda (child) (push child children))
+				   zone)
       (setf (depth-ordered-children zone)
 	    (sort (coerce children 'vector) #'< :key #'clim3:depth)))))
 

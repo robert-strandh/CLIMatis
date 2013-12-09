@@ -23,7 +23,7 @@
   (labels ((aux (zone)
 	     (unless (eq (clim3-ext:client zone) client)
 	       (setf (clim3-ext:client zone) client)
-	       (clim3-ext:map-over-all-children #'aux zone))))
+	       (clim3-ext:map-over-children #'aux zone))))
     (aux zone)))
 
 (defmethod (setf clim3-ext:parent) :after

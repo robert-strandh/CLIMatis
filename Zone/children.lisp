@@ -71,30 +71,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function ALL-CHILDREN.
-;;;
-;;; Some zones may be constructed by having "hidden children", also
-;;; called "cuckoos".  This cuckoos are used to implement the behavior
-;;; of the zone by adding specific zones to it that may not be removed
-;;; or replaced by application code.  The generic functions CHILDREN
-;;; and (SETF CHILDREN) do not "see" these cuckoos, so that the
-;;; behavior of these zones conforms to the specification no matter
-;;; how application code alters the "real" children.
-;;;
-;;; When the zone hierarchy is being traversed in order to compute
-;;; sprawls or to paint some graphics, then the cuckoos are included,
-;;; and this function is used.
-;;;
-;;; Since not many zones include cuckoos, we define a default method
-;;; on this generic function that simply calls CHILDREN.
-
-(defgeneric clim3-ext:all-children (zone))
-
-(defmethod clim3-ext:all-children (zone)
-  (clim3:children zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Generic function MAP-OVER-CHILDREN.
 ;;;
 ;;; The first argument is a function of a single argument.  The second
@@ -103,27 +79,6 @@
 ;;;
 
 (defgeneric clim3-ext:map-over-children (function zone))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Generic function MAP-OVER-ALL-CHILDREN.
-;;;
-;;; The first argument is a function of a single argument.  The second
-;;; argument is a zone.  This function calls the function given as the
-;;; first argument on each child of the zone given as a second argument.  
-;;;
-;;; The difference between this function and the function
-;;; MAP-OVER-CHILDREN is that this function also takes into account
-;;; hidden children (also called cuckoos).  
-;;;
-;;; The default method just calls MAP-OVER-CHILDREN.  Zones that have
-;;; cuckoos should override this method and map over all children
-;;; including the cuckoos.
-
-(defgeneric clim3-ext:map-over-all-children (function zone))
-
-(defmethod clim3-ext:map-over-all-children (function zone)
-  (clim3-ext:map-over-children function zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -154,7 +109,7 @@
   ((%children :initform '() :initarg :children :accessor clim3:children)))
 
 (defmethod initialize-instance :after ((zone clim3-ext:compound-mixin) &key)
-  (clim3-ext:map-over-all-children
+  (clim3-ext:map-over-children
    (lambda (child) (setf (clim3-ext:parent child) zone))
    zone))
 

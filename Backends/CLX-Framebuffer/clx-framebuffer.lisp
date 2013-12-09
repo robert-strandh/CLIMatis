@@ -327,7 +327,7 @@
   (labels ((aux (zone)
 	     (when (typep zone 'clim3-ext:compound-mixin)
 	       (clim3-ext:impose-child-layouts zone)
-	       (clim3-ext:map-over-all-children
+	       (clim3-ext:map-over-children
 		(lambda (child)
 		  (clim3:with-zone child
 		    (aux child)))
