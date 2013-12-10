@@ -15,7 +15,7 @@
 ;;; order of the points in the list is the order of the points around
 ;;; the permieter of the polygon, but the direction currently does not
 ;;; matter.  The last point in the list is considered to be next to
-;;; the firsts point in teh list.
+;;; the firsts point in the list.
 ;;;
 ;;; To compute the trapezoids, we introduce the concept of a CHAIN and
 ;;; a CHAIN PAIR.  A chain is a sequence of points with non-decreasing
@@ -164,7 +164,7 @@
     ;; surrounding point has a y coordinate that might be strictly
     ;; smaller, or it might be equal to that of p.  Because we
     ;; eliminated subsequences of three consecutive points with the
-    ;; same y coordinate, it can nto be the case that a point p with a
+    ;; same y coordinate, it can not be the case that a point p with a
     ;; NEXT field of NIL is surrounded by two points with the same y
     ;; coordinate.
     ;;
@@ -193,10 +193,10 @@
     ;; Two consecutive points p1 and p2 with the same y coordinate,
     ;; where the NEXT field of p2 is not NIL and it does not point to
     ;; p1 (so it points to the successor of p2), and the NEXT field of
-    ;; p1 is does not point to p2 (it is either NIL or it points to
-    ;; the predecessor of p1) represent an extreme PLATEAU.  We turn
-    ;; them into a chain pair.  We check the x coordinates to respect
-    ;; the restriction on chain pairs.
+    ;; p1 does not point to p2 (it is either NIL or it points to the
+    ;; predecessor of p1) represent an extreme PLATEAU.  We turn them
+    ;; into a chain pair.  We check the x coordinates to respect the
+    ;; restriction on chain pairs.
     ;;
     ;; Two consecutive points p1 and p2 where p1 has a y coordinate
     ;; that is strictly greater than that of p2, by the NEXT field of
@@ -204,17 +204,17 @@
     ;; construct a chain pair by duplicating p2 and making the NEXT
     ;; field of the copy point to p1.  We check the x coordinates to
     ;; respect the restriction on chain pairs.
-    (let ((chain-paris '()))
+    (let ((chain-pairs '()))
       (loop for (p1 p2) on points
 	    repeat count
 	    do (cond ((and (= (y p1) (y p2))
 			   (not (null (next p2)))
 			   (not (eq (next p2) p1))
 			   (not (eq (next p1) p2)))
-		      (push (if (< (x (next p1)) (x (next p2)))
+		      (push (if (< (x p1) (x p2))
 				(cons p1 p2)
 				(cons p2 p1))
-			    chain-paris))
+			    chain-pairs))
 		     ((and (> (y p1) (y p2))
 			   (not (eq (next p2) p1)))
 		      (let ((pp2 (make-instance 'point
@@ -222,9 +222,9 @@
 			(push (if (< (x p1) (x (next p2)))
 				  (cons pp2 p2)
 				  (cons p2 pp2))
-			      chain-paris)))
+			      chain-pairs)))
 		     (t nil)))
-      chain-paris)))
+      chain-pairs)))
 	
 ;;; We guarantee that the second point of each chain has a y
 ;;; coordinate that is strictly greater than the y coordinate of the
