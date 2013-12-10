@@ -1,5 +1,30 @@
 (cl:in-package #:clim3-layout)
 
+;;;; An abstract scrollbar is a zone that has two aspects to it.  
+;;;; 
+;;;; The first aspect is that it OBSERVES another zone, called the
+;;;; SCROLLER.  The scroller is not a child of the scrollbar zone, but
+;;;; the scrollbar zone contains a reference to the scroller.  The
+;;;; scrollbar zone observes the relative position and size of the
+;;;; single child of the scroller, called the SCROLLEE.
+;;;; 
+;;;; The second aspect has to do with how the relative position and
+;;;; size of the SCROLLEE is reflected in the scrollbar zone itself.
+;;;; More about this aspect below.
+;;;;
+;;;; For a scrollbar zone, one dimension is called the VARIABLE
+;;;; dimension and the other dimension is called the FIXED dimension,
+;;;; even though, of course, no dimension is ever fixed.  In the case
+;;;; of a vertical scrollbar, the HEIGHT is the variable dimension and
+;;;; the WIDTH is the fixed dimension.  In the horizontal case, it's
+;;;; the other way around.
+;;;;
+;;;; As far as the fixed dimension is concerned, the scrollbar zone
+;;;; always imposes a position of 0 and its own size on its child. 
+;;;; 
+;;;; In the variable dimension, the scrollbar zone imposes a size and
+;;;; position that depends on the analogous position of the scroller.
+
 (defclass clim3:scrollbar (clim3:standard-zone
 			   clim3-ext:at-most-one-child-mixin
 			   clim3-ext:changing-child-position-not-allowed-mixin
@@ -15,6 +40,8 @@
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:vscrollbar))
   (let* ((bar (clim3:children zone))
 	 (bar-width (clim3:width zone))
+	 (bar-vsprawl (clim3:vsprawl bar))
+	 (bar-min-height (clim3-sprawl:min-size bar-vsprawl))
 	 (bar-height nil)
 	 (bar-pos nil)
 	 (scroller (scroller zone))
@@ -38,9 +65,10 @@
 	   ;; scrollee size, except that we make a limit as to how small
 	   ;; it can be. 
 	   (setf bar-height
-		 (max 10
-		      (round (* (/ scroller-size (max 1 scrollee-size))
-				height))))
+		 (min height
+		      (max bar-min-height
+			   (round (* (/ scroller-size (max 1 scrollee-size))
+				     height)))))
 	   (setf bar-pos
 		 (round (* (/ (- scrollee-pos)
 			      (max 1 (- scrollee-size scroller-size)))
@@ -48,17 +76,19 @@
 				(- height bar-height))))))
 	  ((> scrollee-pos 0)
 	   (setf bar-height
-		 (max 10
-		      (round (* (/ (- scroller-size scrollee-pos)
-				   (max 1 scrollee-size))
-				height))))
+		 (min height
+		      (max bar-min-height
+			   (round (* (/ (- scroller-size scrollee-pos)
+					(max 1 scrollee-size))
+				     height)))))
 	   (setf bar-pos 0))
 	  (t
 	   (setf bar-height
-		 (max 10
-		      (round (* (/ (+ scrollee-pos scrollee-size)
-				   (max 1 scrollee-size))
-				height))))
+		 (min height
+		      (max bar-min-height
+			   (round (* (/ (+ scrollee-pos scrollee-size)
+					(max 1 scrollee-size))
+				     height)))))
 	   (setf bar-pos
 		 (- height bar-height))))
     (clim3-ext:impose-size bar bar-width bar-height)
