@@ -66,6 +66,8 @@
 	(factor 0.5) ; should be less than (/ (sqrt 2))
 	(width (clim3:width zone))
 	(height (clim3:height zone)))
+    (clim3:with-zone zone
+      (clim3:paint-opaque bg))
     (let ((bgr (clim3:red bg))
 	  (bgg (clim3:green bg))
 	  (bgb (clim3:blue bg))
