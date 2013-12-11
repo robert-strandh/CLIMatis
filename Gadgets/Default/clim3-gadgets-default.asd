@@ -6,4 +6,6 @@
 	       :clim3-text-style)
   :components
   ((:file "packages")
-   (:file "theme" :depends-on ("packages"))))
+   (:file "theme" :depends-on ("packages"))
+   (:file "scrollbar" :depends-on ("packages" "theme"))))
+
