@@ -12,6 +12,7 @@
    #:gadget-text-style #:gadget-text-color
    #:icon-border-thickness
    #:vscrollbar-class #:hscrollbar-class
+   #:vscrollbar #:hscrollbar
    #:raise #:sink
    #:button #:butcon
    #:text

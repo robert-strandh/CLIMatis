@@ -39,3 +39,12 @@
 (defmethod clim3:leave progn ((zone clim3:highlight))
   (clim3:unhighlight zone))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Function VSCROLLBAR.
+
+(defun vscrollbar (scroller)
+  (make-instance (vscrollbar-class *theme*)
+    :scroller scroller))
+
+
