@@ -124,8 +124,8 @@ individual maximum sizes are \texttt{NIL}.  However, there are many
 situations where this method is not possible, perhaps because the
 minimum size of one individual sprawl is greater than the maximum size
 of another.  In that case, some compromise is made, the details of
-which is not terribly important.  Applications should avoid situations
-like that though. 
+which are not terribly important.  Applications should avoid
+situations like that though.
 
 \subsubsection{Distributing space among combined sprawls}
 
@@ -578,6 +578,53 @@ geometries are valid or not.
 \Defclass {vdependent-sprawls-mixin}
 
 \Defclass {independent-sprawls-mixin}
+
+\section{Client assignment protocol}
+
+A zone can be either \emph{connected} or \emph{disconnected}.  A zone
+is connected if it has \emph{display server} as its topmost ancestor.
+Otherwise it is disconnected.  For a connected zone, the display
+server is called the \emph{client} of the zone.  Most zone protocols
+involve only connected zones.  In particular, the generic function
+\code{client} will never be invoked on a disconnected zone.
+
+To speed up access to the client of a connected zone, this client is
+stored in a slot of the zone.  However, it would be too costly to
+modify the value of this slot every time a zone is added or removed as
+a child of another zone.  For that reason, while the client slot of
+each zone of a tree of connected zones must have the display servers
+as a value, we relax the requirement on a tree of disconnected zones
+as follows:
+
+\begin{itemize}
+\item The set of all values of the client slot of each zone in a tree
+  or disconnected zones can contain at most two different values, and
+  if it contains two different values then one of them is \code{nil}.
+\item If some zone in the tree contains a value other than \code{nil}
+  in its client slot, then every one of its descendants has the same
+  value in its client slot.  
+\end{itemize}
+
+In other words, either all zones in a disconnected hierarchy contain a
+particular client, or a \emph{prefix} of zones of the hierarchy
+contain \code{nil}.
+
+To maintain this invariant, whenever a zone is removed as a child of
+some other zone, no action needs to be taken as far as the client slot
+is concerned.  When a zone A is added as a child of a zone B, and
+ether B has \code{nil} in its client slot or the same value in its
+client slot as A does, no action needs to be taken.  It is only when a
+zone A is added as a child of zone B, and zone B has a client other
+than \code{nil} and this client is different from that of A that some
+action needs to be taken.  The action in that case is to propagate the
+client of B to A and all its descendants.  Furthermore, the
+propagation can stop when a zone is reached that already has the same
+client value. 
+
+This protocol represents a significant optimization, because it allows
+a subtree of zones to be temporarily disconnected and then connected
+again, possibly with newly-created intermediate zones without the need
+to traverse every zone in the subtree. 
 
 \section{Application frame}
 
