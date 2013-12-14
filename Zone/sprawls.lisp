@@ -14,9 +14,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function SET-HSPRAWL.
+;;; Generic function (SETF CLIM3-EXT:HSPRAWL).
 
-(defgeneric clim3-ext:set-hsprawl (new-hsprawl zone))
+(defgeneric (setf clim3-ext:hsprawl) (new-hsprawl zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -32,9 +32,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function SET-VSPRAWL.
+;;; Generic function (SETF CLIM3-EXT:VSPRAWL)
 
-(defgeneric clim3-ext:set-vsprawl (new-vsprawl zone))
+(defgeneric (setf clim3-ext:vsprawl) (new-vsprawl zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -117,11 +117,11 @@
   ((%hsprawl :initform nil
 	     :initarg :hsprawl
 	     :accessor clim3:hsprawl
-	     :writer clim3-ext:set-hsprawl)
+	     :writer (setf clim3-ext:hsprawl))
    (%vsprawl :initform nil
 	     :initarg :vsprawl
 	     :accessor clim3:vsprawl
-	     :writer clim3-ext:set-vsprawl)))
+	     :writer (setf clim3-ext:vsprawl))))
 
 ;;; After the hsprawl of a zone has been explicitly modified, we
 ;;; notify the parent.

@@ -113,7 +113,7 @@
   (:use #:common-lisp)
   (:export
    #:hpos #:vpos
-   #:set-hsprawl #:set-vsprawl
+   #:hsprawl #:vsprawl
    #:set-depth
    #:set-clients
    #:atomic-mixin

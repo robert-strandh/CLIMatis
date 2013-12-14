@@ -64,21 +64,19 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone clim3:vbox))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-sprawl:combine-in-parallel
-	(mapcar #'clim3:hsprawl (clim3:children zone))))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3-sprawl:combine-in-parallel
+	     (mapcar #'clim3:hsprawl (clim3:children zone))))))
   
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:vbox))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-sprawl:combine-in-series
-	(mapcar #'clim3:vsprawl (clim3:children zone))))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3-sprawl:combine-in-series
+	     (mapcar #'clim3:vsprawl (clim3:children zone))))))
   
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:vbox))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -91,7 +89,7 @@
     (loop for vpos = 0 then (+ vpos height)
 	  for height in heights
 	  for child in children
-	  do (setf (clim3-ext:hpos child) hpos)
+	  do (setf (clim3-ext:hpos child) 0)
 	     (setf (clim3-ext:vpos child) vpos)
 	     (clim3-ext:impose-size child width height))))
   
@@ -117,21 +115,19 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone clim3:hbox))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-sprawl:combine-in-series
-	(mapcar #'clim3:hsprawl (clim3:children zone))))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3-sprawl:combine-in-series
+	     (mapcar #'clim3:hsprawl (clim3:children zone))))))
   
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:hbox))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-sprawl:combine-in-parallel
-	(mapcar #'clim3:vsprawl (clim3:children zone))))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3-sprawl:combine-in-parallel
+	     (mapcar #'clim3:vsprawl (clim3:children zone))))))
   
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:hbox))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -170,21 +166,19 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone clim3:pile))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-sprawl:combine-in-parallel
-	(mapcar #'clim3:hsprawl (clim3:children zone))))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3-sprawl:combine-in-parallel
+	     (mapcar #'clim3:hsprawl (clim3:children zone))))))
   
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:pile))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3-sprawl:combine-in-parallel
-	(mapcar #'clim3:vsprawl (clim3:children zone))))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3-sprawl:combine-in-parallel
+	     (mapcar #'clim3:vsprawl (clim3:children zone))))))
   
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:pile))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -227,24 +221,21 @@
 	   (setf (combined-cols zone)
 		 (loop for col from 0 below cols
 		       collect (clim3:hsprawl (aref children 0 col))))
-	   (clim3-ext:set-hsprawl
-	    (clim3-sprawl:combine-in-series (combined-cols zone))
-	    zone))
+	   (setf (clim3-ext:hsprawl zone)
+		 (clim3-sprawl:combine-in-series (combined-cols zone))))
 	  ((= cols 1)
-	   (clim3-ext:set-hsprawl
-	    (clim3-sprawl:combine-in-parallel
-	     (loop for row from 0 below rows
-		   collect (clim3:hsprawl (aref children 0 row))))
-	    zone))
+	   (setf (clim3-ext:hsprawl zone)
+		 (clim3-sprawl:combine-in-parallel
+		  (loop for row from 0 below rows
+			collect (clim3:hsprawl (aref children 0 row))))))
 	  (t
 	   (setf (combined-cols zone)
 		 (loop for col from 0 below cols
 		       collect (clim3-sprawl:combine-in-parallel
 				(loop for row from 0 below rows
 				      collect (clim3:hsprawl (aref children row col))))))
-	   (clim3-ext:set-hsprawl
-	    (clim3-sprawl:combine-in-series (combined-cols children))
-	    zone)))))
+	   (setf (clim3-ext:hsprawl zone)
+		 (clim3-sprawl:combine-in-series (combined-cols children)))))))
 
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:grid))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
@@ -252,27 +243,24 @@
 	 (rows (array-dimension children 0))
 	 (cols (array-dimension children 1)))
     (cond ((= rows 1)
-	   (clim3-ext:set-vsprawl
-	    (clim3-sprawl:combine-in-parallel
-	     (loop for col from 0 below cols
-		   collect (clim3:vsprawl (aref children 0 col))))
-	    zone))
+	   (setf (clim3-ext:vsprawl zone)
+		 (clim3-sprawl:combine-in-parallel
+		  (loop for col from 0 below cols
+			collect (clim3:vsprawl (aref children 0 col))))))
 	  ((= cols 1)
 	   (setf (combined-rows zone)
 		 (loop for row from 0 below rows
 		       collect (clim3:vsprawl (aref children 0 row))))
-	   (clim3-ext:set-vsprawl
-	    (clim3-sprawl:combine-in-series (combined-rows zone))
-	    zone))
+	   (setf (clim3-ext:vsprawl zone)
+		 (clim3-sprawl:combine-in-series (combined-rows zone))))
 	  (t
 	   (setf (combined-rows zone)
 		 (loop for row from 0 below rows
 		       collect (clim3-sprawl:combine-in-parallel
 				(loop for col from 0 below cols
 				      collect (clim3:vsprawl (aref children row col))))))
-	   (clim3-ext:set-vsprawl
-	    (clim3-sprawl:combine-in-series (combined-rows children))
-	    zone)))))
+	   (setf (clim3-ext:vsprawl zone)
+		 (clim3-sprawl:combine-in-series (combined-rows children)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -341,7 +329,8 @@
      (lambda (child)
        (setf max-hpos (max max-hpos (+ (clim3:hpos child) (clim3:width child)))))
      zone)
-    (clim3-ext:set-hsprawl (clim3-sprawl:sprawl max-hpos max-hpos nil) zone)))
+    (setf (clim3-ext:hsprawl zone)
+	  (clim3-sprawl:sprawl max-hpos max-hpos nil))))
 
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:bboard))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
@@ -351,7 +340,8 @@
      (lambda (child)
        (setf max-vpos (max max-vpos (+ (clim3:vpos child) (clim3:height child)))))
      zone)
-    (clim3-ext:set-vsprawl (clim3-sprawl:sprawl max-vpos max-vpos nil) zone)))
+    (setf (clim3-ext:vsprawl zone)
+	  (clim3-sprawl:sprawl max-vpos max-vpos nil))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:bboard))
   (loop for child in (clim3:children zone)
@@ -423,11 +413,10 @@
 
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:hsponge))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3:vsprawl (car (clim3:children zone))))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3:vsprawl (car (clim3:children zone))))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:hsponge))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -466,11 +455,10 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone clim3:vsponge))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3:hsprawl (car (clim3:children zone))))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3:hsprawl (car (clim3:children zone))))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:vsponge))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -543,11 +531,10 @@
 
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:hbrick))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3:vsprawl (clim3:children zone)))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3:vsprawl (clim3:children zone)))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:hbrick))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -587,11 +574,10 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone clim3:vbrick))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3:hsprawl (clim3:children zone)))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3:hsprawl (clim3:children zone)))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:vbrick))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -631,11 +617,10 @@
 
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:hframe))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3:vsprawl (clim3:children zone)))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3:vsprawl (clim3:children zone)))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:hframe))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -675,11 +660,10 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone clim3:vframe))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3:hsprawl (clim3:children zone)))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3:hsprawl (clim3:children zone)))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:vframe))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -721,19 +705,17 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone clim3:wrap))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3:hsprawl (clim3:children zone)))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3:hsprawl (clim3:children zone)))))
 
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:wrap))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (clim3:vsprawl (clim3:children zone)))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (clim3:vsprawl (clim3:children zone)))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:wrap))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -769,37 +751,35 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone clim3:border))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (let* ((sprawl (clim3:hsprawl (clim3:children zone)))
-	      (min-size (clim3-sprawl:min-size sprawl))
-	      (size (clim3-sprawl:size sprawl))
-	      (max-size (clim3-sprawl:max-size sprawl))
-	      (thickness (thickness zone)))
-	 (clim3-sprawl:sprawl (+ (* 2 thickness) min-size)
-			      (+ (* 2 thickness) size)
-			      (if (null max-size)
-				  nil
-				  (+ (* 2 thickness) max-size)))))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (let* ((sprawl (clim3:hsprawl (clim3:children zone)))
+		   (min-size (clim3-sprawl:min-size sprawl))
+		   (size (clim3-sprawl:size sprawl))
+		   (max-size (clim3-sprawl:max-size sprawl))
+		   (thickness (thickness zone)))
+	      (clim3-sprawl:sprawl (+ (* 2 thickness) min-size)
+				   (+ (* 2 thickness) size)
+				   (if (null max-size)
+				       nil
+				       (+ (* 2 thickness) max-size)))))))
 
 (defmethod clim3-ext:compute-vsprawl ((zone clim3:border))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (let* ((sprawl (clim3:vsprawl (clim3:children zone)))
-	      (min-size (clim3-sprawl:min-size sprawl))
-	      (size (clim3-sprawl:size sprawl))
-	      (max-size (clim3-sprawl:max-size sprawl))
-	      (thickness (thickness zone)))
-	 (clim3-sprawl:sprawl (+ (* 2 thickness) min-size)
-			      (+ (* 2 thickness) size)
-			      (if (null max-size)
-				  nil
-				  (+ (* 2 thickness) max-size)))))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (let* ((sprawl (clim3:vsprawl (clim3:children zone)))
+		   (min-size (clim3-sprawl:min-size sprawl))
+		   (size (clim3-sprawl:size sprawl))
+		   (max-size (clim3-sprawl:max-size sprawl))
+		   (thickness (thickness zone)))
+	      (clim3-sprawl:sprawl (+ (* 2 thickness) min-size)
+				   (+ (* 2 thickness) size)
+				   (if (null max-size)
+				       nil
+				       (+ (* 2 thickness) max-size)))))))
 
 (defmethod clim3-ext:impose-child-layouts ((zone clim3:border))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
@@ -844,25 +824,23 @@
 
 (defmethod clim3-ext:compute-hsprawl ((zone fixed-position))
   (clim3-ext:map-over-children #'clim3-ext:ensure-hsprawl-valid zone)
-  (clim3-ext:set-hsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (let* ((sprawl (clim3:hsprawl (clim3:children zone)))
-	      (min-size (clim3-sprawl:min-size sprawl))
-	      (size (clim3-sprawl:size sprawl)))
-	 (clim3-sprawl:sprawl min-size size nil)))
-   zone))
+  (setf (clim3-ext:hsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (let* ((sprawl (clim3:hsprawl (clim3:children zone)))
+		   (min-size (clim3-sprawl:min-size sprawl))
+		   (size (clim3-sprawl:size sprawl)))
+	      (clim3-sprawl:sprawl min-size size nil)))))
 
 (defmethod clim3-ext:compute-vsprawl ((zone fixed-position))
   (clim3-ext:map-over-children #'clim3-ext:ensure-vsprawl-valid zone)
-  (clim3-ext:set-vsprawl
-   (if (null (clim3:children zone))
-       (clim3-sprawl:sprawl 0 0 nil)
-       (let* ((sprawl (clim3:vsprawl (clim3:children zone)))
-	      (min-size (clim3-sprawl:min-size sprawl))
-	      (size (clim3-sprawl:size sprawl)))
-	 (clim3-sprawl:sprawl min-size size nil)))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(if (null (clim3:children zone))
+	    (clim3-sprawl:sprawl 0 0 nil)
+	    (let* ((sprawl (clim3:vsprawl (clim3:children zone)))
+		   (min-size (clim3-sprawl:min-size sprawl))
+		   (size (clim3-sprawl:size sprawl)))
+	      (clim3-sprawl:sprawl min-size size nil)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
