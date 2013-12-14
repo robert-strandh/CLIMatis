@@ -33,14 +33,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Generic function SET-DEPTH.
+;;; Generic function (SETF CLIM3-EXT:DEPTH)
 ;;;
 ;;; Set the dept of a zone without triggering the depth notification
 ;;; protocol.  This function is not used by normal client code.  It is
 ;;; used by parents who wish to alter the depth of its children
 ;;; without triggering the depth-notification protocol.
 
-(defgeneric clim3-ext:set-depth (new-depth zone))
+(defgeneric (setf clim3-ext:depth) (new-depth zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -110,7 +110,7 @@
   ((%depth :initform 0
 	   :initarg :depth
 	   :accessor clim3:depth
-	   :writer clim3-ext:set-depth)))
+	   :writer (setf clim3-ext:depth))))
 
 (defmethod (setf clim3:depth) :after
     (new-depth (zone clim3-ext:depth-mixin))

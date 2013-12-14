@@ -114,7 +114,7 @@
   (:export
    #:hpos #:vpos
    #:hsprawl #:vsprawl
-   #:set-depth
+   #:depth
    #:set-clients
    #:atomic-mixin
    #:compound-mixin
