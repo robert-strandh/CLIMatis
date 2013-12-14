@@ -91,8 +91,8 @@
     (loop for vpos = 0 then (+ vpos height)
 	  for height in heights
 	  for child in children
-	  do (clim3-ext:set-hpos 0 child)
-	     (clim3-ext:set-vpos vpos child)
+	  do (setf (clim3-ext:hpos child) hpos)
+	     (setf (clim3-ext:vpos child) vpos)
 	     (clim3-ext:impose-size child width height))))
   
 (defun clim3:vbox (children)
@@ -144,8 +144,8 @@
     (loop for hpos = 0 then (+ hpos width)
 	  for width in widths
 	  for child in children
-	  do (clim3-ext:set-hpos hpos child)
-	     (clim3-ext:set-vpos 0 child)
+	  do (setf (clim3-ext:hpos child) hpos)
+	     (setf (clim3-ext:vpos child) 0)
 	     (clim3-ext:impose-size child width height))))
 
 (defun clim3:hbox (children)
@@ -193,8 +193,8 @@
 	 (height (clim3:height zone))
 	 (children (clim3:children zone)))
     (loop for child in children
-	  do (clim3-ext:set-hpos 0 child)
-	     (clim3-ext:set-vpos 0 child)
+	  do (setf (clim3-ext:hpos child) 0)
+	     (setf (clim3-ext:vpos child) 0)
 	     (clim3-ext:impose-size child width height))))
 
 (defun clim3:pile (children)
@@ -393,8 +393,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 (defun clim3:sponge (&optional child)
@@ -436,8 +436,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 (defun clim3:hsponge (&optional child)
@@ -479,8 +479,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 (defun clim3:vsponge (&optional child)
@@ -511,8 +511,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 (defun clim3:brick (width height &optional child)
@@ -556,8 +556,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 (defun clim3:hbrick (width &optional child)
@@ -600,8 +600,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 (defun clim3:vbrick (height &optional child)
@@ -644,8 +644,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 (defun clim3:hframe (min-width width max-width &optional child)
@@ -688,8 +688,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 (defun clim3:vframe (min-height height max-height &optional child)
@@ -742,8 +742,8 @@
 	(height (clim3:height zone))
 	(child (clim3:children zone)))
     (unless (null child)
-      (clim3-ext:set-hpos 0 child)
-      (clim3-ext:set-vpos 0 child)
+      (setf (clim3-ext:hpos child) 0)
+      (setf (clim3-ext:vpos child) 0)
       (clim3-ext:impose-size child width height))))
 
 ;;; These constructors would typically not be used.  Instead, client
@@ -809,8 +809,8 @@
 	(child (clim3:children zone))
 	(thickness (thickness zone)))
     (unless (null child)
-      (clim3-ext:set-hpos thickness child)
-      (clim3-ext:set-vpos thickness child)
+      (setf (clim3-ext:hpos child) thickness)
+      (setf (clim3-ext:vpos child) thickness)
       (clim3-ext:impose-size child
 			     (max 0 (- width (* 2 thickness)))
 			     (max 0 (- height (* 2 thickness)))))))
@@ -883,8 +883,8 @@
 	      (vgap (max 0 (floor (- height child-height) 2)))
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:center (&optional child)
@@ -910,8 +910,8 @@
 	      (vgap 0)
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:top (&optional child)
@@ -937,8 +937,8 @@
 	      (vgap (max 0 (- height child-height)))
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:bottom (&optional child)
@@ -964,8 +964,8 @@
 	      (vgap (max 0 (floor (- height child-height) 2)))
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:left (&optional child)
@@ -991,8 +991,8 @@
 	      (vgap (max 0 (floor (- height child-height) 2)))
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:right (&optional child)
@@ -1018,8 +1018,8 @@
 	      (vgap 0)
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:top-left (&optional child)
@@ -1045,8 +1045,8 @@
 	      (vgap 0)
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:top-right (&optional child)
@@ -1072,8 +1072,8 @@
 	      (vgap (max 0 (- height child-height)))
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:bottom-left (&optional child)
@@ -1099,8 +1099,8 @@
 	      (vgap (max 0 (- height child-height)))
 	      (w (min width child-width))
 	      (h (min height child-height)))
-	  (clim3-ext:set-hpos hgap child)
-	  (clim3-ext:set-vpos vgap child)
+	  (setf (clim3-ext:hpos child) hgap)
+	  (setf (clim3-ext:vpos child) vgap)
 	  (clim3-ext:impose-size child w h))))))
 
 (defun clim3:bottom-right (&optional child)

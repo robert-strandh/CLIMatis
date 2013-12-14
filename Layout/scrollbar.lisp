@@ -92,7 +92,7 @@
 	   (setf bar-pos
 		 (- height bar-height))))
     (clim3-ext:impose-size bar bar-width bar-height)
-    (clim3-ext:set-vpos bar-pos bar)))
+    (setf (clim3-ext:vpos bar) bar-pos)))
 
 (defun clim3:vscrollbar (scroller bar-zone)
   (make-instance 'clim3:vscrollbar

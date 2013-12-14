@@ -53,7 +53,7 @@
 ;;; when a parent needs to set the position of a child as a result of
 ;;; some previous change.
 
-(defgeneric clim3-ext:set-hpos (new-hpos zone))
+(defgeneric (setf clim3-ext:hpos) (new-hpos zone))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -108,7 +108,7 @@
 ;;; when a parent needs to set the position of a child as a result of
 ;;; some previous change.
 
-(defgeneric clim3-ext:set-vpos (new-vpos zone))
+(defgeneric (setf clim3-ext:vpos) (new-vpos zone))
 
 ;;; FIXME make hpos and vpos :reader.
 
@@ -116,11 +116,11 @@
   ((%hpos :initform 0
 	  :initarg :hpos
 	  :accessor clim3:hpos
-	  :writer clim3-ext:set-hpos)
+	  :writer (setf clim3-ext:hpos))
    (%vpos :initform 0
 	  :initarg :vpos
 	  :accessor clim3:vpos
-	  :writer clim3-ext:set-vpos)))
+	  :writer (setf clim3-ext:vpos))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

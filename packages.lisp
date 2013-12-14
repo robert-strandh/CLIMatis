@@ -13,7 +13,7 @@
    #:brick #:hbrick #:vbrick
    #:sponge #:hsponge #:vsponge
    #:hbox #:hbox* #:vbox #:vbox* #:grid
-   #:vtree #:vnode #:htree #:hnode #:insert-node #:delete-node
+   #:vtree #:vnode #:htree #:hnode #:insert-node #:delete-node #:find-node
    #:bboard #:bboard*
    #:wrap #:border
    #:pile #:pile*
@@ -106,12 +106,13 @@
    #:key-processor-key-handler
    #:submit-keystroke
    #:*application*
+   #:line #:column
   ))
 
 (defpackage #:clim3-ext
   (:use #:common-lisp)
   (:export
-   #:set-hpos #:set-vpos
+   #:hpos #:vpos
    #:set-hsprawl #:set-vsprawl
    #:set-depth
    #:set-clients
