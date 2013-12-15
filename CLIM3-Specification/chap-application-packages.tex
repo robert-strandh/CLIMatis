@@ -1,0 +1,29 @@
+\chapter{Packages}
+
+\clim{} contains several packages that are relevant to the application
+writer.  In addition it contains a large number of internal packages
+that the application writer does not need to be aware of.
+
+The main packages that the application writer would typically use are:
+
+\begin{itemize}
+\item \code{clim3}.  This package contains most of the symbols that
+  are used for basic functionality such as the names of standard
+  zones, keyboard handlers, button handlers, etc. 
+\item \code{clim3-gadgets}.  This package contains names of convenient
+  components for use in graphic user interfaces such as buttons,
+  butcons, scrollbars, menus, etc.
+\end{itemize}
+
+We strongly recommend that the application writer avoid the option
+\code{:use} of \code{defpackage} or the function \code{use-package}
+with any of these packages as argument, and instead recommend using
+an explicit package prefix whenever a symbol from any of those
+packages is required.
+
+Since \clim{} uses a stratified design, it is occasionally useful for
+the application writer to write application-specific extensions to
+\clim{}.  In such situations, the application writer will often use
+the package \code{clim3-ext}.  Guidelines for using that package are
+provided in the part named ``Extension writer's guide''. 
+
