@@ -227,40 +227,6 @@ the completely black color as a value.
 
 \Defun {darken} {opacity}
 
-\subsection{Raise}
-
-The \code{raise} zone makes a band of pixels in the upper and left
-edges of the zone \emph{lighter} \seesec{sec-zone-graphic-lighten} and
-a band of pixels in the lower and right edges \emph{darker}
-\seesec{sec-zone-graphic-darken}. 
-
-\Defclass {raise}
-
-\Definitarg {:opacity}
-
-\Definitarg {:width}
-
-This initarg provides the width in pixels of the band.
-
-\Defun {raise} {opacity width}
-
-\subsection{Sink}
-
-The \code{sink} zone makes a band of pixels in the lower and right
-edges of the zone \emph{lighter} \seesec{sec-zone-graphic-lighten} and
-a band of pixels in the upper and left edges \emph{darker}
-\seesec{sec-zone-graphic-darken}. 
-
-\Defclass {sink}
-
-\Definitarg {:opacity}
-
-\Definitarg {:width}
-
-This initarg provides the width in pixels of the band.
-
-\Defun {sink} {opacity width}
-
 \subsection{Image}
 \label{sec-zones-graphic-image}
 
