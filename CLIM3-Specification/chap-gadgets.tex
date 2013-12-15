@@ -1,0 +1,40 @@
+\chapter{Gadgets}
+
+\section{Graphics gadgets}
+
+\subsection{Raise}
+
+The \code{raise} zone makes a band of pixels in the upper and left
+edges of the zone \emph{lighter} \seesec{sec-zone-graphic-lighten} and
+a band of pixels in the lower and right edges \emph{darker}
+\seesec{sec-zone-graphic-darken}. \fixme{This gadget takes its
+  parameters from the \emph{theme}.  Change the documentation.}
+
+\Defclass {raise}
+
+\Definitarg {:opacity}
+
+\Definitarg {:width}
+
+This initarg provides the width in pixels of the band.
+
+\Defun {raise} {opacity width}
+
+\subsection{Sink}
+
+The \code{sink} zone makes a band of pixels in the lower and right
+edges of the zone \emph{lighter} \seesec{sec-zone-graphic-lighten} and
+a band of pixels in the upper and left edges \emph{darker}
+\seesec{sec-zone-graphic-darken}. \fixme{This gadget takes its
+  parameters from the \emph{theme}.  Change the documentation.}
+
+\Defclass {sink}
+
+\Definitarg {:opacity}
+
+\Definitarg {:width}
+
+This initarg provides the width in pixels of the band.
+
+\Defun {sink} {opacity width}
+
