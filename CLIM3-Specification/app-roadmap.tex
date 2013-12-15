@@ -51,11 +51,78 @@ been established, so they might not be possible or practical.
 
 \item It looks a bit strange that \code{paint-pixel} does not take any
   position arguments, and instead requires a \code{with-position}
-  wrapper.  On the other hand, it is consisten with how
+  wrapper.  On the other hand, it is consistent with how
   \code{paint-opaque} and \code{paint-translucent} work.  We could
   either keep it as it is, change \code{paint-opaque} and
   \code{paint-translucent} to also take the area as arguments (bad
   idea, I think) or provide both styles in a different set of
   functions.   For now, probably keep it as it is.
 
+\item Make access to the current theme more convenient, for instance
+  by using global symbol macros or by using a \code{with-theme} or
+  \code{with-current-theme} macro.
+
 \end{itemize}
+
+\section{Presentation types}
+
+Presentation types are an essential part of \climtwo{} and we think of
+\clim{} too.  However there are many aspects of the way presentation
+types are implemented in \climtwo{} that are not satisfactory. 
+
+For one thing, in many places it is assumed that the English language
+is used for things like prompting, names of types, etc.  The
+\emph{options} of presentation types seem to be essentially about
+that, so presentation-type options might not be required in \clim{}.  
+
+In \climtwo{}, defining presentation types is supposed to mimic the
+way types are defined in \cl{}.  However there is a fundamental
+difference between the two.  In \cl{} using \code{deftype} does not
+introduce any new types; only new names that expand into existing
+types.  In \climtwo{} (and in \clim{} as well), however, defining a
+new presentation type means defining a new type.  This fact justifies
+the use of classes to represent presentation types, because a new
+class is the only way to create a new type in \cl{}.  
+
+An essential aspect of the way presentation types are implemented in
+\climtwo{} is that the type is distinct from the object of that type,
+allowing any \cl{} object to be labeled with any presentation type.
+This functionality might be superfluous, because it seems reasonable
+to consider the presented object as a wrapper for a real object.  If
+indeed this turns out to \emph{be} reasonable, then normal \cl{}
+classes with normal names could be used to represent presentation
+types, as opposed to using a list the way \climtwo{} sometimes does.  
+
+In \climtwo{} there is an option for creating presentation types that
+indicates that the parameters are other types.  It is used to define
+presentation types such as \code{and}, \code{or}, and
+\code{sequence}.  This option seems very kludgy.  Perhaps it would be
+better to reserve a fixed number of operators with type parameters. 
+
+The \climtwo{} specification states that superclasses have lexical
+access to the parameters.  But this ``feature'' complicates things. 
+
+The annotation by Gilbert Baumann in section 23.3.3 of the \climtwo{}
+specification indicates a problem.  It has to do with the ``special''
+arguments in a \code{define-presentation-generic-function} named
+\code{type-key}, \code{type-class}, \code{parameters}, \code{options},
+and \code{type}; specifically how these are matched.  
+
+In \climtwo{}, the functions \code{accept} and \code{present} are tied
+to the concept of a \climtwo{} \emph{stream}.  I am not sure this
+connection is reasonable.  On the other hand the \code{view} type
+might be useful. 
+
+The \climtwo{} function \code{accept} is very useful.  The function
+\code{present} is more dubious.  I find myself using
+\code{with-output-as-presentation} most of the time, just because the
+function \code{present} never seems to do what I want. 
+
+In \climtwo{}, a presentation contains a full presentation type,
+including parameters.  But this seems silly, just like it is silly to
+have to specify the type of the \cl{} object 42.  While we may retain
+the fact that the presentation type of an object is independent of the
+underlying object itself, it seems reasonable to try to get rid of the
+parameters of the type in a presentation.  But doing so \emph{might}
+require getting rid of the independence of the underlying object and
+the presentation type.
