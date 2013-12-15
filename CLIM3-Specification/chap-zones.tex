@@ -474,6 +474,59 @@ for children combined in series.  The vertical size imposed on the
 
 \Defun {hbox*} {\rest children}
 
+\subsection{Vtree}
+\label{sec-zones-layout-vtree}
+
+The \code{vtree} zone is the ideal zone for presenting a scrollable
+sequence of \emph{lines} of arbitrary objects.
+
+The \code{vtree} zone is similar in spirit to the \code{vbox} zone
+\seesec{sec-zones-layout-vbox} except that the behavior is simper in
+order to provide optimal performance for a very common use case.
+
+Just like the \code{vbox}, the vertical sprawls of the children are
+combined in \emph{series} and the horizontal sprawls of the children
+are combined in parallel. \seesec{sec-zone-protocols-geometry-sprawl} 
+
+However, the \code{vtree} differs from the \code{vbox} in the way that
+it imposes size on its children.  Each child of the \code{vtree}
+always take on its natural size, both vertically and horizontally.
+Furthermore, the \emph{first} child of the \code{vtree} is always
+positioned at the upper-left corner of the \code{vtree} (i.e, at
+positio 0,0).  The remaining children are positioned immediately below
+the first one, in the natural order.  
+
+Should a vertical size be imposed on the \code{vtree} that is
+\emph{greater} than the sum of the natural size of each child, the
+extra space will be empty and positioned below the last child.
+Similarly, should a horizontal size be imposed on the \code{vtree}
+that is \emph{greater} than its natural size, then the extra space
+will be empty and positioned to the right of the children.
+
+Should a vertical size be imposed on the \code{vtree} that is
+\emph{less} than the sum of the natural size of each child, some
+suffix of the children will not be visible.  Similarly, should a
+horizontal size be imposed on the \code{vtree} that is \emph{less}
+than its natural size, then the output of each child will be clipped
+horizontally after the natural size of each child. 
+
+The rules cited above make it impractical to make the \code{vtree}
+zone the child of any zone that does not behave essentially like the
+\code{scroll} zone or like the \code{vscroll} zone.
+
+The children of the \code{vtree} zone are organized as a
+self-adjusting \emph{tree}.  The immediate consequence of this
+organization is that when the function \code{(setf vpos)} is used on
+the \code{vtree} zone, it determines which children are likely to be
+visible and move them close to the root of the tree.  The overall
+effect allows for the \code{vtree} to have a very large number of
+children, while still painting the visible children in an efficient
+way. 
+
+The \code{vtree} zone contains a tree of \emph{internal} zones that
+can not be used in a context other than as children of the
+\code{vtree} zone.\footnote{say more}.
+
 \subsection{Grid}
 \label{sec-zones-layout-grid}
 
@@ -745,4 +798,4 @@ three arguments: the zone, the relative horizontal position, and the
 relative vertical position. 
 
 
-%%  LocalWords:  superclass initarg
+%%  LocalWords:  superclass initarg scrollable
