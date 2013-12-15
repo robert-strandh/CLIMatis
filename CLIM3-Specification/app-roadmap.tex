@@ -37,4 +37,25 @@ been established, so they might not be possible or practical.
   supports \code{(setf clim3:children)}.  Either way, we need to come
   up with a new name. 
 
+\item Eliminate \code{paint-opaque} and \code{paint-translucent} in
+  favor of a single \code{paint-rectangle} (maybe with a better name)
+  that works essentially like \code{paint-translucent}.  For
+  performance reasons, put a test in the new function to capture the
+  important case when the opacity is close to 1. 
+
+\item Currently, \code{paint-opaque} and \code{paint-translucent} take
+  a \emph{color} object, whereas \code{paint-pixel} takes the three
+  color components.  Choose one method and modify accordingly.
+  Perhaps it is better on these low-level functions to go for the
+  color components in case a color object is not available. 
+
+\item It looks a bit strange that \code{paint-pixel} does not take any
+  position arguments, and instead requires a \code{with-position}
+  wrapper.  On the other hand, it is consisten with how
+  \code{paint-opaque} and \code{paint-translucent} work.  We could
+  either keep it as it is, change \code{paint-opaque} and
+  \code{paint-translucent} to also take the area as arguments (bad
+  idea, I think) or provide both styles in a different set of
+  functions.   For now, probably keep it as it is.
+
 \end{itemize}
