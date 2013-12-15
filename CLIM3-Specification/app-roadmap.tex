@@ -1,0 +1,40 @@
+\chapter{Future development}
+
+\section{Short-term improvements}
+
+This section contains a 'to-do' list of short-term possible
+improvements.  The feasibility of some of these improvements has not
+been established, so they might not be possible or practical. 
+
+\begin{itemize}
+\item Document that \code{vbrick} is a special case of \code{vframe}
+  and \code{hbrick} is a  special case of \code{hframe} and check
+  beforehand that this is actually true. 
+
+\item The setters for the height and the width of a zone should
+  probably be in the \code{clim-ext} package.  Client code that needs
+  to change the dimensions of a zone should set the sprawls instead. 
+
+\item Currently we have \code{impose-size}, \code{set-vpos},
+  \code{natural-size}.  Add functions \code{(setf clim-ext:width)}
+  \code{(setf clim-ext:height)}, \code{natural-width},
+  \code{natural-height}.
+
+\item Investigate the possibility of using the MOP to verify that when
+  a zone class is finalized, it has a good selection of superclasses,
+  so that it reacts to the notification protocols in appropriate ways.
+
+\item The function \code{(setf clim3:children)} should probably not be
+  available to all compound zones. Each zone type should be
+  responsible for how its children are assigned, and for setting the
+  \code{parent} of its children.  The function \code{(setf
+    clim3:children)} should be seen as a convenience for compound
+  zones with a reasonably small number of children, and for these
+  zones it provides functionality for setting the \code{parent} of
+  those children.  The question, then, is what we mean by
+  \code{compound-zone}.  It could either mean any zone that can have
+  children, or it can mean the particular type of zone that also
+  supports \code{(setf clim3:children)}.  Either way, we need to come
+  up with a new name. 
+
+\end{itemize}
