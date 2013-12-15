@@ -625,26 +625,3 @@ This protocol represents a significant optimization, because it allows
 a subtree of zones to be temporarily disconnected and then connected
 again, possibly with newly-created intermediate zones without the need
 to traverse every zone in the subtree. 
-
-\section{Application frame}
-
-An application frame is a layout zone with a small number of fixed
-layouts of sub-zones (we don't call them child zones because they
-are not the direct children of the application frame.  Selecting a
-particular layout has the effect of creating child zones of the
-application frame with positions and sizes that are determined by the
-layout, and each child contains a sub-zone.
-
-\section{Table zone}
-
-\section{Simple application zone}
-
-This is a zone that executes a display function each time around the
-command loop in order to generate a complete hierarchy of zones.
-
-\section{Incremental application zone}
-
-This is a zone that is able to compare existing child zones with
-new ones, and that will recursively generate zones only if a child
-is new. 
-
