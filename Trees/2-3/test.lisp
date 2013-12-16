@@ -27,6 +27,15 @@
 (defmethod 2-3-tree:3-node-class ((tree tree))
   '3-node)
 
+(defmethod (setf 2-3-tree:root) :before ((new-root null) tree)
+  (let ((old-root (2-3-tree:root tree)))
+    (unless (null old-root)
+      (setf (parent old-root) nil))))
+
+(defmethod (setf 2-3-tree:root) :before ((new-root parent-mixin) tree)
+  (assert (null (parent new-root)))
+  (setf (parent new-root) tree))
+
 (defmethod (setf 2-3-tree:item) :before ((new-item parent-mixin) leaf)
   (assert (null (parent new-item)))
   (setf (parent new-item) leaf))
