@@ -113,7 +113,7 @@
 	   (multiple-value-bind (n1 n2)
 	       (insert right item (- position left-size))
 	     (if (null n2)
-		 (progn (setf (right node) n2)
+		 (progn (setf (right node) n1)
 			(incf (size node))
 			(values node nil))
 		 (let ((new-node (make-instance (3-node-class *tree*))))
@@ -173,7 +173,7 @@
 	   (multiple-value-bind (n1 n2)
 	       (insert right item (- position left-size middle-size))
 	     (if (null n2)
-		 (progn (setf right n1)
+		 (progn (setf (right node) n1)
 			(incf (size node))
 			(values node nil))
 		 (let ((new-node-1 (make-instance (2-node-class *tree*)))
@@ -265,6 +265,7 @@
 		      (setf (left new-node) n)
 		      (setf (middle new-node) l)
 		      (setf (right new-node) r)
+		      (setf (size new-node) (+ (size n) (size l) (size r)))
 		      (values new-node t)))
 		   (t
 		    ;; The right child is a 3-node
@@ -273,6 +274,7 @@
 			  (r (right right))
 			  (new-node-1 (make-instance (2-node-class *tree*)))
 			  (new-node-2 (make-instance (2-node-class *tree*))))
+		      (decf (size node))
 		      (setf (right node) nil)
 		      (setf (left right) nil)
 		      (setf (middle right) nil)
@@ -291,7 +293,7 @@
 	   ;; other node.
 	   (setf (right node) nil)
 	   (multiple-value-bind (n lower-p)
-	       (delete left (- position left-size))
+	       (delete right (- position left-size))
 	     (cond ((null n)
 		    ;; The right child of NODE was a leaf, so it got
 		    ;; deleted.  We need to return the left child of
@@ -315,18 +317,19 @@
 		    ;; of a subtree that is lower than the original
 		    ;; right child of NODE, and the left child of NODE
 		    ;; is a 2-node.  The two children of the left
-		    ;; child of NODE node N and the all have the same
+		    ;; child of NODE and the node N all have the same
 		    ;; height, so we stick them in a new 3-node that
 		    ;; we return.  The tree rooted at that 3-node is
 		    ;; lower than the original tree rooted at NODE.
 		    (let ((l (left left))
-			  (r (right right))
+			  (r (right left))
 			  (new-node (make-instance (3-node-class *tree*))))
 		      (setf (left left) nil)
 		      (setf (right left) nil)
 		      (setf (left new-node) l)
 		      (setf (middle new-node) r)
 		      (setf (right new-node) n)
+		      (setf (size new-node) (+ (size l) (size r) (size n)))
 		      (values new-node t)))
 		   (t
 		    ;; The left child is a 3-node
@@ -335,6 +338,7 @@
 			  (r (right left))
 			  (new-node-1 (make-instance (2-node-class *tree*)))
 			  (new-node-2 (make-instance (2-node-class *tree*))))
+		      (decf (size node))
 		      (setf (left node) nil)
 		      (setf (left left) nil)
 		      (setf (middle left) nil)
@@ -371,6 +375,7 @@
 		      (setf (right node) nil)
 		      (setf (left new-node) middle)
 		      (setf (right new-node) right)
+		      (setf (size new-node) 2)
 		      (values new-node nil)))
 		   ((not lower-p)
 		    ;; This is the simple case where we got back a
@@ -409,14 +414,17 @@
 			  (r (right middle))
 			  (new-node-1 (make-instance (2-node-class *tree*)))
 			  (new-node-2 (make-instance (2-node-class *tree*))))
+		      (decf (size node))
 		      (setf (middle node) nil)
 		      (setf (left middle) nil)
 		      (setf (middle middle) nil)
 		      (setf (right middle) nil)
 		      (setf (left new-node-1) n)
 		      (setf (right new-node-1) l)
+		      (setf (size new-node-1) (+ (size n) (size l)))
 		      (setf (left new-node-2) m)
 		      (setf (right new-node-2) r)
+		      (setf (size new-node-2) (+ (size m) (size r)))
 		      (setf (left node) new-node-1)
 		      (setf (middle node) new-node-2)
 		      (values node nil))))))
@@ -425,7 +433,7 @@
 	   ;; other node.
 	   (setf (middle node) nil)
 	   (multiple-value-bind (n lower-p)
-	       (delete middle position)
+	       (delete middle (- position left-size))
 	     (cond ((null n)
 		    ;; The middle child of NODE was a leaf, so it got
 		    ;; deleted.  We now have two children left, so we
@@ -436,6 +444,7 @@
 		      (setf (right node) nil)
 		      (setf (left new-node) left)
 		      (setf (right new-node) right)
+		      (setf (size new-node) 2)
 		      (values new-node nil)))
 		   ((not lower-p)
 		    ;; This is the simple case where we got back a
@@ -483,14 +492,17 @@
 			  (r (right left))
 			  (new-node-1 (make-instance (2-node-class *tree*)))
 			  (new-node-2 (make-instance (2-node-class *tree*))))
+		      (decf (size node))
 		      (setf (left node) nil)
 		      (setf (left left) nil)
 		      (setf (middle left) nil)
 		      (setf (right left) nil)
 		      (setf (left new-node-1) l)
 		      (setf (right new-node-1) m)
+		      (setf (size new-node-1) (+ (size l) (size m)))
 		      (setf (left new-node-2) r)
 		      (setf (right new-node-2) n)
+		      (setf (size new-node-2) (+ (size r) (size n)))
 		      (setf (left node) new-node-1)
 		      (setf (middle node) new-node-2)
 		      (values node nil))))))
@@ -499,7 +511,7 @@
 	   ;; other node.
 	   (setf (right node) nil)
 	   (multiple-value-bind (n lower-p)
-	       (delete right position)
+	       (delete right (- position left-size middle-size))
 	     (cond ((null n)
 		    ;; The right child of NODE was a leaf, so it got
 		    ;; deleted.  We now have two children left, so we
@@ -510,6 +522,7 @@
 		      (setf (middle node) nil)
 		      (setf (left new-node) left)
 		      (setf (right new-node) middle)
+		      (setf (size new-node) 2)
 		      (values new-node nil)))
 		   ((not lower-p)
 		    ;; This is the simple case where we got back a
@@ -541,9 +554,9 @@
 		      (setf (middle new-node-1) r)
 		      (setf (right new-node-1) n)
 		      (setf (size new-node-1) (+ (size l) (size r) (size n)))
-		      (setf (right new-node-2) new-node-1)
 		      (setf (left new-node-2) left)
-		      (setf (size new-node-2) (+ (size new-node-1) (size right)))
+		      (setf (right new-node-2) new-node-1)
+		      (setf (size new-node-2) (+ (size left) (size new-node-1)))
 		      (values new-node-2 nil)))
 		   (t
 		    ;; The node n represents a subtree that has the
@@ -557,14 +570,17 @@
 			  (r (right middle))
 			  (new-node-1 (make-instance (2-node-class *tree*)))
 			  (new-node-2 (make-instance (2-node-class *tree*))))
+		      (decf (size node))
 		      (setf (middle node) nil)
 		      (setf (left middle) nil)
 		      (setf (middle middle) nil)
 		      (setf (right middle) nil)
 		      (setf (left new-node-1) l)
 		      (setf (right new-node-1) m)
+		      (setf (size new-node-1) (+ (size l) (size m)))
 		      (setf (left new-node-2) r)
 		      (setf (right new-node-2) n)
+		      (setf (size new-node-2) (+ (size r) (size n)))
 		      (setf (middle node) new-node-1)
 		      (setf (right node) new-node-2)
 		      (values node nil)))))))))
@@ -572,6 +588,7 @@
 (defmethod delete ((tree tree) position)
   (unless (<= 0 position (1- (size tree)))
     (error "Invalid position"))
-  (let ((root (root tree)))
+  (let ((*tree* tree)
+	(root (root tree)))
     (setf (root tree) nil)
     (setf (root tree) (delete root position))))
