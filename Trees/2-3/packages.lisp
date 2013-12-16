@@ -7,4 +7,16 @@
    #:find
    #:insert
    #:delete
+   #:left
+   #:middle
+   #:right
+   #:item
+   #:size
+   #:tree
+   #:leaf
+   #:2-node
+   #:3-node
+   #:leaf-class
+   #:2-node-class
+   #:3-node-class
    ))
