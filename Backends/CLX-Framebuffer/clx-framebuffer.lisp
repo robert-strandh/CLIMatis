@@ -489,6 +489,24 @@
 ;;; table with the size as a key and a font instance as the value.
 (defparameter *freefont-fonts* (make-hash-table :test #'equal))
   
+(defparameter *ubuntufont-directory*
+  "/usr/share/fonts/truetype/ubuntu-font-family/")
+
+(defparameter *ubuntufont-files*
+  '(((:fixed :roman)            "UbuntuMono-R.ttf")
+    ((:fixed :bold)             "UbuntuMono-B.ttf")
+    ((:fixed :oblique)          "UbuntuMono-RI.ttf")
+    ((:fixed (:bold :oblique))  "UbuntuMono-BI.ttf")
+    ((:sans :roman)             "Ubuntu-R.ttf")
+    ((:sans :bold)              "Ubuntu-B.ttf")
+    ((:sans :oblique)           "Ubuntu-RI.ttf")
+    ((:sans (:bold :oblique))   "Ubuntu-BI.ttf")))
+
+;;; Keys are lists of the form (<family> <face>).  Values are of the
+;;; form (<font loader> . <instances>) where <instances> is a hash
+;;; table with the size as a key and a font instance as the value.
+(defparameter *ubuntufont-fonts* (make-hash-table :test #'equal))
+
 (defun text-style-to-font-instance (text-style)
   (with-accessors ((foundry clim3:foundry)
 		   (family clim3:family)
@@ -502,33 +520,62 @@
 		      (or (gethash size *camfer-sans-roman*)
 			  (setf (gethash size *camfer-sans-roman*)
 				(camfer:make-font size 100)))))
-      (:free (let* ((family-face (list (clim3:family text-style)
-				       (clim3:face text-style)))
-		    (font (gethash family-face *freefont-fonts*)))
-	       (cond ((null font)
-		      (let ((filename (cadr (find family-face *freefont-files*
-						  :key #'car
-						  :test #'equal))))
-			(when (null filename)
-			  (error "No font file found"))
-			(let* ((pathname (concatenate 'string
-						      *freefont-directory*
-						      filename))
-			       (font-loader (zpb-ttf:open-font-loader pathname))
-			       (instances (make-hash-table)))
-			  (setf (gethash family-face *freefont-fonts*)
-				(cons font-loader instances))
-			  (let ((instance (clim3-truetype:instantiate-font
-					   font-loader
-					   size)))
-			    (setf (gethash size instances) instance)))))
-		    ((null (gethash size (cdr font)))
-		     (let ((instance (clim3-truetype:instantiate-font
-				      (car font)
-				      size)))
-		       (setf (gethash size (cdr font)) instance)))
-		    (t
-		     (gethash size (cdr font)))))))))
+      (:free
+       (let* ((family-face (list (clim3:family text-style)
+				 (clim3:face text-style)))
+	      (font (gethash family-face *freefont-fonts*)))
+	 (cond ((null font)
+		(let ((filename (cadr (find family-face *freefont-files*
+					    :key #'car
+					    :test #'equal))))
+		  (when (null filename)
+		    (error "No font file found"))
+		  (let* ((pathname (concatenate 'string
+						*freefont-directory*
+						filename))
+			 (font-loader (zpb-ttf:open-font-loader pathname))
+			 (instances (make-hash-table)))
+		    (setf (gethash family-face *freefont-fonts*)
+			  (cons font-loader instances))
+		    (let ((instance (clim3-truetype:instantiate-font
+				     font-loader
+				     size)))
+		      (setf (gethash size instances) instance)))))
+	       ((null (gethash size (cdr font)))
+		(let ((instance (clim3-truetype:instantiate-font
+				 (car font)
+				 size)))
+		  (setf (gethash size (cdr font)) instance)))
+	       (t
+		(gethash size (cdr font))))))
+      (:ubuntu
+       (let* ((family-face (list (clim3:family text-style)
+				 (clim3:face text-style)))
+	      (font (gethash family-face *ubuntufont-fonts*)))
+	 (cond ((null font)
+		(let ((filename (cadr (find family-face *ubuntufont-files*
+					    :key #'car
+					    :test #'equal))))
+		  (when (null filename)
+		    (error "No font file found"))
+		  (let* ((pathname (concatenate 'string
+						*ubuntufont-directory*
+						filename))
+			 (font-loader (zpb-ttf:open-font-loader pathname))
+			 (instances (make-hash-table)))
+		    (setf (gethash family-face *ubuntufont-fonts*)
+			  (cons font-loader instances))
+		    (let ((instance (clim3-truetype:instantiate-font
+				     font-loader
+				     size)))
+		      (setf (gethash size instances) instance)))))
+	       ((null (gethash size (cdr font)))
+		(let ((instance (clim3-truetype:instantiate-font
+				 (car font)
+				 size)))
+		  (setf (gethash size (cdr font)) instance)))
+	       (t
+		(gethash size (cdr font)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
