@@ -364,3 +364,10 @@
 
 (defmethod clim3:zone-count ((tree tree))
   (2-3-tree:size tree))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Function VTREE (constructor).
+
+(defun clim3:vtree ()
+  (make-instance 'clim3:vtree))
