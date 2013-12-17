@@ -13,7 +13,7 @@
    #:brick #:hbrick #:vbrick
    #:sponge #:hsponge #:vsponge
    #:hbox #:hbox* #:vbox #:vbox* #:grid
-   #:vtree #:htree #:insert-zone #:delete-zone #:zone-count
+   #:vtree #:htree #:insert-zone #:delete-zone #:zone-count #:find-zone
    #:bboard #:bboard*
    #:wrap #:border
    #:pile #:pile*
