@@ -2,26 +2,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Utilities
-;;;
-
-(defun hash-table-from-children (zone)
-  (let ((table (make-hash-table :test #'eq)))
-    (clim3-ext:map-over-children
-     (lambda (child)
-       (setf (gethash child table) t))
-     zone)
-    table))
-
-(defun map-over-hash-table-difference (function table1 table2)
-  (maphash (lambda (key value)
-	     (declare (ignore value))
-	     (unless (gethash key table2)
-	       (funcall function key)))
-	   table1))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Generic function CHILDREN.
 ;;;
 ;;; This generic function returns the children of a compound zone.
@@ -106,9 +86,16 @@
 ;;; Class COMPOUND-MIXIN.
 
 (defclass clim3-ext:compound-mixin ()
+  ())
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class SIMPLE-CHILDREN-MIXIN.
+
+(defclass clim3-ext:simple-children-mixin (clim3-ext:compound-mixin)
   ((%children :initform '() :initarg :children :accessor clim3:children)))
 
-(defmethod initialize-instance :after ((zone clim3-ext:compound-mixin) &key)
+(defmethod initialize-instance :after ((zone clim3-ext:simple-children-mixin) &key)
   (clim3-ext:map-over-children
    (lambda (child) (setf (clim3-ext:parent child) zone))
    zone))
@@ -118,7 +105,7 @@
 ;;; Class AT-MOST-ONE-CHILD-MIXIN.
 ;;;
 
-(defclass clim3-ext:at-most-one-child-mixin (clim3-ext:compound-mixin) ())
+(defclass clim3-ext:at-most-one-child-mixin (clim3-ext:simple-children-mixin) ())
 
 (defmethod (setf clim3:children) :around
     (new-child (zone clim3-ext:at-most-one-child-mixin))
@@ -130,7 +117,8 @@
 	(unless (null child-before)
 	  (setf (clim3-ext:parent child-before) nil))
 	(unless (null child-after)
-	  (setf (clim3-ext:parent child-after) zone))))))
+	  (setf (clim3-ext:parent child-after) zone)))))
+  new-child)
 
 (defmethod (setf clim3:children) :before
     (new-child (zone clim3-ext:at-most-one-child-mixin))
@@ -148,22 +136,17 @@
 ;;; Class SEVERAL-CHILDREN-MIXIN.
 ;;;
 
-(defclass clim3-ext:several-children-mixin (clim3-ext:compound-mixin) ())
+(defclass clim3-ext:several-children-mixin (clim3-ext:simple-children-mixin) ())
 
 (defmethod (setf clim3:children) :around
     (new-children (zone clim3-ext:several-children-mixin))
   (declare (ignore new-children))
-  (let ((children-before (hash-table-from-children zone)))
-    (call-next-method)
-    (let ((children-after (hash-table-from-children zone)))
-      (map-over-hash-table-difference
-       (lambda (deleted-child)
-	 (setf (clim3-ext:parent deleted-child) nil))
-       children-before children-after)
-      (map-over-hash-table-difference
-       (lambda (inserted-child)
-	 (setf (clim3-ext:parent inserted-child) zone))
-       children-after children-before))))
+  (clim3-ext:map-over-children
+   (lambda (child) (setf (clim3-ext:parent child) nil)) zone)
+  (call-next-method)
+  (clim3-ext:map-over-children
+   (lambda (child) (setf (clim3-ext:parent child) zone)) zone)
+  new-children)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
