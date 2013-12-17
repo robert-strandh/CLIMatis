@@ -9,6 +9,8 @@
 (defclass tree (clim3:standard-zone
 		clim3-ext:compound-mixin
 		clim3-ext:child-depth-insignificant-mixin
+		clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+		clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
 		2-3-tree:tree)
   ())
 
@@ -66,6 +68,8 @@
 
 (defclass node (clim3:standard-zone
 		clim3-ext:compound-mixin
+		clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin
+		clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin
 		clim3-ext:child-depth-insignificant-mixin)
 
   ())
@@ -316,7 +320,7 @@
 	    (rmin (clim3-sprawl:min-size rsprawl))
 	    (rsize (clim3-sprawl:size rsprawl))
 	    (rmax (clim3-sprawl:max-size rsprawl)))
-	(setf (clim3-ext:vsprawl zone)
+	(setf (clim3-ext:hsprawl zone)
 	      (clim3-sprawl:sprawl (max lmin mmin rmin)
 				   (max lsize msize rsize)
 				   (if (or (null lmax) (null mmax) (null rmax))
@@ -356,6 +360,8 @@
 
 (defgeneric clim3:zone-count (tree))
 
+(defgeneric clim3:find-zone (tree position))
+
 (defmethod clim3:insert-zone ((tree tree) zone position)
   (2-3-tree:insert tree zone position))
 
@@ -364,6 +370,9 @@
 
 (defmethod clim3:zone-count ((tree tree))
   (2-3-tree:size tree))
+
+(defmethod clim3:find-zone ((tree tree) position)
+  (2-3-tree:find tree position))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
