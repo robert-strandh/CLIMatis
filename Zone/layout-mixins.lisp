@@ -23,7 +23,8 @@
 (defclass clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin () ())
 
 (defmethod clim3-ext:notify-child-hsprawl-changed
-    ((child clim3:zone) (parent clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin))
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-hsprawl-changes-hsprawl-mixin))
   (setf (clim3:hsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,7 +34,8 @@
 (defclass clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin () ())
 
 (defmethod clim3-ext:notify-child-vsprawl-changed
-    ((child clim3:zone) (parent clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin))
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-vsprawl-changes-vsprawl-mixin))
   (setf (clim3:vsprawl parent) nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -43,7 +45,8 @@
 (defclass clim3-ext:changing-child-hsprawl-changes-nothing-mixin () ())
 
 (defmethod clim3-ext:notify-child-hsprawl-changed
-    ((child clim3:zone) (parent clim3-ext:changing-child-hsprawl-changes-nothing-mixin))
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-hsprawl-changes-nothing-mixin))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -53,7 +56,8 @@
 (defclass clim3-ext:changing-child-vsprawl-changes-nothing-mixin () ())
 
 (defmethod clim3-ext:notify-child-vsprawl-changed
-    ((child clim3:zone) (parent clim3-ext:changing-child-vsprawl-changes-nothing-mixin))
+    ((child clim3:zone)
+     (parent clim3-ext:changing-child-vsprawl-changes-nothing-mixin))
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
