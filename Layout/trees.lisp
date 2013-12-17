@@ -1,168 +1,366 @@
 (cl:in-package #:clim3-layout)
 
-(defgeneric node-count (tree))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class TREE.
+;;;
+;;; A tree can have no children or a single child. 
 
 (defclass tree (clim3:standard-zone
-		clim3-ext:at-most-one-child-mixin
-		clim3-ext:changing-children-changes-nothing-mixin)
+		clim3-ext:compound-mixin
+		clim3-ext:child-depth-insignificant-mixin
+		2-3-tree:tree)
   ())
 
+(defmethod clim3-ext:map-over-children (function (zone tree))
+  (unless (null (2-3-tree:root zone))
+    (funcall function (2-3-tree:root zone))))
+
+;;; This method invalidates the vsprawl of the tree whenever
+;;; the vsprawl of the root of the tree changes.
+(defmethod clim3-ext:notify-child-vsprawl-changed (node (parent tree))
+  (declare (ignore node))
+  (setf (clim3-ext:vsprawl parent) nil))
+
+;;; This method invalidates the hsprawl of the tree whenever
+;;; the hsprawl of the root of the tree changes.
+(defmethod clim3-ext:notify-child-hsprawl-changed (node (parent tree))
+  (declare (ignore node))
+  (setf (clim3-ext:hsprawl parent) nil))
+
+(defmethod clim3-ext:compute-vsprawl ((zone tree))
+  (let ((root (2-3-tree:root zone)))
+    (if (null root)
+	(setf (clim3-ext:vsprawl zone)
+	      (clim3-sprawl:sprawl 0 0 nil))
+	(progn (clim3-ext:ensure-vsprawl-valid root)
+	       (setf (clim3-ext:vsprawl zone)
+		     (clim3:vsprawl root))))))
+				      
+(defmethod clim3-ext:compute-hsprawl ((zone tree))
+  (let ((root (2-3-tree:root zone)))
+    (if (null root)
+	(setf (clim3-ext:hsprawl zone)
+	      (clim3-sprawl:sprawl 0 0 nil))
+	(progn (clim3-ext:ensure-hsprawl-valid root)
+	       (setf (clim3-ext:hsprawl zone)
+		     (clim3:hsprawl root))))))
+
 (defmethod clim3-ext:impose-child-layouts ((zone tree))
-  nil)
+  (let ((root (2-3-tree:root zone))
+	(width (clim3:width zone))
+	(height (clim3:height zone)))
+    (unless (null root)
+      (clim3-ext:ensure-hsprawl-valid root)
+      (clim3-ext:ensure-vsprawl-valid root)
+      (setf (clim3-ext:hpos root) 0)
+      (setf (clim3-ext:vpos root) 0)
+      (clim3-ext:impose-size root width height))))
 
-(defclass node ()
-  ((%vtree :initarg :vtree :reader vtree)
-   (%node-count :initform 1 :accessor node-count)))
-   
-(defun splay (node)
-  (setf (clim3:children (vtree node))
-	(splay-tree:splay node)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class NODE.
+;;;
+;;; This is the base class of all the node classes: LEAF, 2-NODE, and
+;;; 3-NODE.
 
-(defmethod node-count ((tree tree))
-  (if (null (clim3:children tree))
-      0
-      (node-count (clim3:children tree))))
+(defclass node (clim3:standard-zone
+		clim3-ext:compound-mixin
+		clim3-ext:child-depth-insignificant-mixin)
 
-(defun find-node (tree node-number)
-  (assert (<= 0 node-number (1- (node-count tree))))
-  (labels ((find-relative-node (node node-number)
-	     (let ((left-count (if (null (splay-tree:left node))
-				   0
-				   (node-count (splay-tree:left node)))))
-	       (cond ((< node-number left-count)
-		      (find-relative-node (splay-tree:left node) node-number))
-		     ((= node-number left-count)
-		      node)
-		     (t
-		      (find-relative-node (splay-tree:right node)
-					  (- node-number left-count 1)))))))
-    (find-relative-node (clim3:children tree) node-number)))
+  ())
 
-(defgeneric clim3:insert-node (tree node position))
+;;; This method invalidates the vsprawl of the node whenever the
+;;; vsprawl of the child changes.  The child can be another node, or
+;;; it can be whatever zone is contained in a leaf.
+(defmethod clim3-ext:notify-child-vsprawl-changed (child (parent node))
+  (declare (ignore child))
+  (setf (clim3-ext:vsprawl parent) nil))
 
-(defgeneric clim3:delete-node (tree position))
+;;; This method invalidates the hsprawl of the node whenever the
+;;; hsprawl of the child changes.  The child can be another node, or
+;;; it can be whatever zone is contained in a leaf.
+(defmethod clim3-ext:notify-child-hsprawl-changed (child (parent node))
+  (declare (ignore child))
+  (setf (clim3-ext:hsprawl parent) nil))
 
-(defmethod clim3:delete-node ((tree tree) position)
-  (assert (<= 0 position (1- (node-count tree))))
-  (splay (find-node tree position))
-  (let ((root (clim3:children tree)))
-    (cond ((null (splay-tree:left root))
-	   (setf (clim3:children tree) (splay-tree:right root)))
-	  ((null (splay-tree:right root))
-	   (setf (clim3:children tree) (splay-tree:left root)))
-	  (t
-	   (splay (find-node tree (1- position)))
-	   (let* ((root (clim3:children tree))
-		  (right (splay-tree:right root))
-		  (right-right (splay-tree:right right)))
-	     (setf (splay-tree:right root) nil)
-	     (setf (splay-tree:right right) nil)
-	     (setf (splay-tree:right root) right-right)))))
-  (let ((root (clim3:children tree)))
-    (clim3-ext:notify-child-vsprawl-changed root tree)
-    (clim3-ext:notify-child-hsprawl-changed root tree)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class LEAF.
+
+(defclass leaf (node 2-3-tree:leaf)
+  ())
+
+(defmethod clim3-ext:map-over-children (function (zone leaf))
+  (funcall function (2-3-tree:item zone)))
+
+(defmethod clim3-ext:compute-vsprawl ((zone leaf))
+  (let ((item (2-3-tree:item zone)))
+    (clim3-ext:ensure-vsprawl-valid item)
+    (setf (clim3-ext:vsprawl zone)
+	  (clim3:vsprawl item))))
+				      
+(defmethod clim3-ext:compute-hsprawl ((zone leaf))
+  (let ((item (2-3-tree:item zone)))
+    (clim3-ext:ensure-hsprawl-valid item)
+    (setf (clim3-ext:hsprawl zone)
+	  (clim3:hsprawl item))))
+
+(defmethod clim3-ext:impose-child-layouts ((zone leaf))
+  (let ((child (2-3-tree:item zone))
+	(width (clim3:width zone))
+	(height (clim3:height zone)))
+    (clim3-ext:ensure-hsprawl-valid child)
+    (clim3-ext:ensure-vsprawl-valid child)
+    (setf (clim3-ext:hpos child) 0)
+    (setf (clim3-ext:vpos child) 0)
+    (clim3-ext:impose-size child width height)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class 2-NODE.
+
+(defclass 2-node (node 2-3-tree:2-node)
+  ())
+
+(defmethod clim3-ext:map-over-children (function (zone 2-node))
+  (funcall function (2-3-tree:left zone))
+  (funcall function (2-3-tree:right zone)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class 3-NODE.
+
+(defclass 3-node (node 2-3-tree:3-node)
+  ())
+
+(defmethod clim3-ext:map-over-children (function (zone 3-node))
+  (funcall function (2-3-tree:left zone))
+  (funcall function (2-3-tree:middle zone))
+  (funcall function (2-3-tree:right zone)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; These :BEFORE methods on the 2-3-tree generic functions for
+;;; modifying the children of the tree and the nodes make sure that
+;;; the parent of the child is assigned correctly.
+
+(defmethod (setf 2-3-tree:root) :before ((new-root null) (tree tree))
+  (let ((old-root (2-3-tree:root tree)))
+    (unless (null old-root)
+      (setf (clim3-ext:parent old-root) nil))))
+
+(defmethod (setf 2-3-tree:root) :before ((new-root node) (tree tree))
+  (assert (null (clim3-ext:parent new-root)))
+  (setf (clim3-ext:parent new-root) tree))
+
+(defmethod (setf 2-3-tree:item) :before (zone (leaf leaf))
+  (assert (null (clim3-ext:parent zone)))
+  (setf (clim3-ext:parent zone) leaf))
+
+(defmethod (setf 2-3-tree:left) :before ((new-left null) (node node))
+  (let ((old-left (2-3-tree:left node)))
+    (unless (null old-left)
+      (setf (clim3-ext:parent old-left) nil))))
+
+(defmethod (setf 2-3-tree:left) :before ((new-left node) (node node))
+  (assert (null (clim3-ext:parent new-left)))
+  (setf (clim3-ext:parent new-left) node))
+
+(defmethod (setf 2-3-tree:middle) :before ((new-middle null) (node node))
+  (let ((old-middle (2-3-tree:middle node)))
+    (unless (null old-middle)
+      (setf (clim3-ext:parent old-middle) nil))))
+
+(defmethod (setf 2-3-tree:middle) :before ((new-middle node) (node node))
+  (assert (null (clim3-ext:parent new-middle)))
+  (setf (clim3-ext:parent new-middle) node))
+
+(defmethod (setf 2-3-tree:right) :before ((new-right null) (node node))
+  (let ((old-right (2-3-tree:right node)))
+    (unless (null old-right)
+      (setf (clim3-ext:parent old-right) nil))))
+
+(defmethod (setf 2-3-tree:right) :before ((new-right node) (node node))
+  (assert (null (clim3-ext:parent new-right)))
+  (setf (clim3-ext:parent new-right) node))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Classes VTREE and VNODE.
+;;; Classes VTREE, V2-NODE, V3-NODE.
 
-;;; We do not include STANDARD-ZONE as a superclass because this zone
-;;; needs no parent, no sprawls, and no depth.
-(defclass clim3:vnode (node
-		       splay-tree:node
-		       clim3:zone
-		       clim3-ext:position-mixin
-		       clim3-ext:size-mixin
-		       clim3-ext:client-mixin
-		       clim3-ext:changing-child-position-not-allowed-mixin)
-  ((%line :initarg :line :reader line)))
+(defclass clim3:vtree (tree)
+  ())
 
-(defclass clim3:vtree (tree) ())
+(defmethod 2-3-tree:leaf-class ((tree clim3:vtree))
+  'leaf)
 
-(defmethod clim3-ext:compute-vsprawl ((zone clim3:vtree))
-  (if (null (clim3:children zone))
-      (clim3-sprawl:sprawl 0 0 nil)
-      (let ((height (clim3:height (clim3:children zone))))
-	(clim3-sprawl:sprawl height height height))))
-				      
-(defmethod clim3-ext:compute-hsprawl ((zone clim3:vtree))
-  (if (null (clim3:children zone))
-      (clim3-sprawl:sprawl 0 0 nil)
-      (let ((width (clim3:width (clim3:children zone))))
-	(clim3-sprawl:sprawl width width width))))
+(defmethod 2-3-tree:2-node-class ((tree clim3:vtree))
+  'v2-node)
 
-(defmethod (setf splay-tree:left) :before
-    ((new-left null) (node clim3:vnode))
-  (let ((existing-left (splay-tree:left node))
-	(right (splay-tree:right node)))
-    (unless (null existing-left)
-      (decf (node-count node) (node-count existing-left))
-      (decf (clim3:height node) (clim3:height existing-left))
-      (setf (clim3:vpos (line node)) 0)
-      (setf (clim3:width node)
-	    (max (nth-value 0 (clim3:natural-size (line node)))
-		 (if (null right) 0 (clim3:width right))))
-      (unless (null right)
-	(decf (clim3:vpos (splay-tree:right node))
-	      (clim3:height existing-left))))))
+(defmethod 2-3-tree:3-node-class ((tree clim3:vtree))
+  'v3-node)
 
-(defmethod (setf splay-tree:left) :before
-    ((new-left clim3:vnode) (node clim3:vnode))
-  (let ((right (splay-tree:right node)))
-    (incf (node-count node) (node-count new-left))
-    (incf (clim3:height node) (clim3:height new-left))
-    (setf (clim3:vpos (line node)) (clim3:height new-left))
-    (setf (clim3:width node)
-	  (max (clim3:width node) (clim3:width new-left)))
-    (unless (null right)
-      (incf (clim3:vpos (splay-tree:right node))
-	    (clim3:height new-left)))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class V2-NODE.
 
-(defmethod (setf splay-tree:right) :before
-    ((new-right null) (node clim3:vnode))
-  (let ((existing-right (splay-tree:right node))
-	(left (splay-tree:left node)))
-    (unless (null existing-right)
-      (decf (node-count node) (node-count existing-right))
-      (decf (clim3:height node) (clim3:height existing-right))
-      (setf (clim3:width node)
-	    (max (nth-value 0 (clim3:natural-size (line node)))
-		 (if (null left) 0 (clim3:width left)))))))
+(defclass v2-node (2-node)
+  ())
 
-(defmethod (setf splay-tree:right) :before
-    ((new-right clim3:vnode) (node clim3:vnode))
-  (let ((existing-right (splay-tree:right node)))
-    (incf (node-count node) (node-count existing-right))
-    (incf (clim3:height node) (clim3:height existing-right))
-    (setf (clim3:width node)
-	  (max (clim3:width node) (clim3:width new-right)))))
+(defmethod clim3-ext:compute-vsprawl ((zone v2-node))
+  (let ((left (2-3-tree:left zone))
+	(right (2-3-tree:right zone)))
+    (clim3-ext:ensure-vsprawl-valid left)
+    (clim3-ext:ensure-vsprawl-valid right)
+    (let ((lsprawl (clim3:vsprawl left))
+	  (rsprawl (clim3:vsprawl right)))
+      (let ((lmin (clim3-sprawl:min-size lsprawl))
+	    (lsize (clim3-sprawl:size lsprawl))
+	    (lmax (clim3-sprawl:max-size lsprawl))
+	    (rmin (clim3-sprawl:min-size rsprawl))
+	    (rsize (clim3-sprawl:size rsprawl))
+	    (rmax (clim3-sprawl:max-size rsprawl)))
+	(setf (clim3-ext:vsprawl zone)
+	      (clim3-sprawl:sprawl (+ lmin rmin)
+				   (+ lsize rsize)
+				   (if (or (null lmax) (null rmax))
+				       nil
+				       (+ lmax rmax))))))))
 
-(defmethod clim3-ext:map-over-children (function (zone clim3:vnode))
-  (unless (null (splay-tree:left zone))
-    (funcall function (splay-tree:left zone)))
-  (funcall function (line zone))
-  (unless (null (splay-tree:right zone))
-    (funcall function (splay-tree:right zone))))
+(defmethod clim3-ext:compute-hsprawl ((zone v2-node))
+  (let ((left (2-3-tree:left zone))
+	(right (2-3-tree:right zone)))
+    (clim3-ext:ensure-hsprawl-valid left)
+    (clim3-ext:ensure-hsprawl-valid right)
+    (let ((lsprawl (clim3:hsprawl left))
+	  (rsprawl (clim3:hsprawl right)))
+      (let ((lmin (clim3-sprawl:min-size lsprawl))
+	    (lsize (clim3-sprawl:size lsprawl))
+	    (lmax (clim3-sprawl:max-size lsprawl))
+	    (rmin (clim3-sprawl:min-size rsprawl))
+	    (rsize (clim3-sprawl:size rsprawl))
+	    (rmax (clim3-sprawl:max-size rsprawl)))
+	(setf (clim3-ext:hsprawl zone)
+	      (clim3-sprawl:sprawl (max lmin rmin)
+				   (max lsize rsize)
+				   (if (or (null lmax) (null rmax))
+				       nil
+				       (max lmax rmax))))))))
 
-(defmethod clim3:insert-node ((tree clim3:vtree) (node clim3:vnode) position)
-  (assert (<= 0 position (node-count tree)))
-  (cond ((null (clim3:children tree))
-	 (setf (clim3:children tree) node))
-	((zerop position)
-	 (splay (find-node tree 0))
-	 (setf (splay-tree:left (clim3:children tree)) node))
-	((= position (node-count tree))
-	 (splay (find-node tree (1- position)))
-	 (setf (splay-tree:right (clim3:children tree)) node))
-	(t
-	 (splay (find-node tree (1- position)))
-	 (let* ((root (clim3:children tree))
-		(left (splay-tree:left root)))
-	   (setf (splay-tree:left root) nil)
-	   (setf (splay-tree:left node) left)
-	   (setf (splay-tree:right node) root)
-	   (setf (clim3:children tree) node))))
-  (let ((root (clim3:children tree)))
-    (clim3-ext:notify-child-vsprawl-changed root tree)
-    (clim3-ext:notify-child-hsprawl-changed root tree)))
+(defmethod clim3-ext:impose-child-layouts ((zone v2-node))
+  (let* ((left (2-3-tree:left zone))
+	 (right (2-3-tree:right zone)))
+    (clim3-ext:ensure-hsprawl-valid left)
+    (clim3-ext:ensure-vsprawl-valid left)
+    (clim3-ext:ensure-hsprawl-valid right)
+    (clim3-ext:ensure-vsprawl-valid right)
+    (multiple-value-bind (lwidth lheight) (clim3:natural-size left)
+      (multiple-value-bind (rwidth rheight) (clim3:natural-size right)
+	(setf (clim3-ext:hpos left) 0)
+	(setf (clim3-ext:vpos left) 0)
+	(clim3-ext:impose-size left lwidth lheight)
+	(setf (clim3-ext:hpos right) 0)
+	(setf (clim3-ext:vpos right) lheight)
+	(clim3-ext:impose-size right rwidth rheight)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Class V3-NODE.
+
+(defclass v3-node (3-node)
+  ())
+
+(defmethod clim3-ext:compute-vsprawl ((zone v3-node))
+  (let ((left (2-3-tree:left zone))
+	(middle (2-3-tree:middle zone))
+	(right (2-3-tree:right zone)))
+    (clim3-ext:ensure-vsprawl-valid left)
+    (clim3-ext:ensure-vsprawl-valid middle)
+    (clim3-ext:ensure-vsprawl-valid right)
+    (let ((lsprawl (clim3:vsprawl left))
+	  (msprawl (clim3:vsprawl middle))
+	  (rsprawl (clim3:vsprawl right)))
+      (let ((lmin (clim3-sprawl:min-size lsprawl))
+	    (lsize (clim3-sprawl:size lsprawl))
+	    (lmax (clim3-sprawl:max-size lsprawl))
+	    (mmin (clim3-sprawl:min-size msprawl))
+	    (msize (clim3-sprawl:size msprawl))
+	    (mmax (clim3-sprawl:max-size msprawl))
+	    (rmin (clim3-sprawl:min-size rsprawl))
+	    (rsize (clim3-sprawl:size rsprawl))
+	    (rmax (clim3-sprawl:max-size rsprawl)))
+	(setf (clim3-ext:vsprawl zone)
+	      (clim3-sprawl:sprawl (+ lmin mmin rmin)
+				   (+ lsize msize rsize)
+				   (if (or (null lmax) (null mmax) (null rmax))
+				       nil
+				       (+ lmax mmax rmax))))))))
+
+(defmethod clim3-ext:compute-hsprawl ((zone v3-node))
+  (let ((left (2-3-tree:left zone))
+	(middle (2-3-tree:middle zone))
+	(right (2-3-tree:right zone)))
+    (clim3-ext:ensure-hsprawl-valid left)
+    (clim3-ext:ensure-hsprawl-valid middle)
+    (clim3-ext:ensure-hsprawl-valid right)
+    (let ((lsprawl (clim3:hsprawl left))
+	  (msprawl (clim3:hsprawl middle))
+	  (rsprawl (clim3:hsprawl right)))
+      (let ((lmin (clim3-sprawl:min-size lsprawl))
+	    (lsize (clim3-sprawl:size lsprawl))
+	    (lmax (clim3-sprawl:max-size lsprawl))
+	    (mmin (clim3-sprawl:min-size msprawl))
+	    (msize (clim3-sprawl:size msprawl))
+	    (mmax (clim3-sprawl:max-size msprawl))
+	    (rmin (clim3-sprawl:min-size rsprawl))
+	    (rsize (clim3-sprawl:size rsprawl))
+	    (rmax (clim3-sprawl:max-size rsprawl)))
+	(setf (clim3-ext:vsprawl zone)
+	      (clim3-sprawl:sprawl (max lmin mmin rmin)
+				   (max lsize msize rsize)
+				   (if (or (null lmax) (null mmax) (null rmax))
+				       nil
+				       (max lmax mmax rmax))))))))
+
+(defmethod clim3-ext:impose-child-layouts ((zone v3-node))
+  (let* ((left (2-3-tree:left zone))
+	 (middle (2-3-tree:middle zone))
+	 (right (2-3-tree:right zone)))
+    (clim3-ext:ensure-hsprawl-valid left)
+    (clim3-ext:ensure-vsprawl-valid left)
+    (clim3-ext:ensure-hsprawl-valid middle)
+    (clim3-ext:ensure-vsprawl-valid middle)
+    (clim3-ext:ensure-hsprawl-valid right)
+    (clim3-ext:ensure-vsprawl-valid right)
+    (multiple-value-bind (lwidth lheight) (clim3:natural-size left)
+      (multiple-value-bind (mwidth mheight) (clim3:natural-size middle)
+	(multiple-value-bind (rwidth rheight) (clim3:natural-size right)
+	  (setf (clim3-ext:hpos left) 0)
+	  (setf (clim3-ext:vpos left) 0)
+	  (clim3-ext:impose-size left lwidth lheight)
+	  (setf (clim3-ext:hpos middle) 0)
+	  (setf (clim3-ext:vpos middle) lheight)
+	  (clim3-ext:impose-size middle mwidth mheight)
+	  (setf (clim3-ext:hpos right) 0)
+	  (setf (clim3-ext:vpos right) (+ lheight mheight))
+	  (clim3-ext:impose-size right rwidth rheight))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Operations
+
+(defgeneric clim3:insert-zone (tree zone position))
+
+(defgeneric clim3:delete-zone (tree position))
+
+(defgeneric clim3:zone-count (tree))
+
+(defmethod clim3:insert-zone ((tree tree) zone position)
+  (2-3-tree:insert tree zone position))
+
+(defmethod clim3:delete-zone ((tree tree) position)
+  (2-3-tree:delete tree position))
+
+(defmethod clim3:zone-count ((tree tree))
+  (2-3-tree:size tree))
