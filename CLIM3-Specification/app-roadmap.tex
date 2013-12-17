@@ -38,19 +38,6 @@ been established, so they might not be possible or practical.
   a zone class is finalized, it has a good selection of superclasses,
   so that it reacts to the notification protocols in appropriate ways.
 
-\item The function \code{(setf clim3:children)} should probably not be
-  available to all compound zones. Each zone type should be
-  responsible for how its children are assigned, and for setting the
-  \code{parent} of its children.  The function \code{(setf
-    clim3:children)} should be seen as a convenience for compound
-  zones with a reasonably small number of children, and for these
-  zones it provides functionality for setting the \code{parent} of
-  those children.  The question, then, is what we mean by
-  \code{compound-zone}.  It could either mean any zone that can have
-  children, or it can mean the particular type of zone that also
-  supports \code{(setf clim3:children)}.  Either way, we need to come
-  up with a new name. 
-
 \item Eliminate \code{paint-opaque} and \code{paint-translucent} in
   favor of a single \code{paint-rectangle} (maybe with a better name)
   that works essentially like \code{paint-translucent}.  For
