@@ -13,7 +13,7 @@
    #:brick #:hbrick #:vbrick
    #:sponge #:hsponge #:vsponge
    #:hbox #:hbox* #:vbox #:vbox* #:grid
-   #:vtree #:vnode #:htree #:hnode #:insert-node #:delete-node #:find-node
+   #:vtree #:htree #:insert-zone #:delete-zone #:zone-count
    #:bboard #:bboard*
    #:wrap #:border
    #:pile #:pile*
@@ -118,6 +118,7 @@
    #:set-clients
    #:atomic-mixin
    #:compound-mixin
+   #:simple-children-mixin
    #:parent-mixin
    #:position-mixin
    #:size-mixin
