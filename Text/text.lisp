@@ -15,21 +15,19 @@
   (setf (clim3:vsprawl zone) nil))
 
 (defmethod clim3-ext:compute-hsprawl ((zone text))
-  (clim3-ext:set-hsprawl
-   (let ((width (clim3:text-width (clim3-ext:client zone)
+  (setf (clim3-ext:hsprawl zone)
+	(let ((width (clim3:text-width (clim3-ext:client zone)
 				       (style zone)
 				       (chars zone))))
-     (clim3-sprawl:sprawl width width width))
-   zone))
+	  (clim3-sprawl:sprawl width width width))))
 
 (defmethod clim3-ext:compute-vsprawl ((zone text))
-  (clim3-ext:set-vsprawl
-   (let ((height (+ (clim3:text-style-ascent
-		     (clim3-ext:client zone) (style zone))
-		    (clim3:text-style-descent
-		     (clim3-ext:client zone) (style zone)))))
-     (clim3-sprawl:sprawl height height height))
-   zone))
+  (setf (clim3-ext:vsprawl zone)
+	(let ((height (+ (clim3:text-style-ascent
+			  (clim3-ext:client zone) (style zone))
+			 (clim3:text-style-descent
+			  (clim3-ext:client zone) (style zone)))))
+	  (clim3-sprawl:sprawl height height height))))
 
 (defun text (string style color)
   (make-instance 'text :style style :chars string :color color))
