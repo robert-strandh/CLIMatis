@@ -398,7 +398,10 @@ horizontal size on the child.
 \label{sec-zones-layout-vbox}
 
 The \code{vbox} zone is a zone that arranges its children in a
-vertical box.  It can have an arbitrary number of children.
+vertical box.  It can have an arbitrary number of children, but it is
+best suited for a moderate number of children.  When thousands of
+children are needed, the \code{vtree} zone is a better
+choice. \seesec{sec-zones-layout-vtree}
 
 The vertical sprawl of the \code{vbox} is computed by combining the
 vertical sprawls of its children in \emph{series} and the horizontal
@@ -447,7 +450,7 @@ The \code{vtree} zone is the ideal zone for presenting a scrollable
 sequence of \emph{lines} of arbitrary objects.
 
 The \code{vtree} zone is similar in spirit to the \code{vbox} zone
-\seesec{sec-zones-layout-vbox} except that the behavior is simper in
+\seesec{sec-zones-layout-vbox} except that the behavior is simpler in
 order to provide optimal performance for a very common use case.
 
 Just like the \code{vbox}, the vertical sprawls of the children are
@@ -480,18 +483,37 @@ The rules cited above make it impractical to make the \code{vtree}
 zone the child of any zone that does not behave essentially like the
 \code{scroll} zone or like the \code{vscroll} zone.
 
-The children of the \code{vtree} zone are organized as a
-self-adjusting \emph{tree}.  The immediate consequence of this
-organization is that when the function \code{(setf vpos)} is used on
-the \code{vtree} zone, it determines which children are likely to be
-visible and move them close to the root of the tree.  The overall
-effect allows for the \code{vtree} to have a very large number of
-children, while still painting the visible children in an efficient
-way. 
+The children of the \code{vtree} zone are organized as a balanced
+\emph{tree}.  This tree structure uses a number of \emph{internal}
+zones that can not be used in a context other than as children of the
+\code{vtree} zone.  
 
-The \code{vtree} zone contains a tree of \emph{internal} zones that
-can not be used in a context other than as children of the
-\code{vtree} zone.\footnote{say more}.
+From the point of view of application code, the \code{vtree} zone
+behaves like an \emph{editable sequence} of children.
+
+\Defun {vtree} {}
+
+Create an empty \code{vtree}, i.e. a \code{vtree} zone with no children.
+
+\Defgeneric {insert} {vtree zone position}
+
+Insert \code{zone} as a child at \code{position} in \code{vtree}.  The
+value of \code{position} must be between $0$ and $N$, where $N$ is the
+number of children in \code{vtree}.  A value of $0$ means that the
+zone becomes the \emph{first} child and a value of $N$ means that the
+zone becomes the \emph{last} child in the sequence.
+
+\Defgeneric {find} {vtree position}
+
+Return the child zone at \code{position} in \code{vtree}.  The value
+of \code{position} must be between $0$ and $N-1$, where $N$ is the
+number of children in \code{vtree}.
+
+\Defgeneric {delete} {vtree position}
+
+Delete the child zone at \code{position} in \code{vtree}.  The value
+of \code{position} must be between $0$ and $N-1$, where $N$ is the
+number of children in \code{vtree}. 
 
 \subsection{Grid}
 \label{sec-zones-layout-grid}
