@@ -1,5 +1,6 @@
 \documentclass{report}
 \usepackage{color}
+\usepackage{makeidx}
 
 
 \def\Tiny{ \font\Tinyfont = cmb10 at 3pt \relax  \Tinyfont}
@@ -29,6 +30,7 @@
 \author{Robert Strandh}
 
 
+\makeindex
 \begin{document}
 
 \maketitle
@@ -46,5 +48,7 @@
 \inputtex{part-specification.tex}
 
 \inputtex{part-appendices.tex}
+
+\printindex
 
 \end{document}
