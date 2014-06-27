@@ -362,6 +362,8 @@
 
 (defgeneric clim3:find-zone (tree position))
 
+(defgeneric clim3:offset (zone))
+
 (defmethod clim3:insert-zone ((tree tree) zone position)
   (2-3-tree:insert tree zone position))
 
@@ -373,6 +375,11 @@
 
 (defmethod clim3:find-zone ((tree tree) position)
   (2-3-tree:find tree position))
+
+(defmethod clim3:offset (zone)
+  (loop for z = zone then (clim3-ext:parent z)
+	sum (clim3:vpos z)
+	until (typep z 'tree)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
