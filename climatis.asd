@@ -1,19 +1,20 @@
+(defpackage #:app-config (:export #:*base-directory*))
+(defparameter app-config:*base-directory*
+    (make-pathname :name nil :type nil :defaults *load-truename*))
+
 (in-package :common-lisp-user)
 
-(loop for subdir in '("Fonts/MF" "Fonts/Camfer" "Fonts/Icons"
-		      "Fonts/TrueType"
-		      "Backends/CLX-Framebuffer"
-		      "Gadgets" "Command" "Application"
-		      "Color" "Zone" "Layout" "Graphics" "Text" "Drawing"
-		      "Meter" "Port" "Input" "Sprawl" "Ostream" "Paint"
-		      "Gadgets" "Gadgets/Default")
-      do (pushnew (concatenate
-		   'string
-		   "/home/strandh/Lisp/My-Projects/GIT-ified/CLIMatis2/"
-		   subdir
-		   "/")
-		  asdf:*central-registry*
-		  :test #'equal))
+(loop for subdir in '(#P"Fonts/MF/" #P"Fonts/Camfer/" #P"Fonts/Icons/"
+                      #P"Fonts/TrueType/"
+                      #P"Backends/CLX-Framebuffer/"
+                      #P"Gadgets/" #P"Command/" #P"Application/"
+                      #P"Color/" #P"Zone/" #P"Layout/" #P"Graphics/" #P"Text/" #P"Drawing/"
+                      #P"Meter/" #P"Port/" #P"Input/" #P"Sprawl/" #P"Ostream/" #P"Paint/"
+                      #P"Gadgets/" #P"Gadgets/Default/"
+                      #P"Trees/2-3/")
+      do (pushnew (merge-pathnames subdir app-config:*base-directory*)
+                  asdf:*central-registry*
+                  :test #'equal))
 
 (asdf:defsystem :climatis
   :depends-on (:climatis-packages
