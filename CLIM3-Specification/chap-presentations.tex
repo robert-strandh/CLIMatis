@@ -30,6 +30,18 @@ to distinguish them, the presentation prototype might be an instance
 of the class \texttt{salary} in one case and \texttt{duration} in the
 other case.
 
+Ultimately, only the application itself can decide how an object
+should be displayed as graphics.  A \emph{person}, for instance, might
+be displayed as a silhouette of a person with a name underneath.  
 
+When the function \texttt{accept} is called, it is given the name of a
+presentation type and an optional predicate that can be used to
+further discriminate possible input.  When the pointer enters a
+presentation, the presentation prototype is checked against the
+presentation type given to \texttt{accept}, and if it is the right
+type, then the optional predicate is applied to the underlying
+application object.  If the predicate returns \emph{true}, then the
+application is a candidate for satisfying the call to
+\texttt{accept}.
 
 
