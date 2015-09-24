@@ -1,6 +1,6 @@
-(cl:in-package #:common-lisp-user)
+(cl:in-package #:asdf-user)
 
-(asdf:defsystem :clim3-application
+(defsystem :clim3-application
   :depends-on (:climatis-packages)
   :components
   ((:file "application-packages")
