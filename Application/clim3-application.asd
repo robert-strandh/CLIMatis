@@ -2,7 +2,7 @@
 
 (defsystem :clim3-application
   :depends-on (:climatis-packages)
+  :serial t
   :components
   ((:file "application-packages")
-   (:file "application" :depends-on ("application-packages"))))
-
+   (:file "application")))
