@@ -2,7 +2,7 @@
 
 (defsystem :clim3-calendar
   :depends-on (:climatis)
+  :serial t
   :components
-  ((:file "calendar-packages" :depends-on ())
-   (:file "calendar" :depends-on ("calendar-packages"))))
-
+  ((:file "calendar-packages")
+   (:file "calendar")))
