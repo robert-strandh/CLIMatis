@@ -1,6 +1,6 @@
-(cl:in-package #:common-lisp-user)
+(cl:in-package #:asdf-user)
 
-(asdf:defsystem :clim3-calendar
+(defsystem :clim3-calendar
   :depends-on (:climatis)
   :components
   ((:file "calendar-packages" :depends-on ())
