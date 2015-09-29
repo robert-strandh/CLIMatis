@@ -1,6 +1,6 @@
-(cl:in-package #:common-lisp-user)
+(cl:in-package #:asdf-user)
 
-(asdf:defsystem :clim3-gadgets
+(defsystem :clim3-gadgets
   :depends-on (:clim3-zone
 	       :clim3-input
 	       :clim3-layout
