@@ -2,6 +2,7 @@
 
 (defsystem :2-3-tree-test
   :depends-on (:2-3-tree)
+  :serial t
   :components
   ((:file "test-packages")
-   (:file "test" :depends-on ("test-packages"))))
+   (:file "test")))
