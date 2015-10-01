@@ -1,6 +1,6 @@
-(cl:in-package #:common-lisp-user)
+(cl:in-package #:asdf-user)
 
-(asdf:defsystem :2-3-tree-test
+(defsystem :2-3-tree-test
   :depends-on (:2-3-tree)
   :components
   ((:file "test-packages")
