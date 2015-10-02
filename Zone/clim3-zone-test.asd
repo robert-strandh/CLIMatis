@@ -1,6 +1,6 @@
-(in-package #:common-lisp-user)
+(in-package #:asdf-user)
 
-(asdf:defsystem :clim3-zone-test
+(defsystem :clim3-zone-test
   :components
   ((:file "zone-test-packages" :depends-on ())
    (:file "zone-test" :depends-on ("zone-test-packages"))))
