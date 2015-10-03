@@ -8,5 +8,5 @@
 	       :clim3-paint)
   :serial t
   :components
-  ((:file "text-packages" :depends-on ())
-   (:file "text" :depends-on ("text-packages"))))
+  ((:file "text-packages")
+   (:file "text")))
