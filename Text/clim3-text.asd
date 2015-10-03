@@ -1,4 +1,4 @@
-(in-package #:asdf-user)
+(cl:in-package #:asdf-user)
 
 (defsystem :clim3-text
   :depends-on (:climatis-packages
