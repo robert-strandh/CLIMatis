@@ -1,6 +1,6 @@
-(in-package #:common-lisp-user)
+(in-package #:asdf-user)
 
-(asdf:defsystem :clim3-text
+(defsystem :clim3-text
   :depends-on (:climatis-packages
 	       :clim3-zone
 	       :clim3-graphics
