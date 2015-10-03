@@ -6,6 +6,7 @@
 	       :clim3-graphics
 	       :clim3-port
 	       :clim3-paint)
+  :serial t
   :components
   ((:file "text-packages" :depends-on ())
    (:file "text" :depends-on ("text-packages"))))
