@@ -2,6 +2,7 @@
 
 (defsystem :clim3-text-style
   :depends-on (:climatis-packages)
+  :serial t
   :components
-  ((:file "text-style-packages" :depends-on ())
-   (:file "text-style" :depends-on ("text-style-packages"))))
+  ((:file "text-style-packages")
+   (:file "text-style")))
