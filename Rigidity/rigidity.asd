@@ -1,6 +1,6 @@
-(in-package :common-lisp-user)
+(in-package :asdf-user)
 
-(asdf:defsystem :rigidity
+(defsystem :rigidity
   :components
   ((:file "packages" :depends-on ())
    (:file "rigidity" :depends-on ("packages"))))
