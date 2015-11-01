@@ -1,6 +1,7 @@
 (cl:in-package :asdf-user)
 
 (defsystem :rigidity
+  :serial t
   :components
-  ((:file "packages" :depends-on ())
-   (:file "rigidity" :depends-on ("packages"))))
+  ((:file "packages")
+   (:file "rigidity")))
