@@ -1,6 +1,6 @@
-(in-package #:common-lisp-user)
+(cl:in-package #:asdf-user)
 
-(asdf:defsystem :clim3-sprawl
+(defsystem :clim3-sprawl
   :components
   ((:file "sprawl-packages" :depends-on ())
    (:file "sprawl" :depends-on ("sprawl-packages"))))
