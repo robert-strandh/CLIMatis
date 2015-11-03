@@ -1,6 +1,7 @@
 (cl:in-package #:asdf-user)
 
 (defsystem :clim3-sprawl
+  :serial t
   :components
-  ((:file "sprawl-packages" :depends-on ())
-   (:file "sprawl" :depends-on ("sprawl-packages"))))
+  ((:file "sprawl-packages")
+   (:file "sprawl")))
