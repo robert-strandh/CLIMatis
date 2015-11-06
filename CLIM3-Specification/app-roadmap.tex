@@ -15,6 +15,20 @@ been established, so they might not be possible or practical.
   probably be in the \code{clim-ext} package.  Client code that needs
   to change the dimensions of a zone should set the sprawls instead. 
 
+\item When the sprawls of a zone change for \emph{any} reason, i.e.,
+  it could be that they needed to be recalculated because the sprawls
+  of the children changed, or it could be that they were explicitly
+  modified, then the notify-child-[hv]sprawl-changed should be
+  called.  We must therefore make it an :after (I think) method on
+  (setf clim3-ext:[hv]sprawl) as opposed to (setf clim3:[hv]sprawl)
+  which I think is currently the case.  (setf clim3:[hv]sprawl) should
+  be used only by client code to explicitly modify the sprawls of a
+  zone.  Zones that ignore the sprawls of their children and impose
+  their own should also allow for explicit modification of the
+  sprawls.  Zones that compute the sprawls from the children should
+  signal an error if an attempt is made to explicitly change the
+  sprawls. 
+
 \item Currently we have \code{impose-size}, \code{set-vpos},
   \code{natural-size}.  Add functions \code{(setf clim-ext:width)}
   \code{(setf clim-ext:height)}, \code{natural-width},
@@ -23,19 +37,6 @@ been established, so they might not be possible or practical.
 \item Investigate the possibility of using the MOP to verify that when
   a zone class is finalized, it has a good selection of superclasses,
   so that it reacts to the notification protocols in appropriate ways.
-
-\item The function \code{(setf clim3:children)} should probably not be
-  available to all compound zones. Each zone type should be
-  responsible for how its children are assigned, and for setting the
-  \code{parent} of its children.  The function \code{(setf
-    clim3:children)} should be seen as a convenience for compound
-  zones with a reasonably small number of children, and for these
-  zones it provides functionality for setting the \code{parent} of
-  those children.  The question, then, is what we mean by
-  \code{compound-zone}.  It could either mean any zone that can have
-  children, or it can mean the particular type of zone that also
-  supports \code{(setf clim3:children)}.  Either way, we need to come
-  up with a new name. 
 
 \item Eliminate \code{paint-opaque} and \code{paint-translucent} in
   favor of a single \code{paint-rectangle} (maybe with a better name)

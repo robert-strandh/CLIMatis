@@ -1,0 +1,47 @@
+\chapter{Presentations and presentation types}
+\label{chap-presentations}
+
+One of the unique features of \clim{}, and one that was inherited from
+its predecessor \climtwo{} is the concept of a \emph{presentation
+  type}.  Using presentation types allows for a more modular and
+flexible user interface.  In this chapter, we use several examples of
+typical interaction scenarios based on presentations and presentation
+types. 
+
+When an application displays objects of the application model as
+potentially clickable figures or images, it does so using a
+\emph{presentation}.  A presentation is a zone subclass that contains
+the application object and a \emph{class prototype} indicating the
+\emph{presentation type} of the object.  In some cases the application
+object and the class prototype can be the same identical object.  In
+other cases, they are different.  We refer to this class prototype as
+the \emph{presentation prototype}. 
+
+Take for instance an \emph{information system} that displays
+application objects such as \emph{people} and \emph{organizations}.
+These objects are instances of corresponding application model classes
+such as \texttt{person} and \texttt{organization}.  A presentation of
+a person would typically contain that person both as the application
+object and as the presentation prototype.  In other cases, the system
+might display information about the \emph{salary} of people, or the
+total number of \emph{hours} spent on a project.  In these cases, the
+application object might in both cases be a \cl{} \texttt{number}, but
+to distinguish them, the presentation prototype might be an instance
+of the class \texttt{salary} in one case and \texttt{duration} in the
+other case.
+
+Ultimately, only the application itself can decide how an object
+should be displayed as graphics.  A \emph{person}, for instance, might
+be displayed as a silhouette of a person with a name underneath.  
+
+When the function \texttt{accept} is called, it is given the name of a
+presentation type and an optional predicate that can be used to
+further discriminate possible input.  When the pointer enters a
+presentation, the presentation prototype is checked against the
+presentation type given to \texttt{accept}, and if it is the right
+type, then the optional predicate is applied to the underlying
+application object.  If the predicate returns \emph{true}, then the
+application is a candidate for satisfying the call to
+\texttt{accept}.
+
+

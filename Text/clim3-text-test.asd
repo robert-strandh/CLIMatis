@@ -1,7 +1,8 @@
-(in-package #:common-lisp-user)
+(in-package #:asdf-user)
 
-(asdf:defsystem :clim3-text-test
+(defsystem :clim3-text-test
   :depends-on (:climatis-packages)
+  :serial t
   :components
-  ((:file "text-test-packages" :depends-on ())
-   (:file "text-test" :depends-on ("text-test-packages"))))
+  ((:file "text-test-packages")
+   (:file "text-test")))

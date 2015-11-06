@@ -1,16 +1,17 @@
-(cl:in-package #:common-lisp-user)
+(cl:in-package #:asdf-user)
 
-(asdf:defsystem :clim3-gadgets
+(defsystem :clim3-gadgets
   :depends-on (:clim3-zone
 	       :clim3-input
 	       :clim3-layout
 	       :clim3-text
 	       :clim3-graphics)
+  :serial t
   :components
   ((:file "packages")
-   (:file "theme" :depends-on ("packages"))
-   (:file "gadgets" :depends-on ("packages"))
-   (:file "raise-sink" :depends-on ("packages" "theme"))
-   (:file "button" :depends-on ("packages" "theme" "raise-sink"))
-   (:file "butcon" :depends-on ("packages" "theme"))
-   (:file "text" :depends-on ("packages" "theme"))))
+   (:file "theme")
+   (:file "gadgets")
+   (:file "raise-sink")
+   (:file "button")
+   (:file "butcon")
+   (:file "text")))

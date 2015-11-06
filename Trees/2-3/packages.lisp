@@ -7,6 +7,7 @@
    #:find
    #:insert
    #:delete
+   #:root
    #:left
    #:middle
    #:right
