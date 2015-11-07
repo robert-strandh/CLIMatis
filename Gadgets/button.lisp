@@ -3,7 +3,6 @@
 (defclass button (clim3:pile clim3:action)
   ((%action :initarg :action :reader clim3:action)
    (%highlight-wrap :accessor highlight-wrap)))
-  
 
 ;;; BUTTON (subclass of PILE)
 ;;;   BORDER (same thickness as the raise border)
