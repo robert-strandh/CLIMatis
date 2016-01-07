@@ -95,6 +95,9 @@
 (defparameter *day-number-text-style*
   (clim3:text-style :free :sans :bold 20))
 
+(defparameter *month-name-text-style*
+  (clim3:text-style :free :sans :bold 15))
+
 (defparameter *hour-text-style*
   (clim3:text-style :free :fixed :roman 10))
 
@@ -119,6 +122,23 @@
   (clim3:vbrick
    1
    (clim3:opaque (clim3:make-color 0.3d0 0d0 0d0))))
+
+(defparameter *month-name* (clim3:wrap))
+
+(defun number-to-month-name (number)
+  (elt '("Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec") (1- number)))
+
+(defun set-month-name ()
+  (let* ((utime (* *current-week* #.(* 7 24 60 60)))
+         (mstart (third (multiple-value-list (dut utime))))
+         (mend (third (multiple-value-list (dut (+ utime (* 6 #.(* 24 60 60))))))))
+    (setf (clim3:children *month-name*)
+          (clim3-text:text (if (= mstart mend)
+                               (format nil (number-to-month-name mstart))
+                               (format nil "~a/~a"
+                                       (number-to-month-name mstart)
+                                       (number-to-month-name mend)))
+                           *month-name-text-style* *black*))))
 
 ;;; The day numbers are wrap zones, and the child of each such wrap
 ;;; zone will be modified to reflect what is currently on display. 
@@ -214,10 +234,12 @@
 
 (defun previous-week ()
   (decf *current-week*)
+  (set-month-name)
   (set-day-numbers))
 
 (defun next-week ()
   (incf *current-week*)
+  (set-month-name)
   (set-day-numbers))
 
 (defparameter *icons* (clim3-icons:make-icons 20))
@@ -227,13 +249,14 @@
    (clim3:hbox*
     (clim3:sponge)
     (butcon (clim3-icons:find-icon *icons* :left) #'previous-week)
-    (clim3:hbrick 20)
+    *month-name*
     (butcon (clim3-icons:find-icon *icons* :right) #'next-week)
     (clim3:sponge))
    (clim3:opaque *background*)))
 
 (defun calendar ()
   (setf *current-week* (floor (get-universal-time) #.(* 7 24 60 60)))
+  (set-month-name)
   (set-day-numbers)
   (let ((port (clim3:make-port :clx-framebuffer))
 	(root (clim3:vbox*
