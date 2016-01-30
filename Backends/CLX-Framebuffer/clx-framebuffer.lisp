@@ -470,7 +470,8 @@
 
 (defparameter *freefont-directory*
   (or (cl-fad:directory-exists-p #p"/usr/share/fonts/truetype/freefont/")
-      (cl-fad:directory-exists-p #p"/usr/local/share/fonts/freefont/")))
+      (cl-fad:directory-exists-p #p"/usr/local/share/fonts/freefont/")
+      (cl-fad:directory-exists-p #p"/usr/share/fonts/TTF/")))
 
 (defparameter *freefont-files*
   '(((:fixed :roman)            "FreeMono.ttf")
@@ -493,7 +494,8 @@
   
 (defparameter *ubuntufont-directory*
   (or (cl-fad:directory-exists-p #p"/usr/share/fonts/truetype/ubuntu-font-family/")
-      (cl-fad:directory-exists-p #p"/usr/local/share/fonts/ubuntu/")))
+      (cl-fad:directory-exists-p #p"/usr/local/share/fonts/ubuntu/")
+      (cl-fad:directory-exists-p #p"/usr/share/fonts/TTF/")))
 
 (defparameter *ubuntufont-files*
   '(((:fixed :roman)            "UbuntuMono-R.ttf")
