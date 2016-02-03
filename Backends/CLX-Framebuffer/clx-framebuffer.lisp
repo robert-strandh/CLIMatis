@@ -468,7 +468,10 @@
 
 (defparameter *camfer-sans-roman* (make-hash-table))
 
-(defparameter *freefont-directory* "/usr/share/fonts/truetype/freefont/")
+(defparameter *freefont-directory*
+  (or (cl-fad:directory-exists-p #p"/usr/share/fonts/truetype/freefont/")
+      (cl-fad:directory-exists-p #p"/usr/local/share/fonts/freefont/")
+      (cl-fad:directory-exists-p #p"/usr/share/fonts/TTF/")))
 
 (defparameter *freefont-files*
   '(((:fixed :roman)            "FreeMono.ttf")
@@ -490,7 +493,9 @@
 (defparameter *freefont-fonts* (make-hash-table :test #'equal))
   
 (defparameter *ubuntufont-directory*
-  "/usr/share/fonts/truetype/ubuntu-font-family/")
+  (or (cl-fad:directory-exists-p #p"/usr/share/fonts/truetype/ubuntu-font-family/")
+      (cl-fad:directory-exists-p #p"/usr/local/share/fonts/ubuntu/")
+      (cl-fad:directory-exists-p #p"/usr/share/fonts/TTF/")))
 
 (defparameter *ubuntufont-files*
   '(((:fixed :roman)            "UbuntuMono-R.ttf")
@@ -530,9 +535,7 @@
 					    :test #'equal))))
 		  (when (null filename)
 		    (error "No font file found"))
-		  (let* ((pathname (concatenate 'string
-						*freefont-directory*
-						filename))
+		  (let* ((pathname (merge-pathnames filename *freefont-directory*))
 			 (font-loader (zpb-ttf:open-font-loader pathname))
 			 (instances (make-hash-table)))
 		    (setf (gethash family-face *freefont-fonts*)
@@ -558,9 +561,7 @@
 					    :test #'equal))))
 		  (when (null filename)
 		    (error "No font file found"))
-		  (let* ((pathname (concatenate 'string
-						*ubuntufont-directory*
-						filename))
+		  (let* ((pathname (merge-pathnames filename *ubuntufont-directory*))
 			 (font-loader (zpb-ttf:open-font-loader pathname))
 			 (instances (make-hash-table)))
 		    (setf (gethash family-face *ubuntufont-fonts*)
