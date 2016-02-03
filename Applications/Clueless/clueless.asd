@@ -2,6 +2,7 @@
 
 (defsystem :clueless
   :depends-on (:climatis)
+  :serial t
   :components
   ((:file "packages")
-   (:file "clueless" :depends-on ("packages"))))
+   (:file "clueless")))
