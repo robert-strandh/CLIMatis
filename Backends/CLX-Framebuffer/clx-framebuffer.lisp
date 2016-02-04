@@ -19,7 +19,7 @@
    ;; A vector of interpretations.  Each interpretation is a
    ;; short vector of keysyms
    (%keyboard-mapping :initform nil :accessor keyboard-mapping)
-   (%meter :initform (make-instance 'clim3-meter:meter) :reader meter)))
+   (%meter :initform (benchmark:make-timer) :reader meter)))
 
 (defmethod clim3-ext:call-with-zone ((port clx-framebuffer-port) thunk zone)
   (let ((zone-hpos (clim3:hpos zone))
