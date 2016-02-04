@@ -1,6 +1,6 @@
-(cl:in-package #:common-lisp-user)
+(cl:in-package #:asdf-user)
 
-(asdf:defsystem :clim3-meter
+(defsystem :clim3-meter
   :depends-on (:climatis-packages)
   :components
   ((:file "meter-packages" :depends-on ())
