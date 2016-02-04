@@ -2,6 +2,7 @@
 
 (defsystem :clim3-meter
   :depends-on (:climatis-packages)
+  :serial t
   :components
-  ((:file "meter-packages" :depends-on ())
-   (:file "meter" :depends-on ("meter-packages"))))
+  ((:file "meter-packages")
+   (:file "meter")))
