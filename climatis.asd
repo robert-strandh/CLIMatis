@@ -1,18 +1,5 @@
 (in-package #:asdf-user)
 
-(loop with cwd = (make-pathname
-                  :directory (pathname-directory (load-time-value (or #.*compile-file-pathname*
-                                                                      *load-pathname*))))
-      for subdir in '("Fonts/MF/" "Fonts/Camfer/" "Fonts/Icons/"
-		      "Fonts/TrueType/" "Trees/2-3/"
-		      "Backends/CLX-Framebuffer/"
-		      "Gadgets/" "Command/" "Application/"
-		      "Color/" "Zone/" "Layout/" "Graphics/" "Text/" "Drawing/"
-		      "Meter/" "Port/" "Input/" "Sprawl/" "Ostream/" "Paint/"
-		      "Gadgets/" "Gadgets/Default/")
-      do (pushnew (merge-pathnames subdir cwd) asdf:*central-registry* :test #'equal)
-      finally (pushnew cwd asdf:*central-registry* :test #'equal))
-
 (defsystem :climatis
   :depends-on (:climatis-packages
 	       :trivial-benchmark
