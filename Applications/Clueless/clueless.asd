@@ -1,7 +1,8 @@
-(cl:in-package #:common-lisp-user)
+(cl:in-package #:asdf-user)
 
-(asdf:defsystem :clueless
+(defsystem :clueless
   :depends-on (:climatis)
+  :serial t
   :components
   ((:file "packages")
-   (:file "clueless" :depends-on ("packages"))))
+   (:file "clueless")))
