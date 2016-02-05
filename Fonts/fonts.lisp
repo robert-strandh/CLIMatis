@@ -138,7 +138,17 @@
 (defmethod descent ((font clim3-truetype:font-instance))
   (clim3-truetype:descender font))
 
-(defun glyph-space (font char1 char2)
+(defgeneric find-glyph (font char))
+
+(defmethod find-glyph ((font camfer:font) char)
+  (camfer:find-glyph font char))
+
+(defmethod find-glyph ((font clim3-truetype:font-instance) char)
+  (clim3-truetype:find-glyph-instance font char))
+
+(defgeneric glyph-space (font char1 char2))
+
+(defmethod glyph-space ((font camfer:font) char1 char2)
   ;; Wing it for the space character for now.
   (if (or (eql char1 #\Space) (eql char2 #\Space))
       0
@@ -147,11 +157,42 @@
 			 (camfer:find-glyph font char1)
 			 (camfer:find-glyph font char2)))))
 
-(defun glyph-width (font char)
+(defmethod glyph-space ((font clim3-truetype:font-instance) char1 char2)
+  0)
+
+(defgeneric glyph-width (font char))
+
+(defmethod glyph-width ((font camfer:font) char)
   ;; Wing it for the space character for now.
   (if (eql char #\Space)
       10
       (array-dimension (camfer:mask (camfer:find-glyph font char)) 1)))
+
+(defmethod glyph-width ((font clim3-truetype:font-instance) char)
+  (clim3-truetype:advance-width (find-glyph font char)))
+
+(defgeneric glyph-x-offset (glyph))
+
+(defmethod glyph-x-offset ((glyph camfer:glyph)) 0)
+
+(defmethod glyph-x-offset ((glyph clim3-truetype:glyph-instance))
+  (clim3-truetype:x-offset glyph))
+
+(defgeneric glyph-y-offset (glyph))
+
+(defmethod glyph-y-offset ((glyph camfer:glyph))
+  (camfer:y-offset glyph))
+
+(defmethod glyph-y-offset ((glyph clim3-truetype:glyph-instance))
+  (clim3-truetype:y-offset glyph))
+
+(defgeneric glyph-mask (glyph))
+
+(defmethod glyph-mask ((glyph camfer:glyph))
+  (camfer:mask glyph))
+
+(defmethod glyph-mask ((glyph clim3-truetype:glyph-instance))
+  (clim3-truetype:mask glyph))
 
 (defgeneric text-width (font text))
 
@@ -221,5 +262,4 @@
                   collect k) 'string))
 
 (defmethod glyphs-string ((font clim3-truetype:font-instance))
-  (format t "~&~a~%" (clim3-truetype::glyph-instances font))
   "The quick fox jumps over the lazy dog")
