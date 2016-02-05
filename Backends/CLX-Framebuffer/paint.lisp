@@ -124,26 +124,23 @@
 (defun font-instance-paint-text (port text font color)
   (unless (zerop (length text))
     (let ((ascent (clim3-fonts:ascent font)))
-      (flet ((y-pos (char)
-               (+ ascent (clim3-fonts:glyph-y-offset (clim3-fonts:find-glyph font char))))
-             (mask (char)
-               (clim3-fonts:glyph-mask (clim3-fonts:find-glyph font char))))
+      (flet ((y-pos (glyph)
+               (+ ascent (clim3-fonts:glyph-y-offset glyph))))
         ;; paint the first character
-        (let ((c (char text 0)))
-          (clim3:with-position ((- (clim3-fonts:glyph-x-offset
-                                    (clim3-fonts:find-glyph font c)))
-                                (y-pos c))
-            (clim3-ext:paint-mask port (mask c) color)))
+        (let ((glyph (clim3-fonts:find-glyph font (char text 0))))
+          (clim3:with-position ((- (clim3-fonts:glyph-x-offset glyph))
+                                (y-pos glyph))
+            (clim3-ext:paint-mask port (clim3-fonts:glyph-mask glyph) color)))
         (loop with x = 0
               for i from 1 below (length text)
-              do (progn
+              do (let* ((curr (char text i))
+                        (prev (char text (1- i)))
+                        (glyph (clim3-fonts:find-glyph font curr)))
                    ;; compute the new x position
-                   (incf x (+ (clim3-fonts:glyph-width font (char text (1- i)))
-                              (clim3-fonts:glyph-space font
-                                                       (char text (1- i))
-                                                       (char text i))))
-                   (clim3:with-position (x (y-pos (char text i)))
-                     (clim3-ext:paint-mask port (mask (char text i)) color))))))))
+                   (incf x (+ (clim3-fonts:glyph-width font prev)
+                              (clim3-fonts:glyph-space font prev curr)))
+                   (clim3:with-position (x (y-pos glyph))
+                     (clim3-ext:paint-mask port (clim3-fonts:glyph-mask glyph) color))))))))
 
 (defmethod clim3-ext:paint-text
     ((port clx-framebuffer-port) text text-style color)
