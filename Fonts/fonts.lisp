@@ -1,16 +1,5 @@
 (in-package :clim3-fonts)
 
-(defgeneric glyphs-string (font))
-
-(defmethod glyphs-string ((font camfer:font))
-  (coerce (loop for k being the hash-keys in (camfer::glyphs font)
-                when (characterp k)
-                  collect k) 'string))
-
-(defmethod glyphs-string ((font clim3-truetype:font-instance))
-  "The quick fox jumps over the lazy dog")
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Mapping from text styles to font instances.
@@ -223,3 +212,14 @@
 	     (when (> w width)
 	       (return i))
 	  finally (return length))))
+
+(defgeneric glyphs-string (font))
+
+(defmethod glyphs-string ((font camfer:font))
+  (coerce (loop for k being the hash-keys in (camfer::glyphs font)
+                when (characterp k)
+                  collect k) 'string))
+
+(defmethod glyphs-string ((font clim3-truetype:font-instance))
+  (format t "~&~a~%" (clim3-truetype::glyph-instances font))
+  "The quick fox jumps over the lazy dog")
