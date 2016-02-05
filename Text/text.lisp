@@ -23,8 +23,8 @@
 
 (defmethod clim3-ext:compute-vsprawl ((zone text))
   (setf (clim3-ext:vsprawl zone)
-	(let ((height (+ (clim3:text-style-ascent
-			  (clim3-ext:client zone) (style zone))
+	(let ((height (+ 1 (clim3:text-style-ascent
+                            (clim3-ext:client zone) (style zone))
 			 (clim3:text-style-descent
 			  (clim3-ext:client zone) (style zone)))))
 	  (clim3-sprawl:sprawl height height height))))

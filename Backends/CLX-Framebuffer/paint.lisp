@@ -121,59 +121,31 @@
 ;;;
 ;;; Paint text
 
-(defgeneric font-instance-paint-text (port font-instance text color))
-
-(defmethod font-instance-paint-text
-    (port text (font-instance camfer:font) color)
-  (let ((ascent (font-instance-ascent font-instance)))
-    (unless (zerop (length text))
-      (flet ((y-pos (char)
-	       ;; I don't know why the -1 is necessary
-	       (+ -1 ascent (camfer:y-offset (camfer:find-glyph font-instance char))))
-	     (mask (char)
-	       (camfer:mask (camfer:find-glyph font-instance char))))
-	;; paint the first character
-	(unless (eql (char text 0) #\Space)
-	  (clim3:with-position (0 (y-pos (char text 0)))
-	    (clim3-ext:paint-mask port (mask (char text 0)) color)))
- 	(loop with pos-x = 0
- 	      for i from 1 below (length text)
- 	      for glyph = (camfer:find-glyph font-instance (char text i))
- 	      do (progn
- 		   ;; compute the new x position
- 		   (incf pos-x
- 			 (+ (glyph-width font-instance
-					 (char text (1- i)))
- 			    (glyph-space font-instance
-					 (char text (1- i))
-					 (char text i))))
-		   (unless (eql (char text i) #\Space)
-		     (clim3:with-position (pos-x (y-pos (char text i)))
-		       (clim3-ext:paint-mask port (mask (char text i)) color)))))))))
-
-(defmethod font-instance-paint-text
-    (port text (font-instance clim3-truetype:font-instance) color)
-  (let ((ascent (font-instance-ascent font-instance))
-	(glyphs (map 'list
-		     (lambda (char)
-		       (clim3-truetype:find-glyph-instance font-instance char))
-		     text)))
-    (unless (zerop (length text))
+(defun font-instance-paint-text (port text font color)
+  (unless (zerop (length text))
+    (let ((ascent (clim3-fonts:ascent font)))
       (flet ((y-pos (glyph)
-	       (+ ascent (clim3-truetype:y-offset glyph))))
-	(clim3:with-position
-	    ((- (clim3-truetype:x-offset (car glyphs))) 0)
-	  (loop for x = 0 then (+ x (clim3-truetype:advance-width glyph))
-		for glyph in glyphs
-		do (clim3:with-position ((+ x (clim3-truetype:x-offset glyph))
-					      (y-pos glyph))
-		     (clim3-ext:paint-mask
-		      port (clim3-truetype:mask glyph) color))))))))
+               (+ ascent (clim3-fonts:glyph-y-offset glyph))))
+        ;; paint the first character
+        (let ((glyph (clim3-fonts:find-glyph font (char text 0))))
+          (clim3:with-position ((- (clim3-fonts:glyph-x-offset glyph))
+                                (y-pos glyph))
+            (clim3-ext:paint-mask port (clim3-fonts:glyph-mask glyph) color)))
+        (loop with x = 0
+              for i from 1 below (length text)
+              do (let* ((curr (char text i))
+                        (prev (char text (1- i)))
+                        (glyph (clim3-fonts:find-glyph font curr)))
+                   ;; compute the new x position
+                   (incf x (+ (clim3-fonts:glyph-width font prev)
+                              (clim3-fonts:glyph-space font prev curr)))
+                   (clim3:with-position (x (y-pos glyph))
+                     (clim3-ext:paint-mask port (clim3-fonts:glyph-mask glyph) color))))))))
 
 (defmethod clim3-ext:paint-text
     ((port clx-framebuffer-port) text text-style color)
   (font-instance-paint-text
-   port text (text-style-to-font-instance text-style) color))
+   port text (clim3-fonts:text-style-to-font text-style) color))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

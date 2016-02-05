@@ -3758,7 +3758,6 @@
 				:left-shape #\l :right-shape #\l
 				:mask mask)))
     ;; Make a default glyph
-    ;; Make a glyph for the space character
     (let ((mask (make-array (list 1 (width font))
 			    :element-type 'double-float
 			    :initial-element 05.d0)))
@@ -3877,5 +3876,3 @@
 	       (incf x (- advance kerning))
 	       (unless (null this-glyph)
 		 (show-glyph this-glyph x y))))))
-
-	     

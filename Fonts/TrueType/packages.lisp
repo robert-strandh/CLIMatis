@@ -4,6 +4,7 @@
    #:ascender
    #:descender
    #:font-instance
+   #:glyph-instance
    #:instantiate-font
    #:find-glyph-instance
    #:x-offset
