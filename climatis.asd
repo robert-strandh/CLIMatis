@@ -3,9 +3,7 @@
 (loop with cwd = (make-pathname
                   :directory (pathname-directory (load-time-value (or #.*compile-file-pathname*
                                                                       *load-pathname*))))
-      for subdir in '("Fonts/MF/" "Fonts/Camfer/" "Fonts/Icons/"
-		      "Fonts/TrueType/" "Trees/2-3/"
-		      "Backends/CLX-Framebuffer/"
+      for subdir in '("Fonts/" "Trees/2-3/" "Backends/CLX-Framebuffer/"
 		      "Gadgets/" "Command/" "Application/"
 		      "Color/" "Zone/" "Layout/" "Graphics/" "Text/" "Drawing/"
 		      "Meter/" "Port/" "Input/" "Sprawl/" "Ostream/" "Paint/"
@@ -16,7 +14,7 @@
 (defsystem :climatis
   :depends-on (:climatis-packages
 	       :2-3-tree
-	       :camfer :clim3-icons :clim3-sprawl :clim3-zone :clim3-layout
+	       :clim3-fonts :clim3-sprawl :clim3-zone :clim3-layout
 	       :clim3-color :clim3-clx-framebuffer :clim3-port
 	       :clim3-graphics :clim3-text-style :clim3-text
 	       :clim3-gadgets :clim3-command

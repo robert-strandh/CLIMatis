@@ -3877,5 +3877,3 @@
 	       (incf x (- advance kerning))
 	       (unless (null this-glyph)
 		 (show-glyph this-glyph x y))))))
-
-	     

@@ -125,7 +125,7 @@
 
 (defmethod font-instance-paint-text
     (port text (font-instance camfer:font) color)
-  (let ((ascent (font-instance-ascent font-instance)))
+  (let ((ascent (clim3-fonts:ascent font-instance)))
     (unless (zerop (length text))
       (flet ((y-pos (char)
 	       ;; I don't know why the -1 is necessary
@@ -142,18 +142,18 @@
  	      do (progn
  		   ;; compute the new x position
  		   (incf pos-x
- 			 (+ (glyph-width font-instance
-					 (char text (1- i)))
- 			    (glyph-space font-instance
-					 (char text (1- i))
-					 (char text i))))
+                         (+ (clim3-fonts:glyph-width font-instance
+                                                     (char text (1- i)))
+                            (clim3-fonts:glyph-space font-instance
+                                                     (char text (1- i))
+                                                     (char text i))))
 		   (unless (eql (char text i) #\Space)
 		     (clim3:with-position (pos-x (y-pos (char text i)))
 		       (clim3-ext:paint-mask port (mask (char text i)) color)))))))))
 
 (defmethod font-instance-paint-text
     (port text (font-instance clim3-truetype:font-instance) color)
-  (let ((ascent (font-instance-ascent font-instance))
+  (let ((ascent (clim3-fonts:ascent font-instance))
 	(glyphs (map 'list
 		     (lambda (char)
 		       (clim3-truetype:find-glyph-instance font-instance char))
@@ -173,7 +173,7 @@
 (defmethod clim3-ext:paint-text
     ((port clx-framebuffer-port) text text-style color)
   (font-instance-paint-text
-   port text (text-style-to-font-instance text-style) color))
+   port text (clim3-fonts:text-style-to-font text-style) color))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
