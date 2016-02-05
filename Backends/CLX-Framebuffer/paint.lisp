@@ -128,8 +128,7 @@
   (let ((ascent (clim3-fonts:ascent font-instance)))
     (unless (zerop (length text))
       (flet ((y-pos (char)
-	       ;; I don't know why the -1 is necessary
-	       (+ -1 ascent (camfer:y-offset (camfer:find-glyph font-instance char))))
+	       (+ ascent (camfer:y-offset (camfer:find-glyph font-instance char))))
 	     (mask (char)
 	       (camfer:mask (camfer:find-glyph font-instance char))))
 	;; paint the first character
