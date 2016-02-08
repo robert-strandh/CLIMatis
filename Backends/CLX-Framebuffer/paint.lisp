@@ -128,8 +128,7 @@
                (+ ascent (clim3-fonts:glyph-y-offset glyph))))
         ;; paint the first character
         (let ((glyph (clim3-fonts:find-glyph font (char text 0))))
-          (clim3:with-position ((- (clim3-fonts:glyph-x-offset glyph))
-                                (y-pos glyph))
+          (clim3:with-position (0 (y-pos glyph))
             (clim3-ext:paint-mask port (clim3-fonts:glyph-mask glyph) color)))
         (loop with x = 0
               for i from 1 below (length text)
