@@ -158,7 +158,7 @@
 			 (camfer:find-glyph font char2)))))
 
 (defmethod glyph-space ((font clim3-truetype:font-instance) char1 char2)
-  0)
+  (clim3-truetype:kerning font char1 char2))
 
 (defgeneric glyph-width (font char))
 

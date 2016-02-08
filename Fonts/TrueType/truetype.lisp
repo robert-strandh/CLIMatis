@@ -172,6 +172,7 @@
    (%size :initarg :size :reader size)
    (%ascender :initarg :ascender :reader ascender)
    (%descender :initarg :descender :reader descender)
+   (%factor :initarg :factor :reader factor)
    ;; A hash table in which the keys are the glyphs of the
    ;; TrueType font, and the values are the glyph instances
    (%glyph-instances :initform (make-hash-table :test #'eq)
@@ -184,6 +185,7 @@
     (make-instance 'font-instance
        :font-loader font-loader
        :size size
+       :factor factor
        :ascender (floor (* (- (zpb-ttf:ascender font-loader)) factor))
        :descender (ceiling (* (- (zpb-ttf:descender font-loader)) factor)))))
 
@@ -196,3 +198,9 @@
 				 glyph
 				 (size font-instance)
 				 *screen-resolution*)))))
+
+(defun kerning (font left-char right-char)
+  (let* ((font-loader (font-loader font))
+         (left-glyph (zpb-ttf:find-glyph left-char font-loader))
+         (right-glyph (zpb-ttf:find-glyph right-char font-loader)))
+    (round (* (factor font) (zpb-ttf:kerning-offset left-glyph right-glyph font-loader)))))
