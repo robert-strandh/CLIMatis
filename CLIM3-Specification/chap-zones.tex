@@ -1,13 +1,12 @@
 \chapter{Zones}
 
 At the lowest level of abstraction, \clim{} uses a \emph{canvas} which
-is an axis-aligned rectangular area of opaque \emph{pixels} supplied by
-the underlying windowing system.  Drawing on this canvas means taking
-some arbitrary subset of pixels on it, and modifying their color
-values in some way.  The result thus depends not only on what was
-drawn, but also what was there before.  The \emph{order} in which
-drawings are made is thus important.  The canvas uses integer
-coordinates.
+is an axis-aligned rectangular area of opaque \emph{pixels} supplied
+by some display server.  Drawing on this canvas means taking some
+arbitrary subset of pixels on it, and modifying their color values in
+some way.  The result thus depends not only on what was drawn, but
+also what was there before.  The \emph{order} in which drawings are
+made is thus important.  The canvas uses integer coordinates.
 
 Applications do not draw directly to the canvas, and in fact \clim{}
 does not have any representation of the canvas.  Instead,
@@ -25,8 +24,9 @@ incorrect.
 When a hierarchy is attached to a \emph{port} (representing a display
 server), the \emph{backend} takes this hierarchy of zones and
 \emph{realizes} each zone in the hierarchy in some device-specific
-way.  Some backends may choose to create a window for each zone, and
-some others may chose to create a single window for the top zone. 
+way.  Some backends (such as X11) which allow for windows to be
+nested, may choose to create a window for each zone.  Other backends
+may chose to create a single window for the top zone.
 
 Zones are either \emph{atomic} or \emph{compound}.  An atomic zone
 represents an elementary graphics object such as a line, a rectangle,
