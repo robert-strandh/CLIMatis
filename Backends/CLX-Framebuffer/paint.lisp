@@ -156,7 +156,7 @@
   (multiple-value-bind (opacities min-x min-y)
       (clim3-rendering:render-trapezoids trapezoids)
     (clim3:with-position (min-x min-y)
-      (clim3:paint-mask opacities color))))
+      (clim3-ext:paint-mask port opacities color))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
