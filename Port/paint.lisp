@@ -29,3 +29,6 @@
 
 (defun clim3:paint-trapezoids (trapezoids color)
   (clim3-ext:paint-trapezoids clim3:*port* trapezoids color))
+
+(defun clim3:paint-polygons (polygons color)
+  (clim3-ext:paint-trapezoids clim3:*port* (clim3-rendering:trapezoids-from-polygons polygons) color))

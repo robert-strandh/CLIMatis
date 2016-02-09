@@ -4,5 +4,5 @@
   (:use #:common-lisp)
   (:export
    #:render-trapezoids
-   #:render-polygons
+   #:trapezoids-from-polygons
    ))
