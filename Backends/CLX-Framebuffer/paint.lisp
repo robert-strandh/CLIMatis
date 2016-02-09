@@ -156,3 +156,14 @@
       (clim3-rendering:render-trapezoids trapezoids)
     (clim3:with-position (min-x min-y)
       (clim3:paint-mask opacities color))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Paint path.
+
+(defmethod clim3-ext:paint-path
+    ((port clx-framebuffer-port) path color)
+  (multiple-value-bind (opacities min-x min-y)
+      (clim3-rendering:render-path path)
+    (clim3:with-position (min-x min-y)
+      (clim3-ext:paint-mask port opacities color))))

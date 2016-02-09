@@ -63,6 +63,7 @@
    #:paint-translucent
    #:paint-trapezoids
    #:paint-polygons
+   #:paint-path
    #:*port*
    #:standard-key-decoder
    #:standard-button-decoder
@@ -174,6 +175,7 @@
    #:paint-opaque
    #:paint-translucent
    #:paint-trapezoids
+   #:paint-path
    #:repaint
    #:standard-key-decoder
    #:standard-button-decoder
