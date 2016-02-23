@@ -12,7 +12,7 @@
 
 (defgeneric clim3-ext:paint-trapezoids (port trapezoids color))
 
-(defgeneric clim3-ext:paint-path (port path color))
+(defgeneric clim3-ext:paint-path (port path color stroke-width))
 
 (defun clim3:paint-pixel (r g b alpha)
   (clim3-ext:paint-pixel clim3:*port* r g b alpha))
@@ -35,5 +35,5 @@
 (defun clim3:paint-polygons (polygons color)
   (clim3-ext:paint-trapezoids clim3:*port* (clim3-rendering:trapezoids-from-polygons polygons) color))
 
-(defun clim3:paint-path (path color)
-  (clim3-ext:paint-path clim3:*port* path color))
+(defun clim3:paint-path (path color stroke-width)
+  (clim3-ext:paint-path clim3:*port* path color stroke-width))

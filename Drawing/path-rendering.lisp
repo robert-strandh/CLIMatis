@@ -1,6 +1,52 @@
 (cl:in-package #:clim3-rendering)
 
-(defun render-path (path)
-  (values (make-array (list 1 1)
-                      :element-type 'double-float
-                      :initial-element 0d0) 0 0))
+(defun 2point (cons)
+  "Converts a (x . y) cons to a paths:point coercing to float."
+  (paths:make-point (coerce (car cons) 'float)
+                    (coerce (cdr cons) 'float)))
+
+(defun mask-of-paths (paths)
+  (let ((x-min most-positive-fixnum)
+	(y-min most-positive-fixnum)
+	(x-max most-negative-fixnum)
+	(y-max most-negative-fixnum))
+    (flet ((convert-path-to-knots (path)
+             (let* ((dpath (paths:make-discrete-path path))
+                    (iterator (paths:path-iterator dpath)))
+               (paths:path-iterator-reset iterator)
+               (loop with end = nil
+                     collect (multiple-value-bind (interpolation knot end-p)
+                                 (paths:path-iterator-next iterator)
+                               (declare (ignore interpolation))
+                               (setf end end-p)
+                               knot)
+                     until end)))
+           (determine-min-max (x y alpha)
+             (declare (ignore alpha))
+             (setf x-min (min x-min x)
+                   y-min (min y-min y)
+                   x-max (max x-max x)
+                   y-max (max y-max y))))
+      (let ((state (aa:make-state))
+            (knot-paths (mapcar #'convert-path-to-knots paths)))
+        (loop for path in knot-paths
+              do (loop for (p1 p2) on path
+                       until (null p2)
+                       do (aa:line-f state
+                                     (paths:point-x p1) (paths:point-y p1)
+                                     (paths:point-x p2) (paths:point-y p2))))
+        (aa:cells-sweep state #'determine-min-max)
+        (let* ((height (1+ (- y-max y-min)))
+               (width (1+ (- x-max x-min)))
+               (mask (make-array (list height width)
+                                 :element-type 'double-float
+                                 :initial-element 0d0)))
+          (aa:cells-sweep state #'(lambda (x y alpha)
+                                    (setf alpha (min 256 (max 0 alpha)))
+                                    (setf (aref mask (- y-max y) (- x x-min))
+                                          (/ alpha 256d0))))
+          (values mask x-min y-min))))))
+
+(defun render-path (path stroke-width)
+  (let ((paths (paths:stroke-path (paths:make-simple-path (mapcar #'2point path)) stroke-width)))
+    (mask-of-paths paths)))
