@@ -162,8 +162,8 @@
 ;;; Paint path.
 
 (defmethod clim3-ext:paint-path
-    ((port clx-framebuffer-port) path color)
+    ((port clx-framebuffer-port) path color stroke-width)
   (multiple-value-bind (opacities min-x min-y)
-      (clim3-rendering:render-path path)
+      (clim3-rendering:render-path path stroke-width)
     (clim3:with-position (min-x min-y)
       (clim3-ext:paint-mask port opacities color))))

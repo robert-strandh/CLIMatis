@@ -1,6 +1,7 @@
 (cl:in-package #:common-lisp-user)
 
 (asdf:defsystem :clim3-rendering
+  :depends-on (:cl-vectors)
   :serial t
   :components
   ((:file "packages")
