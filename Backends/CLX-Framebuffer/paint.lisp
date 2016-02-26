@@ -163,7 +163,6 @@
 
 (defmethod clim3-ext:paint-path
     ((port clx-framebuffer-port) path color stroke-width)
-  (multiple-value-bind (opacities min-x min-y)
-      (clim3-rendering:render-path path stroke-width)
-    (clim3:with-position (min-x min-y)
-      (clim3-ext:paint-mask port opacities color))))
+  (let ((width (- *hend* (max *hstart* *hpos*)))
+        (height (- *vend* (max *vstart* *vpos*))))
+    (clim3-ext:paint-mask port (clim3-rendering:render-path path width height stroke-width) color)))
