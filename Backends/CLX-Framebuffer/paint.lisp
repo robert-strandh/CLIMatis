@@ -161,8 +161,8 @@
 ;;;
 ;;; Paint path.
 
-(defmethod clim3-ext:paint-path
-    ((port clx-framebuffer-port) path color stroke-width)
+(defmethod clim3-ext:paint-paths
+    ((port clx-framebuffer-port) paths color stroke-width)
   (let ((width (- *hend* (max *hstart* *hpos*)))
         (height (- *vend* (max *vstart* *vpos*))))
-    (clim3-ext:paint-mask port (clim3-rendering:render-path path width height stroke-width) color)))
+    (clim3-ext:paint-mask port (clim3-rendering:render-path paths width height stroke-width) color)))
