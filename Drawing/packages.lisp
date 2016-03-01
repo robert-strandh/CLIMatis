@@ -5,5 +5,5 @@
   (:export
    #:render-trapezoids
    #:render-polygons
-   #:trapezoids-from-polygons
-   #:render-path))
+   #:render-paths
+   #:trapezoids-from-polygons))
