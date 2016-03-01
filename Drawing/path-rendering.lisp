@@ -36,6 +36,10 @@
                                     (setf (aref mask y x) (/ alpha 256d0)))))
         mask))))
 
-(defun render-path (path width height stroke-width)
-  (let ((paths (paths:stroke-path (paths:make-simple-path (mapcar #'2point path)) stroke-width)))
-    (mask-of-paths width height paths)))
+(defun render-path (paths width height stroke-width)
+  (let ((stroke-paths (list)))
+    (dolist (path paths)
+      (setf stroke-paths (append stroke-paths
+                                 (paths:stroke-path
+                                  (paths:make-simple-path (mapcar #'2point path)) stroke-width))))
+    (mask-of-paths width height stroke-paths)))
