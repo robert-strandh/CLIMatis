@@ -164,7 +164,9 @@
 	      (slot-value slot 'sb-pcl::name))
 	     (clim3:hbrick 20)
 	     (make-inspectable-object-zone
-	      (slot-value object (slot-value slot 'sb-pcl::name)))
+	      (if (slot-boundp object (slot-value slot 'sb-pcl::name))
+		  (slot-value object (slot-value slot 'sb-pcl::name))
+		  "Unbound slot"))
 	     (clim3:sponge)))))))
 
 ;;; This is a simple application so this class plays the role
