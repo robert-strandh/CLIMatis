@@ -149,16 +149,13 @@
 (defgeneric glyph-space (font char1 char2))
 
 (defmethod glyph-space ((font camfer:font) char1 char2)
-  ;; Wing it for the space character for now.
-  (if (or (eql char1 #\Space) (eql char2 #\Space))
-      0
-      (- (* 2 (camfer::stroke-width font))
-	 (camfer:kerning font
-			 (camfer:find-glyph font char1)
-			 (camfer:find-glyph font char2)))))
+  (- (* 2 (camfer::stroke-width font))
+     (camfer:kerning font
+                     (camfer:find-glyph font char1)
+                     (camfer:find-glyph font char2))))
 
 (defmethod glyph-space ((font clim3-truetype:font-instance) char1 char2)
-  0)
+  (clim3-truetype:kerning font char1 char2))
 
 (defgeneric glyph-width (font char))
 

@@ -1,11 +1,11 @@
 (cl:in-package #:common-lisp-user)
 
 (asdf:defsystem :clim3-rendering
+  :depends-on (:cl-vectors)
+  :serial t
   :components
-  ((:file "packages" :depends-on ())
-   (:file "trapezoids-from-polygons" :depends-on ("packages"))
-   (:file "trapezoid-rendering" :depends-on ("packages"))
-   (:file "polygon-rendering"
-    :depends-on ("trapezoids-from-polygons" "trapezoid-rendering"))))
-
-
+  ((:file "packages")
+   (:file "trapezoids-from-polygons")
+   (:file "trapezoid-rendering")
+   (:file "polygon-rendering")
+   (:file "path-rendering")))
