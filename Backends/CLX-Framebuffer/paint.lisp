@@ -155,4 +155,15 @@
   (multiple-value-bind (opacities min-x min-y)
       (clim3-rendering:render-trapezoids trapezoids)
     (clim3:with-position (min-x min-y)
-      (clim3:paint-mask opacities color))))
+      (clim3-ext:paint-mask port opacities color))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Paint path.
+
+(defmethod clim3-ext:paint-paths
+    ((port clx-framebuffer-port) paths color stroke-width)
+  (clim3-rendering:render-paths paths *pixel-array*
+                                *hpos* *vpos*
+                                *hend* *vend*
+                                stroke-width color))
