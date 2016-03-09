@@ -3848,9 +3848,9 @@
   (or (gethash char (glyphs font))
       (gethash 'default (glyphs font))))
 
-(defun kerning (font left-char right-char)
-  (or (gethash (cons (right-shape left-char)
-		     (left-shape right-char))
+(defun kerning (font left-glyph right-glyph)
+  (or (gethash (cons (right-shape left-glyph)
+		     (left-shape right-glyph))
 	       (kerning-info font))
       0))
 
