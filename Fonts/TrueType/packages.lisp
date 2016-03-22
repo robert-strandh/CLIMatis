@@ -9,6 +9,7 @@
    #:find-glyph-instance
    #:x-offset
    #:y-offset
+   #:kerning
    #:advance-width
    #:mask
    ))

@@ -3,4 +3,7 @@
 *.toc
 *.bbl
 *.blg
+*.idx
+*.ilg
+*.ind
 clim3.pdf
