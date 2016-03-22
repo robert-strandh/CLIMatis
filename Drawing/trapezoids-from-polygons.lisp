@@ -85,11 +85,11 @@
 	       (setf rest (cdr rest)))
 	finally (return rest)))
 	     
-;; When there are three or more consecutive points with the same
-;; y-value, only keep the first and the last.  This cleanup is crucial
-;; to apply before further processing, because we rely on the fact
-;; that any horizontal line segment is preceded and followed by line
-;; segments that are not horizontal.
+;;; When there are three or more consecutive points with the same
+;;; y-value, only keep the first and the last.  This cleanup is
+;;; crucial to apply before further processing, because we rely on the
+;;; fact that any horizontal line segment is preceded and followed by
+;;; line segments that are not horizontal.
 (defun merge-consecutive-horizontal-lines (points)	       
   (loop with rest = points
 	repeat (element-count points)
