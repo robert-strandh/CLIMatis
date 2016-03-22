@@ -9,7 +9,7 @@
 ;;; entirely contained in another polygon, and two polygons can touch,
 ;;; but their permiters can not cross.
 ;;;
-;;; Initially, each polygon is represented as a list points
+;;; Initially, each polygon is represented as a list of points
 ;;; represented as CONS cells of the form (x . y) where x and y are
 ;;; the coordinates of the point in the form of real numbers.  The
 ;;; order of the points in the list is the order of the points around
