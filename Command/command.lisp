@@ -1,5 +1,9 @@
 (in-package #:clim3-command)
 
+(defclass command (standard-generic-function)
+  ((%types :initarg :types :reader types))
+  (:metaclass #.(class-name (class-of (find-class 'standard-generic-function)))))
+
 (defparameter *required-types* nil)
 
 (defmacro clim3:define-command (name params &body body)
