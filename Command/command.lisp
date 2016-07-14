@@ -4,6 +4,17 @@
   ((%types :initarg :types :reader types))
   (:metaclass #.(class-name (class-of (find-class 'standard-generic-function)))))
 
+(defun split-lambda-list (lambda-list)
+  (let* ((position-or-nil (position-if (lambda (item)
+					 (member item lambda-list-keywords
+						 :test #'eq))
+				       lambda-list))
+	 (position (if (null position-or-nil)
+		       (length lambda-list)
+		       position-or-nil)))
+    (values (subseq lambda-list 0 position)
+	    (subseq lambda-list position))))
+
 (defparameter *required-types* nil)
 
 (defmacro clim3:define-command (name params &body body)
