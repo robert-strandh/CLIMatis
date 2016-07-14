@@ -77,6 +77,10 @@
 
 (defgeneric clim3:command-loop-iteration (application view))
 
+(defun required-types (command)
+  (let ((*required-types* t))
+    (funcall command)))
+
 (defmethod clim3:command-loop-iteration (application view)
   (declare (ignore application))
   (let* ((action (clim3:acquire-action view))
@@ -84,9 +88,7 @@
 	   (if (symbolp action) action (car action)))
 	 (initial-arguments 
 	   (if (symbolp action) '() (cdr action)))
-	 (required-types
-	   (let ((*required-types* t))
-	     (funcall command-name)))
+	 (required-types (required-types command-name))
 	 (arguments
 	   (acquire-arguments required-types initial-arguments)))
     (apply command-name arguments)))
