@@ -83,9 +83,8 @@
 
 (defgeneric clim3:command-loop-iteration (application view))
 
-(defun required-types (command)
-  (let ((*required-types* t))
-    (funcall command)))
+(defun required-types (command-name)
+  (types (fdefinition command-name)))
 
 (defmethod clim3:command-loop-iteration (application view)
   (declare (ignore application))
