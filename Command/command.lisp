@@ -15,6 +15,22 @@
     (values (subseq lambda-list 0 position)
 	    (subseq lambda-list position))))
 
+(defun extract-lambda-lists (lambda-list)
+  (multiple-value-bind (required remaining)
+      (split-lambda-list lambda-list)
+    (let ((ordinary-required
+	    (loop for req in required
+		  collect (if (symbolp req) req (first req))))
+	  (gf-remaining
+	    (loop for element in remaining
+		  collect (cond ((symbolp element) element)
+				((symbolp (first element)) (first element))
+				(t (second (first element)))))))
+      (values (loop for req in required
+		    collect (if (symbolp req) t (second req)))
+	      (append ordinary-required gf-remaining)
+	      (append ordinary-required remaining)))))
+
 (defparameter *required-types* nil)
 
 (defmacro clim3:define-command (name params &body body)
