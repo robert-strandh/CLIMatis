@@ -33,24 +33,14 @@
 
 (defparameter *required-types* nil)
 
-(defmacro clim3:define-command (name params &body body)
-  (multiple-value-bind (required rest)
-      (split-lambda-list params)
-    (let ((params-sym (gensym))
-	  (required-types (loop for param in required
-				collect (if (symbolp param)
-					    t
-					    (cadr param))))
-	  (required-names (loop for param in required
-				collect (if (symbolp param)
-					    param
-					    (car param)))))
-      `(defun ,name (&rest ,params-sym)
-	 (flet ((aux ,(append required-names rest)
-		  ,@body))
-	   (if *required-types*
-	       ',required-types
-	       (apply #'aux ,params-sym)))))))
+(defmacro clim3:define-command (name lambda-list &body body)
+  (multiple-value-bind (types gf-lambda-list method-lambda-list)
+      (extract-lambda-lists lambda-list)
+    `(progn (defgeneric ,name ,gf-lambda-list
+	      (:method ,method-lambda-list ,@body)
+	      (:generic-function-class command))
+	    (reinitialize-instance #',name
+				   :types ',types))))
 
 (defgeneric clim3:command-table (view))
 
@@ -109,7 +99,6 @@
 	   (acquire-arguments required-types initial-arguments)))
     (apply command-name arguments)))
   
-
 (defun clim3:command-loop ()
   (let ((clim3-ext:*input-context* 'nil))
     (loop do (let ((view (clim3:current-view clim3:*application*)))
